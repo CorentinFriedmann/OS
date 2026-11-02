@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+"""Bureaux et fenêtre active pour la barre de Nova (modules « custom » de Waybar).
+
+  nova-hypr-status workspaces   →  pastilles des bureaux, l'actif en cyan
+  nova-hypr-status window       →  titre de la fenêtre active
+
+Remplace les modules hyprland/* de Waybar, qui restent bloqués au démarrage avec
+la configuration Lua de Hyprland 0.57 (la barre ne s'affichait pas). Interroge
+hyprctl, puis écoute les événements de Hyprland (socket2) et écrit une ligne JSON
+à chaque changement. Ne dépend que de Python.
+"""
+from __future__ import annotations
+
+import html
+import json
+import os
+import socket
+import subprocess
+import sys
+import time
+
+PERSISTENT = 5  # bureaux toujours affichés
+ICONS = {"active": "", "used": "", "empty": ""}  # ● ◉ ○ (Nerd Font)
+COLORS = {"active": "#00f0ff", "used": "#e6f1ff", "empty": "#4a5378", "urgent": "#ff2bd6"}
+EVENTS = {
+    "workspaces": {"workspace", "workspacev2", "createworkspace", "createworkspacev2", "destroyworkspace",
+                   "destroyworkspacev2", "focusedmon", "focusedmonv2", "moveworkspace", "moveworkspacev2",
+                   "openwindow", "closewindow", "movewindow", "movewindowv2", "urgent"},
+    "window": {"activewindow", "activewindowv2", "windowtitle", "windowtitlev2", "closewindow",
+               "workspace", "workspacev2"},
+}
+
+
+def hyprctl(what: str):
+    try:
+        out = subprocess.run(["hyprctl", "-j", what], capture_output=True, text=True, timeout=3).stdout
+        return json.loads(out) if out.strip() else None
+    except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError):
+        return None
+
+
+def workspaces_state(urgent: set[int] | None = None) -> dict:
+    listing = hyprctl("workspaces")
+    active = (hyprctl("activeworkspace") or {}).get("id")
+    windows = {w["id"]: w.get("windows", 0) for w in listing or [] if isinstance(w.get("id"), int) and w["id"] > 0}
+    last = max([PERSISTENT, *windows, active if isinstance(active, int) else 0])
+    dots = []
+    for number in range(1, last + 1):
+        kind = "active" if number == active else ("used" if windows.get(number) else "empty")
+        color = COLORS["urgent"] if urgent and number in urgent and number != active else COLORS[kind]
+        dots.append(f"<span color='{color}'>{ICONS[kind]}</span>")
+    tooltip = f"Bureau {active}" if isinstance(active, int) else "Bureaux"
+    tooltip += "\nSuper+1…0 : changer de bureau · molette : bureau suivant / précédent"
+    return {"text": "  ".join(dots), "tooltip": tooltip, "class": "workspaces"}
+
+
+def window_state() -> dict:
+    window = hyprctl("activewindow") or {}
+    title = (window.get("title") or "").strip()
+    app = (window.get("class") or "").strip()
+    # Waybar lit du balisage Pango : les titres (« <Nova> & co ») sont échappés
+    shown = html.escape(title, quote=False)
+    if len(shown) > 60:
+        shown = html.escape(title[:57], quote=False) + "…"
+    return {"text": shown or "Nova OS", "tooltip": html.escape(f"{title}\n{app}".strip(), quote=False) or "Nova OS",
+            "class": "window" if title else "empty"}
+
+
+def urgent_workspace(address: str) -> set[int]:
+    """Bureau de la fenêtre qui demande l'attention (événement « urgent>>ADRESSE »)."""
+    wanted = address.strip().removeprefix("0x")
+    return {client["workspace"]["id"] for client in hyprctl("clients") or []
+            if str(client.get("address", "")).removeprefix("0x") == wanted
+            and isinstance(client.get("workspace", {}).get("id"), int)}
+
+
+def socket2_path() -> str | None:
+    signature = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
+    if not signature:
+        return None
+    runtime = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
+    return os.path.join(runtime, "hypr", signature, ".socket2.sock")
+
+
+def run(mode: str) -> None:
+    urgent: set[int] = set()
+
+    def build() -> dict:
+        return workspaces_state(urgent) if mode == "workspaces" else window_state()
+
+    last = ""
+
+    def emit() -> None:
+        nonlocal last
+        line = json.dumps(build(), ensure_ascii=False)
+        if line != last:
+            print(line, flush=True)
+            last = line
+
+    emit()
+    while True:
+        path = socket2_path()
+        if path and os.path.exists(path):
+            try:
+                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as events:
+                    events.connect(path)
+                    buffer = b""
+                    while chunk := events.recv(4096):
+                        buffer += chunk
+                        *lines, buffer = buffer.split(b"\n")
+                        names = set()
+                        for line in lines:
+                            name, _, data = line.decode("utf-8", "replace").partition(">>")
+                            names.add(name)
+                            if name == "urgent" and mode == "workspaces":
+                                urgent.update(urgent_workspace(data))
+                        if names & {"workspace", "workspacev2"}:
+                            urgent.discard((hyprctl("activeworkspace") or {}).get("id"))
+                        if names & EVENTS[mode]:
+                            emit()
+            except OSError:
+                pass
+        time.sleep(2)  # Hyprland redémarre, ou pas encore prêt : on réessaie
+        emit()
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 2 or argv[1] not in EVENTS:
+        print(__doc__, file=sys.stderr)
+        return 2
+    try:
+        run(argv[1])
+    except (KeyboardInterrupt, BrokenPipeError):
+        pass
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -12,7 +12,7 @@
   "spacing": 6,
   "reload_style_on_change": true,
 
-  "modules-left": ["image#nova", "hyprland/workspaces", "hyprland/window"],
+  "modules-left": ["image#nova", "custom/workspaces", "custom/window"],
   "modules-center": ["clock"],
   "modules-right": [
     "mpris",
@@ -38,24 +38,18 @@
     "tooltip": false
   },
 
-  "hyprland/workspaces": {
-    "format": "{icon}",
-    "on-click": "activate",
-    "sort-by-number": true,
-    "persistent-workspaces": { "*": 5 },
-    "format-icons": {
-      "active": "",
-      "urgent": "",
-      "default": "",
-      "empty": ""
-    }
+  // Bureaux et fenêtre active : modules Nova (les modules hyprland/* de Waybar
+  // restent bloqués au démarrage avec la configuration Lua de Hyprland 0.57)
+  "custom/workspaces": {
+    "exec": "nova-hypr-status workspaces",
+    "return-type": "json",
+    "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
+    "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
   },
 
-  "hyprland/window": {
-    "format": "{title}",
-    "max-length": 42,
-    "separate-outputs": true,
-    "empty-format": "Nova OS"
+  "custom/window": {
+    "exec": "nova-hypr-status window",
+    "return-type": "json"
   },
 
   "clock": {

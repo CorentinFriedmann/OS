@@ -52,7 +52,7 @@ tooltip label { color: @nova-fg; padding: 4px; }
 /* Chaque module ------------------------------------------------------ */
 #clock, #mpris, #custom-nova-ai, #custom-nova-mode, #cpu, #memory, #temperature,
 #wireplumber, #backlight, #network, #bluetooth, #battery, #tray,
-#custom-notifications, #custom-power, #window {
+#custom-notifications, #custom-power, #window, #custom-window {
   padding: 0 9px;
   margin: 3px 0;
   border-radius: 10px;
@@ -95,7 +95,8 @@ tooltip label { color: @nova-fg; padding: 4px; }
   text-shadow: 0 0 8px @nova-magenta;
 }
 
-#window { color: @nova-dim; font-weight: 400; }
+#window, #custom-window { color: @nova-dim; font-weight: 400; }
+#custom-workspaces { padding: 0 10px; margin: 3px 4px; font-size: 13px; }
 
 /* Horloge centrale, typo futuriste ------------------------------------ */
 #clock {

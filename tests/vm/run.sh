@@ -295,7 +295,7 @@ if [[ "$RESULT" == INSTALL_OK ]]; then
   check "écran de connexion SDDM lancé" 'grep -q "Started.*Simple Desktop Display Manager" "$JOURNAL"'
   soft "connexion de « testeur » acceptée" 'grep -q "session opened for user testeur" "$JOURNAL"'
   soft "session Hyprland lancée" 'grep -q "Connected to a wayland compositor: Hyprland" "$JOURNAL"'
-  soft "barre du haut (Waybar) lancée" 'grep -q "nova-bar.*Bar configured" "$JOURNAL"'
+  check "barre du haut (Waybar) affichée" 'grep -q "nova-bar.*Bar configured" "$JOURNAL"'
   soft "centre de notifications lancé une seule fois" '! grep -q "already running" "$JOURNAL"'
   soft "aucun plantage (core dump)" '! grep -q "dumped core" "$JOURNAL"'
   soft "aucun service en échec" '! grep -qE "Failed to start|Failed with result" "$JOURNAL"'

@@ -12,13 +12,23 @@ if systemd-cat -t nova-bar true 2>/dev/null; then
 else
   journal() { "$@"; }
 fi
+# La session graphique qui a lancé la barre est-elle toujours là ? (pas de relance
+# après une déconnexion : la barre s'accrocherait à la session suivante)
+session_alive() {
+  if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+    timeout 3 hyprctl version >/dev/null 2>&1
+  else
+    [[ -S "${XDG_RUNTIME_DIR:-/run/user/$UID}/${WAYLAND_DISPLAY:-wayland-0}" ]]
+  fi
+}
 pkill -x waybar 2>/dev/null && sleep 0.5   # une seule barre à la fois
 failures=0
 while (( failures < 5 )); do
   started=$SECONDS
   journal waybar -c "$config" -s "$style" "$@"
   code=$?
-  (( code == 0 )) && exit 0                     # arrêt normal (fin de session)
+  (( code == 0 )) && exit 0                     # arrêt normal
+  session_alive || exit 0                       # fin de session : rien à relancer
   (( SECONDS - started > 60 )) && failures=0    # a tourné un moment : on repart de zéro
   failures=$((failures + 1))
   echo "Waybar s'est arrêté (code $code) : relance $failures/5" | journal cat
