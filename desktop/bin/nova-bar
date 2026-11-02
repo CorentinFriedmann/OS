@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Barre du haut (Waybar) avec la configuration néon de Nova. Waybar ignore
+# XDG_CONFIG_DIRS : on lui donne donc les fichiers explicitement. Une
+# configuration personnelle dans ~/.config/waybar reste prioritaire.
+exec waybar -c "$(nova-config waybar/config.jsonc)" -s "$(nova-config waybar/style.css)" "$@"

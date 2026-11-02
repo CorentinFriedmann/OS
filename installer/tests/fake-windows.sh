@@ -19,6 +19,9 @@ make_windows_disk() {
   loader=$(mktemp)
   echo "chargeur Windows factice" > "$loader"
   MTOOLS_SKIP_CHECK=1 mcopy -i "$(part "$disk" 1)" "$loader" ::/EFI/Microsoft/Boot/bootmgfw.efi
+  # Base de démarrage de Windows : os-prober exige BCD + bootmgfw.efi, comme sur un vrai Windows
+  echo "base BCD factice" > "$loader"
+  MTOOLS_SKIP_CHECK=1 mcopy -i "$(part "$disk" 1)" "$loader" ::/EFI/Microsoft/Boot/BCD
   rm -f "$loader"
   mkntfs -Q -F -L Windows "$(part "$disk" 3)" >/dev/null 2>&1
   mkntfs -Q -F -L Recovery "$(part "$disk" 4)" >/dev/null 2>&1

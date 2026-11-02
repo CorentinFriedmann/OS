@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Centre de notifications (swaync) avec la configuration Nova, explicitement
+# (une configuration personnelle dans ~/.config/swaync reste prioritaire).
+exec swaync -c "$(nova-config swaync/config.json)" -s "$(nova-config swaync/style.css)" "$@"

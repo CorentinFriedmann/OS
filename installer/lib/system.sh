@@ -178,7 +178,10 @@ echo "→ Menu de démarrage GRUB (Nova + Windows + instantanés)"
 set_grub GRUB_DEFAULT saved
 set_grub GRUB_TIMEOUT 5
 set_grub GRUB_TIMEOUT_STYLE menu
-set_grub GRUB_DISTRIBUTOR '"Nova OS"'
+set_grub GRUB_DISTRIBUTOR '"Nova"'
+# Pas d'entrées techniques du micrologiciel (« … (EFI BootNext) ») : Windows est
+# détecté par os-prober, le BIOS reste accessible par « Paramètres du micrologiciel »
+set_grub GRUB_DISABLE_BOOTNEXT true
 set_grub GRUB_CMDLINE_LINUX_DEFAULT "\"$KERNEL_CMDLINE\""
 set_grub GRUB_DISABLE_OS_PROBER false
 set_grub GRUB_GFXMODE auto

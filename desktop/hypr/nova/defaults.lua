@@ -40,8 +40,8 @@ return {
   autostart = {
     "nova-session-start", -- environnement + services (agent polkit, démon Nova IA), dans l'ordre
     "nova-wallpaper restore",
-    "waybar",
-    "swaync",
+    "nova-bar",           -- Waybar avec la configuration Nova
+    "nova-notifications", -- swaync avec la configuration Nova
     "nova-osd server",
     "nova-idle",
     "wl-paste --type text --watch cliphist store",

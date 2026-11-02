@@ -218,7 +218,8 @@ if [[ -b "$NOVA" ]] && mount -o ro,subvol=@ "$NOVA" "$MNT" 2>/dev/null; then
   check "identité Nova OS (os-release)" 'grep -q "^NAME=\"Nova OS\"" "$MNT/usr/lib/os-release"'
   check "noyau CachyOS + noyau de secours LTS" '[[ -f "$MNT/boot/vmlinuz-linux-cachyos" && -f "$MNT/boot/vmlinuz-linux-lts" ]]'
   check "initramfs générés (avec écran de démarrage Plymouth)" '[[ -f "$MNT/boot/initramfs-linux-cachyos.img" ]] && grep -q plymouth "$MNT/etc/mkinitcpio.conf.d/nova.conf"'
-  check "menu GRUB : Nova OS" 'grep -q "^menuentry .Nova OS" "$MNT/boot/grub/grub.cfg"'
+  check "menu GRUB : Nova" 'grep -q "^menuentry .Nova Linux" "$MNT/boot/grub/grub.cfg"'
+  check "menu GRUB : pas d'entrées techniques du micrologiciel" '! grep -q "EFI BootNext" "$MNT/boot/grub/grub.cfg"'
   check "menu GRUB : Windows détecté" 'grep -qi "^menuentry .Windows" "$MNT/boot/grub/grub.cfg"'
   check "menu GRUB : thème néon Nova" 'grep -q "themes/nova/theme.txt" "$MNT/boot/grub/grub.cfg"'
   check "compte « testeur » (fish) administrateur" 'grep -q "^testeur:.*:/usr/bin/fish$" "$MNT/etc/passwd" && grep -qE "^wheel:.*testeur" "$MNT/etc/group"'
@@ -234,7 +235,7 @@ if [[ -b "$NOVA" ]] && mount -o ro,subvol=@ "$NOVA" "$MNT" 2>/dev/null; then
   check "horloge en heure locale (comme Windows)" 'grep -q LOCAL "$MNT/etc/adjtime"'
   check "français : langue et clavier" 'grep -q "LANG=fr_FR.UTF-8" "$MNT/etc/locale.conf" && grep -q "fr-latin9" "$MNT/etc/vconsole.conf"'
   log "  · $(find "$MNT/var/lib/pacman/local" -mindepth 1 -maxdepth 1 -type d | wc -l) paquets installés"
-  cp "$MNT/boot/grub/grub.cfg" "$OUT/grub.cfg" 2>/dev/null
+  cp "$MNT/boot/grub/grub.cfg" "$OUT/grub.cfg" 2>/dev/null && chmod 644 "$OUT/grub.cfg"
   cp "$MNT/etc/pacman.conf" "$OUT/pacman.conf" 2>/dev/null
   grep -E "^(menuentry|submenu)" "$OUT/grub.cfg" 2>/dev/null | cut -d"'" -f2 | sed 's/^/  · menu : /' | tee -a "$REPORT"
   umount "$MNT"

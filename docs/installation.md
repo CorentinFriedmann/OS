@@ -151,8 +151,8 @@ Le **menu néon** de Nova s'affiche quelques secondes :
 
 | Entrée | Rôle |
 |---|---|
-| **Nova OS** | choisi automatiquement après 5 secondes |
-| Options avancées pour Nova OS | noyau de secours (LTS), si une mise à jour du noyau pose problème |
+| **Nova Linux** | choisi automatiquement après 5 secondes |
+| Options avancées pour Nova Linux | noyau de secours (LTS), si une mise à jour du noyau pose problème |
 | **Windows Boot Manager** | démarrer Windows |
 | Instantanés Nova (retour en arrière) | apparaît après les premières mises à jour, voir plus bas |
 | Paramètres du micrologiciel UEFI | ouvrir le BIOS |
