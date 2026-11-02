@@ -86,6 +86,21 @@ microprogramme UEFI** → Redémarrer*. (Sinon, au démarrage, appuie sur **F2**
 - Reste en mode **UEFI** (pas de « Legacy » ni de « CSM »).
 - Enregistre et quitte (souvent **F10**).
 
+### Spécial Acer (Aspire 5 A515-57 et voisins)
+
+- **BIOS** : touche **F2** à l'allumage.
+- **Menu de démarrage F12** : désactivé par défaut. Dans le BIOS, onglet *Main*, mets
+  **F12 Boot Menu → Enabled**.
+- **Secure Boot** : Acer ne laisse le désactiver qu'après avoir défini un mot de passe.
+  Onglet *Security* → **Set Supervisor Password** (note-le bien), puis onglet *Boot* →
+  **Secure Boot → Disabled**. Tu peux ensuite effacer le mot de passe (le redéfinir vide).
+- **Disque introuvable dans l'installateur** : sur ces modèles Intel 12ᵉ génération, le
+  stockage est souvent en mode *Intel RST / VMD*. Nova sait normalement le lire ; sinon,
+  l'option est cachée : onglet *Main*, appuie sur **Ctrl+S** pour l'afficher, puis suis la
+  procédure « L'installateur ne trouve aucun disque » plus bas **avant** de changer le réglage.
+- **Après l'installation**, si le PC démarre toujours sur Windows : onglet *Boot* →
+  **Boot priority order**, monte **Nova** tout en haut (F5/F6).
+
 ## 5. Démarrer sur la clé
 
 1. Branche la clé et redémarre le PC.
