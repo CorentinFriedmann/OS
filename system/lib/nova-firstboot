@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Premier démarrage de Nova OS : finalise ce qui ne peut pas se faire depuis
+# l'installateur, puis se désactive.
+set -uo pipefail
+# 1) Windows absent du menu GRUB (détection parfois incomplète depuis la clé USB) : on relance
+if [[ -f /boot/grub/grub.cfg ]] && ! grep -q "Windows" /boot/grub/grub.cfg; then
+  if os-prober 2>/dev/null | grep -qi windows; then
+    grub-mkconfig -o /boot/grub/grub.cfg
+  fi
+fi
+# 2) Base de recherche de fichiers et cache des polices
+command -v updatedb >/dev/null && updatedb 2>/dev/null
+fc-cache -s >/dev/null 2>&1 || true
+systemctl disable nova-firstboot.service >/dev/null 2>&1 || true

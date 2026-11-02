@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Sélecteur Wi-Fi néon : liste les réseaux, se connecte (mot de passe demandé
+# si besoin). Clic sur l'icône réseau de la barre.
+set -euo pipefail
+pkill -x fuzzel 2>/dev/null && exit 0
+note() { notify-send -a "Réseau" -i network-wireless "$@"; }
+bars() {
+  local s=$1
+  if (( s >= 75 )); then echo "▂▄▆█"; elif (( s >= 50 )); then echo "▂▄▆ "; elif (( s >= 25 )); then echo "▂▄  "; else echo "▂   "; fi
+}
+declare -A ssid_of=()
+entries=()
+if [[ "$(nmcli radio wifi)" == enabled ]]; then
+  entries+=("󰖪  Désactiver le Wi-Fi")
+  nmcli device wifi rescan >/dev/null 2>&1 || true
+  while IFS=: read -r inuse ssid signal security; do
+    [[ -n "$ssid" ]] || continue
+    mark="  "; [[ "$inuse" == "*" ]] && mark="󰄬 "
+    lock=""; [[ -n "$security" && "$security" != "--" ]] && lock="  󰌾"
+    line="$mark$(bars "$signal")  $ssid$lock"
+    entries+=("$line")
+    ssid_of["$line"]="$ssid"
+  done < <(nmcli -t -f IN-USE,SSID,SIGNAL,SECURITY device wifi list 2>/dev/null | sort -t: -k3 -nr | awk -F: '!seen[$2]++')
+else
+  entries+=("󰖩  Activer le Wi-Fi")
+fi
+entries+=("󰒓  Paramètres avancés…")
+choice="$(printf '%s\n' "${entries[@]}" | fuzzel --dmenu --prompt "󰖩  " --placeholder "Choisir un réseau Wi-Fi" --width 44)" || exit 0
+case "$choice" in
+  *"Activer le Wi-Fi") nmcli radio wifi on; note "Wi-Fi activé"; exit 0 ;;
+  *"Désactiver le Wi-Fi") nmcli radio wifi off; note "Wi-Fi désactivé"; exit 0 ;;
+  *"Paramètres avancés…") exec nm-connection-editor ;;
+esac
+ssid="${ssid_of[$choice]:-}"
+[[ -n "$ssid" ]] || exit 0
+if nmcli -t -f NAME connection show | grep -Fxq "$ssid"; then
+  if nmcli connection up id "$ssid" >/dev/null; then note "Connecté à $ssid"; else note "Échec de connexion à $ssid"; fi
+  exit 0
+fi
+if [[ "$choice" == *"󰌾" ]]; then
+  password="$(fuzzel --dmenu --password --prompt "Mot de passe pour $ssid : " --lines 1 --width 44 < /dev/null)" || exit 0
+  if nmcli device wifi connect "$ssid" password "$password" >/dev/null; then
+    note "Connecté à $ssid"
+  else
+    note "Échec de connexion à $ssid" "Vérifie le mot de passe."
+  fi
+else
+  if nmcli device wifi connect "$ssid" >/dev/null; then note "Connecté à $ssid"; else note "Échec de connexion à $ssid"; fi
+fi

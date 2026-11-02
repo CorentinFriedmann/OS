@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Affiche le niveau d'instructions du processeur : v4, v3 ou generic.
+# Méthode de CachyOS (chargeur dynamique de glibc), avec repli sur /proc/cpuinfo.
+set -uo pipefail
+for loader in /lib64/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 /lib/ld-linux-x86-64.so.2; do
+  [[ -x "$loader" ]] || continue
+  supported="$("$loader" --help 2>/dev/null | grep -E 'x86-64-v[0-9] \(supported' || true)"
+  if grep -q 'x86-64-v4 (supported' <<< "$supported"; then echo v4; exit 0; fi
+  if grep -q 'x86-64-v3 (supported' <<< "$supported"; then echo v3; exit 0; fi
+  if [[ -n "$supported" ]]; then echo generic; exit 0; fi
+done
+flags=" $(grep -m1 '^flags' /proc/cpuinfo 2>/dev/null | cut -d: -f2) "
+has() { for flag in "$@"; do [[ "$flags" == *" $flag "* ]] || return 1; done; }
+if has avx512f avx512bw avx512cd avx512dq avx512vl avx2 bmi2 fma; then
+  echo v4
+elif has avx2 bmi1 bmi2 fma movbe f16c abm; then
+  echo v3
+else
+  echo generic
+fi

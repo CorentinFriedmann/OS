@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# nova-status lockscreen — petites infos (batterie) pour l'écran de verrouillage.
+case "${1:-lockscreen}" in
+  lockscreen)
+    for bat in /sys/class/power_supply/BAT*; do
+      [[ -r "$bat/capacity" ]] || continue
+      capacity="$(<"$bat/capacity")"
+      icon="󰁹"
+      [[ "$(cat "$bat/status" 2>/dev/null)" == Charging ]] && icon="󰂄"
+      printf '%s  %s %%\n' "$icon" "$capacity"
+      exit 0
+    done
+    echo "" ;;
+esac

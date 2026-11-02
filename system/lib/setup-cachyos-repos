@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# setup-cachyos-repos [--root /mnt] — active les dépôts optimisés de CachyOS
+# (paquets compilés pour x86-64-v3/v4 + noyau linux-cachyos) dans pacman.conf.
+# Utilisé par l'installateur de Nova ; peut être relancé à la main.
+set -euo pipefail
+root=""
+[[ "${1:-}" == --root ]] && root="${2:?chemin manquant}"
+conf="$root/etc/pacman.conf"
+level="$(/usr/lib/nova/cpu-level)"
+
+if grep -q '^\[cachyos' "$conf"; then
+  echo "Dépôts CachyOS déjà présents dans $conf"
+  exit 0
+fi
+
+block="# --- Dépôts optimisés CachyOS (ajoutés par Nova OS, niveau CPU : $level) ---\n"
+case "$level" in
+  v4) block+="[cachyos-v4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n\n[cachyos-core-v4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n\n[cachyos-extra-v4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n\n" ;;
+  v3) block+="[cachyos-v3]\nInclude = /etc/pacman.d/cachyos-v3-mirrorlist\n\n[cachyos-core-v3]\nInclude = /etc/pacman.d/cachyos-v3-mirrorlist\n\n[cachyos-extra-v3]\nInclude = /etc/pacman.d/cachyos-v3-mirrorlist\n\n" ;;
+esac
+block+="[cachyos]\nInclude = /etc/pacman.d/cachyos-mirrorlist\n"
+
+# Les dépôts CachyOS doivent passer AVANT [core] pour être prioritaires
+tmp="$(mktemp)"
+awk -v block="$block" '
+  /^\[core\]/ && !done { printf "%s\n", block; done = 1 }
+  { print }
+' "$conf" > "$tmp"
+install -m 644 "$tmp" "$conf"
+rm -f "$tmp"
+echo "Dépôts CachyOS ($level) activés dans $conf"

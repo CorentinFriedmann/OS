@@ -1,0 +1,17 @@
+[Unit]
+Description=Nova IA — démon de l'assistant (local + cloud)
+Documentation=file:///usr/share/doc/nova/assistant.md
+After=graphical-session.target ollama.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/nova daemon
+Restart=on-failure
+RestartSec=3
+# Le démon n'a besoin d'aucun privilège : les actions root passent par polkit (pkexec)
+NoNewPrivileges=false
+Nice=5
+
+[Install]
+WantedBy=graphical-session.target

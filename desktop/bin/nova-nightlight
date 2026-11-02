@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# nova-nightlight on|off|toggle|status — filtre de lumière bleue (hyprsunset).
+set -euo pipefail
+running() { pgrep -x hyprsunset >/dev/null; }
+case "${1:-toggle}" in
+  on) running || setsid -f hyprsunset --temperature 4200 >/dev/null 2>&1 ;;
+  off) pkill -x hyprsunset || true ;;
+  toggle) if running; then "$0" off; else "$0" on; fi ;;
+  status) running && echo true || echo false ;;
+  *) echo "usage: nova-nightlight on|off|toggle|status" >&2; exit 2 ;;
+esac

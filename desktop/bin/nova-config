@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# nova-config <chemin relatif> — affiche le fichier de configuration à utiliser :
+# celui de l'utilisateur (~/.config/...) s'il existe, sinon celui de Nova.
+set -euo pipefail
+rel="${1:?usage: nova-config <chemin relatif, ex. hypr/hyprlock.conf>}"
+for candidate in "${XDG_CONFIG_HOME:-$HOME/.config}/$rel" "/usr/share/nova/$rel" "/usr/share/nova/xdg/$rel"; do
+  if [[ -f "$candidate" ]]; then
+    printf '%s\n' "$candidate"
+    exit 0
+  fi
+done
+echo "nova-config : aucun fichier pour « $rel »" >&2
+exit 1

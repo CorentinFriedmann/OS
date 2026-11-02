@@ -1,0 +1,6 @@
+#!/bin/sh
+# Applique l'identité « Nova OS » (os-release, accueil des consoles).
+# Relancé automatiquement par pacman si le paquet « filesystem » est mis à jour.
+install -m 644 /usr/share/nova/os-release /usr/lib/os-release
+[ -L /etc/os-release ] || ln -sf ../usr/lib/os-release /etc/os-release
+install -m 644 /usr/share/nova/issue /etc/issue

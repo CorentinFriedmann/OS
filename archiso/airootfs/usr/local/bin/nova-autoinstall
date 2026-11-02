@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Installation automatique pour les tests (CI) : ne fait RIEN sauf si un volume
+# nommé NOVATEST contient « nova-autoinstall.cfg » (réponses de l'installateur).
+# La progression est envoyée sur la console série, le journal et le résultat
+# sont copiés sur le volume NOVATEST, puis la machine s'éteint.
+set -uo pipefail
+dev=/dev/disk/by-label/NOVATEST
+[[ -e "$dev" ]] || exit 0
+mnt=$(mktemp -d)
+mount "$dev" "$mnt" || exit 0
+if [[ ! -f "$mnt/nova-autoinstall.cfg" ]]; then
+  umount "$mnt"
+  exit 0
+fi
+serial=/dev/null
+[[ -w /dev/ttyS0 ]] && serial=/dev/ttyS0
+say() { echo "NOVA-AUTOINSTALL: $*" | tee -a "$serial"; }
+
+say "début de l'installation de test"
+# Attente du réseau (miroirs Arch et CachyOS) : 5 minutes au plus
+for _ in $(seq 1 60); do
+  curl -fsS --max-time 5 -o /dev/null https://geo.mirror.pkgbuild.com && break
+  sleep 5
+done
+export NOVA_LOG=/var/log/nova-install.log
+if nova-install --config "$mnt/nova-autoinstall.cfg" 2>&1 | tee /var/log/nova-install.out >> "$serial"; then
+  result="INSTALL_OK"
+else
+  result="INSTALL_ECHEC ${PIPESTATUS[0]}"
+fi
+say "$result"
+cp /var/log/nova-install.log /var/log/nova-install.out "$mnt/" 2>/dev/null || true
+journalctl -b --no-pager > "$mnt/journal-live.txt" 2>&1 || true
+echo "$result" > "$mnt/resultat.txt"
+sync
+umount "$mnt"
+systemctl poweroff

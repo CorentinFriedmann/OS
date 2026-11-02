@@ -1,0 +1,59 @@
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Identité visuelle de Nova OS : logos, fonds d'écran, polices, thèmes de
+# démarrage (GRUB, Plymouth) et de connexion (SDDM), os-release.
+pkgname=nova-branding
+pkgver=${NOVA_PKGVER:-0.1.0}
+pkgrel=1
+pkgdesc="Nova OS — identité visuelle (logos, fonds d'écran, thèmes GRUB/Plymouth/SDDM)"
+arch=('any')
+url="https://github.com/CorentinFriedmann/os"
+license=('MIT' 'OFL-1.1')
+backup=('etc/sddm.conf.d/10-nova.conf')
+install=nova-branding.install
+
+# Copie avec droits explicites (cp + chmod plutôt que « install » : fiable avec
+# toutes les versions de fakeroot).
+_put() {  # _put DROITS SOURCE DESTINATION
+  mkdir -p "$(dirname "$3")"
+  cp "$2" "$3"
+  chmod "$1" "$3"
+}
+_put_into() {  # _put_into DROITS DOSSIER FICHIERS...
+  local mode=$1 dir=$2 file
+  shift 2
+  mkdir -p "$dir"
+  for file in "$@"; do _put "$mode" "$file" "$dir/$(basename "$file")"; done
+}
+
+package() {
+  local src="$startdir/../../branding"
+  # Logos et icônes
+  _put 644 "$src/logo/nova.svg" "$pkgdir/usr/share/pixmaps/nova-logo.svg"
+  _put 644 "$src/logo/nova-128.png" "$pkgdir/usr/share/pixmaps/nova-logo.png"
+  _put 644 "$src/logo/nova.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/nova.svg"
+  local size
+  for size in 32 64 128 256 512; do
+    _put 644 "$src/logo/nova-$size.png" "$pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/nova.png"
+  done
+  # Fonds d'écran
+  _put_into 644 "$pkgdir/usr/share/backgrounds/nova" "$src"/wallpapers/*.jpg
+  # Police Orbitron (OFL)
+  _put_into 644 "$pkgdir/usr/share/fonts/nova" "$src"/fonts/orbitron/*.ttf
+  _put 644 "$src/fonts/orbitron/OFL.txt" "$pkgdir/usr/share/licenses/$pkgname/OFL-Orbitron.txt"
+  # Thème GRUB (menu Nova / Windows / instantanés)
+  _put_into 644 "$pkgdir/usr/share/grub/themes/nova" "$src"/grub/nova/*.*
+  _put_into 644 "$pkgdir/usr/share/grub/themes/nova/icons" "$src"/grub/nova/icons/*.png
+  # Écran de démarrage Plymouth
+  _put_into 644 "$pkgdir/usr/share/plymouth/themes/nova" "$src"/plymouth/nova/*
+  # Écran de connexion SDDM
+  _put_into 644 "$pkgdir/usr/share/sddm/themes/nova" "$src"/sddm/nova/*
+  _put 644 "$src/sddm/conf/10-nova.conf" "$pkgdir/etc/sddm.conf.d/10-nova.conf"
+  # Identité du système
+  _put 644 "$src/os-release/os-release" "$pkgdir/usr/share/nova/os-release"
+  _put 644 "$src/os-release/issue" "$pkgdir/usr/share/nova/issue"
+  _put 755 "$src/os-release/apply-os-release" "$pkgdir/usr/lib/nova/apply-os-release"
+  _put 644 "$src/os-release/nova-os-release.hook" "$pkgdir/usr/share/libalpm/hooks/nova-os-release.hook"
+  # Droits explicites (indépendants de la version d'install/fakeroot utilisée)
+  find "$pkgdir" -type f -exec chmod 644 {} +
+  chmod 755 "$pkgdir/usr/lib/nova/apply-os-release"
+}

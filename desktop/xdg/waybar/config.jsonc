@@ -1,0 +1,200 @@
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  NOVA OS — barre supérieure (Waybar)                          ║
+// ╚══════════════════════════════════════════════════════════════╝
+// Pour personnaliser : copie ce dossier dans ~/.config/waybar/
+{
+  "layer": "top",
+  "position": "top",
+  "height": 36,
+  "margin-top": 6,
+  "margin-left": 10,
+  "margin-right": 10,
+  "spacing": 6,
+  "reload_style_on_change": true,
+
+  "modules-left": ["image#nova", "hyprland/workspaces", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "mpris",
+    "custom/nova-ai",
+    "custom/nova-mode",
+    "group/hardware",
+    "wireplumber",
+    "backlight",
+    "network",
+    "bluetooth",
+    "battery",
+    "tray",
+    "custom/notifications",
+    "custom/power"
+  ],
+
+  // Logo Nova : clic = lanceur, clic droit = modes de performance
+  "image#nova": {
+    "path": "/usr/share/pixmaps/nova-logo.png",
+    "size": 22,
+    "on-click": "nova-launcher",
+    "on-click-right": "nova-mode menu",
+    "tooltip": false
+  },
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "on-click": "activate",
+    "sort-by-number": true,
+    "persistent-workspaces": { "*": 5 },
+    "format-icons": {
+      "active": "",
+      "urgent": "",
+      "default": "",
+      "empty": ""
+    }
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 42,
+    "separate-outputs": true,
+    "empty-format": "Nova OS"
+  },
+
+  "clock": {
+    "format": "{:%H:%M}",
+    "format-alt": "{:%A %d %B   %H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "weeks-pos": "left",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#ff2bd6'><b>{}</b></span>",
+        "weeks": "<span color='#4a5378'>S{}</span>",
+        "weekdays": "<span color='#8a5cff'><b>{}</b></span>",
+        "today": "<span color='#00f0ff'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions": { "on-scroll-up": "shift_up", "on-scroll-down": "shift_down" }
+  },
+
+  "mpris": {
+    "format": "{player_icon}  {title}",
+    "format-paused": "{status_icon}  {title}",
+    "max-length": 32,
+    "player-icons": { "default": "" },
+    "status-icons": { "paused": "" }
+  },
+
+  // Orbe de l'assistant IA : clic = parler à Nova
+  "custom/nova-ai": {
+    "exec": "nova status --waybar",
+    "return-type": "json",
+    "interval": 5,
+    "signal": 8,
+    "format": "{}",
+    "on-click": "nova-assistant toggle",
+    "on-click-right": "nova-assistant setup",
+    "tooltip": true
+  },
+
+  // Mode de performance : éco / équilibré / performance / jeu
+  "custom/nova-mode": {
+    "exec": "nova-mode status --waybar",
+    "return-type": "json",
+    "interval": 15,
+    "signal": 9,
+    "format": "{}",
+    "on-click": "nova-mode menu",
+    "on-click-right": "nova-mode next",
+    "tooltip": true
+  },
+
+  // Tiroir matériel : survoler l'icône processeur pour tout voir
+  "group/hardware": {
+    "orientation": "horizontal",
+    "drawer": { "transition-duration": 300, "children-class": "hw-child", "transition-left-to-right": false },
+    "modules": ["cpu", "memory", "temperature"]
+  },
+  "cpu": { "format": "  {usage}%", "interval": 3, "on-click": "ghostty -e btop" },
+  "memory": { "format": "󰍛  {percentage}%", "interval": 5, "tooltip-format": "{used:0.1f} / {total:0.1f} Go utilisés" },
+  "temperature": {
+    "format": "󰔏  {temperatureC}°C",
+    "critical-threshold": 90,
+    "interval": 5
+  },
+
+  "wireplumber": {
+    "format": "{icon}  {volume}%",
+    "format-muted": "󰖁  muet",
+    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "on-click": "pavucontrol",
+    "on-click-right": "nova-osd mute",
+    "on-scroll-up": "nova-osd volume-up",
+    "on-scroll-down": "nova-osd volume-down",
+    "max-volume": 150
+  },
+
+  "backlight": {
+    "format": "󰃟  {percent}%",
+    "on-scroll-up": "nova-osd brightness-up",
+    "on-scroll-down": "nova-osd brightness-down"
+  },
+
+  "network": {
+    "format-wifi": "󰖩  {essid}",
+    "format-ethernet": "󰈀  filaire",
+    "format-disconnected": "󰖪  hors ligne",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
+    "tooltip-format-ethernet": "{ifname}\n{ipaddr}",
+    "max-length": 22,
+    "on-click": "nova-network"
+  },
+
+  "bluetooth": {
+    "format": "󰂯",
+    "format-disabled": "󰂲",
+    "format-off": "󰂲",
+    "format-connected": "󰂱  {num_connections}",
+    "tooltip-format-connected": "{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}",
+    "on-click": "blueman-manager"
+  },
+
+  "battery": {
+    "states": { "warning": 25, "critical": 12 },
+    "format": "{icon}  {capacity}%",
+    "format-charging": "󰂄  {capacity}%",
+    "format-plugged": "󰚥  {capacity}%",
+    "format-full": "󰚥  100%",
+    "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰁹"],
+    "tooltip-format": "{timeTo}",
+    "interval": 30
+  },
+
+  "tray": { "icon-size": 16, "spacing": 8 },
+
+  "custom/notifications": {
+    "exec": "swaync-client -swb",
+    "return-type": "json",
+    "format": "{icon}",
+    "format-icons": {
+      "notification": "󱅫",
+      "none": "󰂚",
+      "dnd-notification": "󰂛",
+      "dnd-none": "󰂛",
+      "inhibited-notification": "󱅫",
+      "inhibited-none": "󰂚",
+      "dnd-inhibited-notification": "󰂛",
+      "dnd-inhibited-none": "󰂛"
+    },
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true,
+    "tooltip": false
+  },
+
+  "custom/power": {
+    "format": "󰐥",
+    "on-click": "nova-powermenu",
+    "tooltip": false
+  }
+}

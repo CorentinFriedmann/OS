@@ -1,0 +1,73 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  NOVA OS — thème GRUB néon (choix Nova / Windows au démarrage) ║
+# ╚══════════════════════════════════════════════════════════════╝
+title-text: ""
+desktop-image: "background.png"
+desktop-image-scale-method: "crop"
+desktop-color: "#05060d"
+terminal-font: "Orbitron Regular 15"
+terminal-left: "10%"
+terminal-top: "18%"
+terminal-width: "80%"
+terminal-height: "64%"
+terminal-border: "0"
+
++ image {
+    top = 9%
+    left = 50%-36
+    width = 72
+    height = 72
+    file = "logo.png"
+}
+
++ label {
+    top = 9%+84
+    left = 0
+    width = 100%
+    height = 52
+    align = "center"
+    text = "NOVA OS"
+    font = "Orbitron Regular 40"
+    color = "#e6f1ff"
+}
+
++ boot_menu {
+    left = 50%-360
+    top = 32%
+    width = 720
+    height = 52%
+    menu_pixmap_style = "menu_*.png"
+    item_font = "Orbitron Regular 22"
+    item_color = "#8b95b8"
+    selected_item_font = "Orbitron Regular 22"
+    selected_item_color = "#00f0ff"
+    selected_item_pixmap_style = "select_*.png"
+    icon_width = 32
+    icon_height = 32
+    item_icon_space = 18
+    item_height = 46
+    item_padding = 0
+    item_spacing = 10
+    scrollbar = false
+}
+
++ label {
+    id = "__timeout__"
+    top = 84%
+    left = 0
+    width = 100%
+    align = "center"
+    text = "Démarrage automatique dans %d s"
+    font = "Orbitron Regular 15"
+    color = "#ff2bd6"
+}
+
++ label {
+    top = 89%
+    left = 0
+    width = 100%
+    align = "center"
+    text = "Flèches : choisir   –   Entrée : démarrer   –   E : modifier"
+    font = "Orbitron Regular 15"
+    color = "#4a5378"
+}

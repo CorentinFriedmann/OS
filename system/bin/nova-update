@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# nova-update — met à jour tout Nova OS en une commande (alias : maj).
+# Un instantané btrfs est pris automatiquement avant (snap-pac) : en cas de
+# problème, choisis « Instantanés Nova » dans le menu de démarrage.
+set -uo pipefail
+cyan=$'\e[38;2;0;240;255m'; magenta=$'\e[38;2;255;43;214m'; green=$'\e[38;2;61;255;168m'; dim=$'\e[2m'; reset=$'\e[0m'
+step() { printf '\n%s▶ %s%s\n' "$cyan" "$1" "$reset"; }
+
+printf '%s\n  ✦  Mise à jour de Nova OS%s\n' "$magenta" "$reset"
+printf '%s  Un instantané du système est créé avant les changements.%s\n' "$dim" "$reset"
+
+step "Paquets officiels et CachyOS (pacman)"
+if ! sudo pacman -Syu; then
+  printf '\n%sLa mise à jour a échoué : le système est intact, réessaie plus tard.%s\n' "$magenta" "$reset"
+  read -rp "Entrée pour fermer…" _
+  exit 1
+fi
+
+if command -v paru >/dev/null; then
+  step "Paquets de la communauté (AUR)"
+  paru -Sua || true
+fi
+if command -v flatpak >/dev/null; then
+  step "Applications Flatpak"
+  flatpak update -y || true
+fi
+if command -v fwupdmgr >/dev/null; then
+  step "Micrologiciels (BIOS, SSD…)"
+  fwupdmgr refresh --force >/dev/null 2>&1 || true
+  fwupdmgr get-updates 2>/dev/null | grep -q . && printf '%s  Des mises à jour de micrologiciel existent : lance « fwupdmgr update ».%s\n' "$dim" "$reset"
+fi
+
+pacnew="$(find /etc -name '*.pacnew' 2>/dev/null | head -n 5)"
+if [[ -n "$pacnew" ]]; then
+  printf '\n%sFichiers de configuration à fusionner (pacdiff) :%s\n%s\n' "$dim" "$reset" "$pacnew"
+fi
+printf '\n%s✓ Nova OS est à jour.%s\n' "$green" "$reset"
+read -rp "Entrée pour fermer…" _

@@ -1,0 +1,44 @@
+[Plymouth Theme]
+Name=Nova
+Description=Nova OS — anneau orbital néon autour du logo
+ModuleName=two-step
+
+[two-step]
+ImageDir=/usr/share/plymouth/themes/nova
+HorizontalAlignment=.5
+VerticalAlignment=.5
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.72
+TitleHorizontalAlignment=.5
+TitleVerticalAlignment=.30
+MessageBelowAnimation=true
+Transition=none
+TransitionDuration=0.0
+BackgroundStartColor=0x05060d
+BackgroundEndColor=0x05060d
+ProgressBarBackgroundColor=0x11152a
+ProgressBarForegroundColor=0x00f0ff
+
+[boot-up]
+UseEndAnimation=false
+UseFirmwareBackground=false
+
+[shutdown]
+UseEndAnimation=false
+
+[reboot]
+UseEndAnimation=false
+
+[updates]
+SuppressMessages=true
+UseProgressBar=true
+ProgressBarShowPercentComplete=true
+Title=Installation des mises à jour…
+SubTitle=N'éteins pas l'ordinateur
+
+[system-upgrade]
+SuppressMessages=true
+UseProgressBar=true
+ProgressBarShowPercentComplete=true
+Title=Mise à niveau du système…
+SubTitle=N'éteins pas l'ordinateur

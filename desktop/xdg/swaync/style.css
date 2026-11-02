@@ -1,0 +1,116 @@
+/* ╔══════════════════════════════════════════════════════════════╗
+ * ║  NOVA OS — centre de notifications néon (swaync)              ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ * On part du style officiel de swaync et on ne change que l'ambiance :
+ * il reste ainsi compatible avec les futures versions.
+ */
+@import url("file:///etc/xdg/swaync/style.css");
+
+:root {
+  --cc-bg: rgba(8, 10, 22, 0.86);
+  --noti-border-color: rgba(0, 240, 255, 0.22);
+  --noti-bg: 12, 15, 32;
+  --noti-bg-alpha: 0.9;
+  --noti-bg-darker: rgb(8, 10, 22);
+  --noti-bg-hover: rgb(22, 28, 56);
+  --noti-bg-focus: rgba(0, 240, 255, 0.10);
+  --noti-close-bg: rgb(26, 32, 64);
+  --noti-close-bg-hover: rgb(255, 43, 214);
+  --text-color: #e6f1ff;
+  --text-color-disabled: #4a5378;
+  --bg-selected: #00f0ff;
+  --border-radius: 16px;
+  --notification-shadow: 0 0 14px rgba(0, 240, 255, 0.16), 0 6px 20px rgba(0, 0, 0, 0.55);
+  --font-size-body: 14px;
+  --font-size-summary: 15px;
+}
+
+* {
+  font-family: "Inter", "JetBrainsMono Nerd Font", sans-serif;
+}
+
+/* Panneau latéral ---------------------------------------------------- */
+.control-center {
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 22px;
+  box-shadow: 0 0 26px rgba(138, 92, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.widget-title > label {
+  font-family: "Orbitron", "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 1px;
+  color: #00f0ff;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+}
+.widget-title > button {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 43, 214, 0.45);
+  background: rgba(255, 43, 214, 0.10);
+  color: #ff2bd6;
+}
+.widget-title > button:hover { background: rgba(255, 43, 214, 0.25); }
+
+/* Boutons rapides ---------------------------------------------------- */
+.widget-buttons-grid flowboxchild > button {
+  border-radius: 12px;
+  min-height: 42px;
+  background: rgba(20, 26, 52, 0.85);
+  border: 1px solid rgba(138, 92, 255, 0.25);
+  color: #c8d3f5;
+}
+.widget-buttons-grid flowboxchild > button:hover {
+  background: rgba(0, 240, 255, 0.14);
+  border-color: rgba(0, 240, 255, 0.5);
+}
+.widget-buttons-grid flowboxchild > button.toggle:checked {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.85), rgba(138, 92, 255, 0.85));
+  color: #05060d;
+  border-color: transparent;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.45);
+}
+
+/* Ne pas déranger */
+.widget-dnd switch:checked {
+  background: #ff2bd6;
+  box-shadow: 0 0 10px rgba(255, 43, 214, 0.6);
+}
+
+/* Curseurs volume / luminosité */
+.widget-volume, .widget-backlight {
+  background: rgba(20, 26, 52, 0.6);
+  border-radius: 14px;
+  padding: 6px 10px;
+}
+.widget-volume trough highlight, .widget-backlight trough highlight,
+.widget-volume scale highlight, .widget-backlight scale highlight {
+  background: linear-gradient(90deg, #00f0ff, #8a5cff, #ff2bd6);
+  border-radius: 8px;
+}
+
+/* Cartes de notification -------------------------------------------- */
+.notification-row .notification-background .notification {
+  border-radius: 16px;
+}
+.notification-row .notification-background .notification.critical {
+  border: 1px solid #ff3860;
+  box-shadow: 0 0 16px rgba(255, 56, 96, 0.5);
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary {
+  color: #ffffff;
+  font-weight: 700;
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time {
+  color: #8a5cff;
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body {
+  color: #b8c3e6;
+}
+.notification-row .notification-background .notification .notification-action > button:hover {
+  background: rgba(0, 240, 255, 0.15);
+  color: #00f0ff;
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content progressbar progress {
+  background: linear-gradient(90deg, #00f0ff, #ff2bd6);
+}

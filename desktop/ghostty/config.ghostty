@@ -1,0 +1,55 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  NOVA OS — terminal Ghostty                                   ║
+# ╚══════════════════════════════════════════════════════════════╝
+# Tes réglages personnels vont dans ~/.config/ghostty/config.ghostty
+
+font-family = JetBrainsMono Nerd Font
+font-size = 12
+font-feature = calt
+font-feature = liga
+
+# Palette néon Nova
+background = #05060d
+foreground = #e6f1ff
+cursor-color = #00f0ff
+cursor-text = #05060d
+selection-background = #2a1f5a
+selection-foreground = #ffffff
+palette = 0=#1a2040
+palette = 1=#ff3860
+palette = 2=#3dffa8
+palette = 3=#ffd23f
+palette = 4=#2f7bff
+palette = 5=#ff2bd6
+palette = 6=#00f0ff
+palette = 7=#c8d3f5
+palette = 8=#4a5378
+palette = 9=#ff6b8b
+palette = 10=#7dffc4
+palette = 11=#ffe27a
+palette = 12=#6aa1ff
+palette = 13=#ff6be4
+palette = 14=#6ff7ff
+palette = 15=#ffffff
+
+# Verre fumé : Hyprland floute ce qui est derrière
+background-opacity = 0.86
+window-padding-x = 14
+window-padding-y = 12
+window-padding-balance = true
+window-decoration = none
+window-theme = dark
+
+cursor-style = bar
+cursor-style-blink = true
+mouse-hide-while-typing = true
+copy-on-select = clipboard
+confirm-close-surface = false
+shell-integration-features = cursor,title,sudo
+
+# Ouverture instantanée des nouvelles fenêtres
+gtk-single-instance = true
+
+# Halo néon discret autour du texte (désactiver : custom-shader =)
+custom-shader = /usr/share/nova/ghostty/shaders/nova-glow.glsl
+custom-shader-animation = false

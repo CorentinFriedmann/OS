@@ -1,0 +1,8 @@
+# NOVA OS — ta configuration Ghostty.
+# Le thème néon de Nova est chargé ici ; ajoute tes réglages en dessous.
+config-file = /usr/share/nova/ghostty/config.ghostty
+
+# Exemples :
+# font-size = 13
+# background-opacity = 0.95
+# custom-shader =

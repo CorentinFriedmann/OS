@@ -1,0 +1,11 @@
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = filesystem
+Target = nova-branding
+
+[Action]
+Description = Application de l'identité Nova OS…
+When = PostTransaction
+Exec = /usr/lib/nova/apply-os-release

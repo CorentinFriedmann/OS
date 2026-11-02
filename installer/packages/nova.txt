@@ -1,0 +1,5 @@
+# Paquets Nova OS (dépôt [nova])
+nova-branding
+nova-desktop
+nova-performance
+nova-assistant

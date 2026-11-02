@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Sélecteur d'emojis (Super+.) : l'emoji choisi est tapé et copié.
+set -euo pipefail
+pkill -x fuzzel 2>/dev/null && exit 0
+data=/usr/share/unicode/emoji/emoji-test.txt
+[[ -r "$data" ]] || { notify-send -a Nova "Emojis indisponibles" "Installe le paquet unicode-emoji."; exit 1; }
+choice="$(awk -F'# ' '/; fully-qualified/ { split($2, a, " "); emoji = a[1]; sub(/^[^ ]+ E[0-9.]+ /, "", $2); print emoji "  " $2 }' "$data" \
+  | fuzzel --dmenu --prompt "󰱨  " --placeholder "Chercher un emoji (en anglais)…" --width 50)" || exit 0
+emoji="${choice%%  *}"
+[[ -n "$emoji" ]] || exit 0
+printf '%s' "$emoji" | wl-copy
+command -v wtype >/dev/null && wtype "$emoji"

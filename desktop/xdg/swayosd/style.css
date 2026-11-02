@@ -1,0 +1,18 @@
+/* NOVA OS — affichage volume / luminosité (swayosd) */
+window#osd {
+  border-radius: 18px;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  background: rgba(8, 10, 22, 0.86);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.28);
+}
+window#osd #container { margin: 14px 18px; }
+window#osd image, window#osd label { color: #e6f1ff; }
+window#osd progressbar:disabled, window#osd image:disabled { opacity: 0.4; }
+window#osd progressbar, window#osd segmentedprogress { min-height: 6px; border-radius: 6px; background: transparent; border: none; }
+window#osd trough, window#osd segment { min-height: inherit; border-radius: inherit; border: none; background: rgba(255, 255, 255, 0.08); }
+window#osd progress, window#osd segment.active {
+  min-height: inherit;
+  border-radius: inherit;
+  border: none;
+  background: linear-gradient(90deg, #00f0ff, #8a5cff, #ff2bd6);
+}

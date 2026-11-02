@@ -1,0 +1,62 @@
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Nova IA : assistant hybride (Ollama en local, Claude dans le cloud).
+# Le SDK officiel « anthropic » est embarqué (dossier vendor) avec ses
+# dépendances, pour ne pas dépendre de paquets Python externes.
+pkgname=nova-assistant
+pkgver=${NOVA_PKGVER:-0.1.0}
+pkgrel=1
+pkgdesc="Nova IA — assistant hybride intégré (local + Claude), fenêtre Super+Espace"
+arch=('x86_64')
+url="https://github.com/CorentinFriedmann/os"
+license=('MIT')
+_pyver=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo 3.14)
+depends=("python>=${_pyver}" "python<${_pyver%.*}.$(( ${_pyver#*.} + 1 ))" 'python-gobject' 'gtk4' 'gtk4-layer-shell' 'libnotify')
+makedepends=('python-pip')
+checkdepends=('python-pytest')
+optdepends=('ollama: IA locale (privée, hors ligne)'
+            'whisper.cpp: dictée vocale locale'
+            'espeak-ng: lecture à voix haute')
+options=('!strip' '!debug')
+
+build() {
+  # SDK officiel Anthropic et ses dépendances, installés dans un dossier privé
+  python -m pip install --quiet --no-compile --disable-pip-version-check \
+    --target "$srcdir/vendor" "anthropic>=2,<3"
+}
+
+check() {
+  # Les 34 tests de l'assistant (vrai SDK Anthropic contre un serveur local scripté)
+  cd "$startdir/../../assistant"
+  PYTHONPATH="$srcdir/vendor:$PWD" python -m pytest -q -p no:cacheprovider tests
+}
+
+# Copie avec droits explicites (cp + chmod plutôt que « install » : fiable avec
+# toutes les versions de fakeroot).
+_put() {  # _put DROITS SOURCE DESTINATION
+  mkdir -p "$(dirname "$3")"
+  cp "$2" "$3"
+  chmod "$1" "$3"
+}
+_put_into() {  # _put_into DROITS DOSSIER FICHIERS...
+  local mode=$1 dir=$2 file
+  shift 2
+  mkdir -p "$dir"
+  for file in "$@"; do _put "$mode" "$file" "$dir/$(basename "$file")"; done
+}
+
+package() {
+  local src="$startdir/../../assistant"
+  mkdir -p "$pkgdir/usr/lib/nova-assistant"
+  cp -r "$src/nova_ai" "$pkgdir/usr/lib/nova-assistant/"
+  cp -r "$srcdir/vendor" "$pkgdir/usr/lib/nova-assistant/vendor"
+  find "$pkgdir/usr/lib/nova-assistant" -name '__pycache__' -prune -exec rm -rf {} +
+  python -m compileall -q "$pkgdir/usr/lib/nova-assistant/nova_ai"
+  _put_into 755 "$pkgdir/usr/bin" "$src"/bin/*
+  _put 644 "$src/data/nova-daemon.service" "$pkgdir/usr/lib/systemd/user/nova-daemon.service"
+  _put_into 644 "$pkgdir/usr/share/applications" "$src"/data/*.desktop
+  # Droits explicites (indépendants de la version d'install/fakeroot utilisée)
+  find "$pkgdir" -type f ! -name '*.so' -exec chmod 644 {} +
+  find "$pkgdir" -type f -name '*.so' -exec chmod 755 {} +
+  find "$pkgdir" -type d -exec chmod 755 {} +
+  chmod 755 "$pkgdir"/usr/bin/*
+}

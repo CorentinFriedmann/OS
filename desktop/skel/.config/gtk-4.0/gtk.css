@@ -1,0 +1,28 @@
+/* NOVA OS — accent néon pour les applications GTK 4 / libadwaita */
+@define-color accent_color #00f0ff;
+@define-color accent_bg_color #00c8d8;
+@define-color accent_fg_color #05060d;
+@define-color window_bg_color #0a0d1a;
+@define-color view_bg_color #0a0d1a;
+@define-color headerbar_bg_color #0d1124;
+@define-color headerbar_backdrop_color #0a0d1a;
+@define-color sidebar_bg_color #0d1124;
+@define-color secondary_sidebar_bg_color #0b0f20;
+@define-color card_bg_color rgba(255, 255, 255, 0.04);
+@define-color popover_bg_color #11152a;
+@define-color dialog_bg_color #11152a;
+@define-color destructive_bg_color #ff3860;
+
+:root {
+  --accent-color: #00f0ff;
+  --accent-bg-color: #00c8d8;
+  --accent-fg-color: #05060d;
+  --window-bg-color: #0a0d1a;
+  --view-bg-color: #0a0d1a;
+  --headerbar-bg-color: #0d1124;
+  --sidebar-bg-color: #0d1124;
+  --card-bg-color: rgba(255, 255, 255, 0.04);
+  --popover-bg-color: #11152a;
+  --dialog-bg-color: #11152a;
+  --destructive-bg-color: #ff3860;
+}

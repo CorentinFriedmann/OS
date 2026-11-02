@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Réglages de Nova IA
+Comment=Configurer l'IA locale, la clé Claude et le mode de fonctionnement
+Exec=nova-assistant setup
+Icon=nova
+Terminal=false
+Categories=Settings;
+Keywords=ia;ai;claude;ollama;réglages;

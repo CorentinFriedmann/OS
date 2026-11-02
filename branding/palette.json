@@ -1,0 +1,19 @@
+{
+  "name": "Nova Neon",
+  "description": "Palette officielle de Nova OS (néon cyberpunk). Source unique des couleurs.",
+  "bg0": "#05060d",
+  "bg1": "#0a0d1a",
+  "bg2": "#11152a",
+  "bg3": "#1a2040",
+  "fg": "#e6f1ff",
+  "fg_dim": "#8b95b8",
+  "fg_muted": "#4a5378",
+  "cyan": "#00f0ff",
+  "magenta": "#ff2bd6",
+  "violet": "#8a5cff",
+  "blue": "#2f7bff",
+  "green": "#3dffa8",
+  "yellow": "#ffd23f",
+  "orange": "#ff8a3d",
+  "red": "#ff3860"
+}

@@ -1,0 +1,16 @@
+[SddmGreeterTheme]
+Name=Nova
+Description=Nova OS — écran de connexion néon
+Author=Nova OS
+Copyright=Nova OS
+License=MIT
+Type=sddm-theme
+Version=1.0
+Website=https://github.com/CorentinFriedmann/os
+Screenshot=preview.jpg
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Theme-Id=nova
+Theme-API=2.0
+QtVersion=6

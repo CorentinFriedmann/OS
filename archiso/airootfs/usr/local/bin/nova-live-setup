@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Session live : crée l'utilisateur « nova » (sans mot de passe) et ajoute le
+# message d'accueil « Installer Nova OS » au démarrage du bureau.
+set -euo pipefail
+useradd -m -u 1000 -G wheel,video,input,audio -s /usr/bin/fish -c "Nova (session d'essai)" nova
+passwd -d nova >/dev/null
+config=/home/nova/.config/hypr/hyprland.lua
+if [[ -f "$config" ]]; then
+  cat >> "$config" <<'LUA'
+
+-- Session d'essai : propose l'installation
+hl.on("hyprland.start", function() hl.exec_cmd("nova-live-welcome") end)
+LUA
+fi
+mkdir -p /home/nova/.local/state/nova
+touch /home/nova/.local/state/nova/welcome-done   # pas d'accueil de l'assistant en live
+chown -R nova:nova /home/nova

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Lanceur d'applications (fuzzel). Un second appui le referme.
+pkill -x fuzzel 2>/dev/null && exit 0
+exec fuzzel "$@"

@@ -1,0 +1,11 @@
+# NOVA OS — profil jeux
+steam
+gamemode
+lib32-gamemode
+gamescope
+mangohud
+lib32-mangohud
+proton-cachyos
+lutris
+wine-staging
+winetricks

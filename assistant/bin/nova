@@ -1,0 +1,4 @@
+#!/bin/sh
+# Nova IA — ligne de commande (discussion, réglages, démon)
+export PYTHONPATH="/usr/lib/nova-assistant:/usr/lib/nova-assistant/vendor${PYTHONPATH:+:$PYTHONPATH}"
+exec /usr/bin/python3 -m nova_ai.cli "$@"

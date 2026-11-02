@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Démarre la gestion de la mise en veille (hypridle) avec la config Nova.
+exec hypridle --config "$(nova-config hypr/hypridle.conf)" "$@"

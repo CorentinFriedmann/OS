@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Transmet l'environnement Wayland à systemd et D-Bus (services utilisateur,
+# portails, assistant Nova...). Lancé au démarrage de la session.
+vars=(WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP
+      HYPRLAND_INSTANCE_SIGNATURE XDG_CONFIG_DIRS NOVA_SESSION XCURSOR_THEME XCURSOR_SIZE
+      QT_QPA_PLATFORM QT_QPA_PLATFORMTHEME)
+dbus-update-activation-environment --systemd "${vars[@]}" 2>/dev/null || true
+systemctl --user import-environment "${vars[@]}" 2>/dev/null || true

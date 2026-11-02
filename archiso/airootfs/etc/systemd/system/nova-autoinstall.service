@@ -1,0 +1,15 @@
+[Unit]
+Description=Nova OS live — installation automatique (tests uniquement, volume NOVATEST)
+# Ne fait rien sans le volume de test : le script attend lui-même le réseau,
+# pour ne jamais retarder le démarrage normal de la clé.
+After=nova-live-user.service NetworkManager.service pacman-init.service
+ConditionPathExists=/dev/disk/by-label/NOVATEST
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/nova-autoinstall
+StandardOutput=journal+console
+TimeoutStartSec=infinity
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Nova OS — applique le mode de performance au démarrage
+After=power-profiles-daemon.service scx_loader.service
+Wants=power-profiles-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/nova/nova-mode-apply boot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

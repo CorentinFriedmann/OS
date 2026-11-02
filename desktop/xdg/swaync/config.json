@@ -1,0 +1,133 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "ignore-gtk-theme": true,
+  "positionX": "right",
+  "positionY": "top",
+  "layer": "overlay",
+  "control-center-layer": "top",
+  "layer-shell": true,
+  "layer-shell-cover-screen": true,
+  "cssPriority": "user",
+  "control-center-margin-top": 8,
+  "control-center-margin-bottom": 10,
+  "control-center-margin-right": 10,
+  "control-center-margin-left": 0,
+  "control-center-width": 420,
+  "control-center-height": 720,
+  "notification-window-width": 400,
+  "notification-icon-size": 56,
+  "notification-2fa-action": true,
+  "notification-inline-replies": true,
+  "notification-grouping": true,
+  "timeout": 6,
+  "timeout-low": 4,
+  "timeout-critical": 0,
+  "fit-to-screen": true,
+  "relative-timestamps": true,
+  "keyboard-shortcuts": true,
+  "image-visibility": "when-available",
+  "transition-time": 200,
+  "hide-on-clear": false,
+  "hide-on-action": true,
+  "text-empty": "Aucune notification",
+  "script-fail-notify": true,
+  "widgets": [
+    "title",
+    "buttons-grid",
+    "volume",
+    "backlight",
+    "mpris",
+    "dnd",
+    "notifications"
+  ],
+  "widget-config": {
+    "title": {
+      "text": "Centre Nova",
+      "clear-all-button": true,
+      "button-text": "Tout effacer"
+    },
+    "dnd": {
+      "text": "Ne pas déranger"
+    },
+    "notifications": {
+      "vexpand": true
+    },
+    "mpris": {
+      "autohide": true,
+      "show-album-art": "always",
+      "loop-carousel": false,
+      "blacklist": []
+    },
+    "volume": {
+      "label": "󰕾",
+      "show-per-app": true,
+      "show-per-app-icon": true,
+      "show-per-app-label": false,
+      "expand-button-label": "󰅀",
+      "collapse-button-label": "󰅃",
+      "empty-list-label": "Aucune application ne joue de son"
+    },
+    "backlight": {
+      "label": "󰃟"
+    },
+    "buttons-grid": {
+      "buttons-per-row": 3,
+      "actions": [
+        {
+          "label": "󰖩  Wi-Fi",
+          "type": "toggle",
+          "active": false,
+          "command": "nova-quick wifi apply",
+          "update-command": "nova-quick wifi state"
+        },
+        {
+          "label": "󰂯  Bluetooth",
+          "type": "toggle",
+          "active": false,
+          "command": "nova-quick bluetooth apply",
+          "update-command": "nova-quick bluetooth state"
+        },
+        {
+          "label": "󰀝  Avion",
+          "type": "toggle",
+          "active": false,
+          "command": "nova-quick avion apply",
+          "update-command": "nova-quick avion state"
+        },
+        {
+          "label": "󰊗  Jeu",
+          "type": "toggle",
+          "active": false,
+          "command": "nova-quick jeu apply",
+          "update-command": "nova-quick jeu state"
+        },
+        {
+          "label": "󰌪  Éco",
+          "type": "toggle",
+          "active": false,
+          "command": "nova-quick eco apply",
+          "update-command": "nova-quick eco state"
+        },
+        {
+          "label": "󰖔  Nuit",
+          "type": "toggle",
+          "active": false,
+          "command": "nova-quick nuit apply",
+          "update-command": "nova-quick nuit state"
+        },
+        {
+          "label": "󰆞  Capture",
+          "command": "nova-quick capture run"
+        },
+        {
+          "label": "󰌾  Verrou",
+          "command": "nova-quick verrou run"
+        },
+        {
+          "label": "󰙴  Nova IA",
+          "command": "nova-quick assistant run"
+        }
+      ]
+    }
+  }
+}

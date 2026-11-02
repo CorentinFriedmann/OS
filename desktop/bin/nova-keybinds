@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""Affiche tous les raccourcis de Nova (Super+F1), avec leur description."""
+import json
+import re
+import subprocess
+
+MODS = [(64, "Super"), (4, "Ctrl"), (8, "Alt"), (1, "Maj")]
+DIGITS = {10 + i: str((i + 1) % 10) for i in range(10)}
+PRETTY = {
+    "Return": "Entrée", "space": "Espace", "Print": "Impr. écran", "Escape": "Échap",
+    "Delete": "Suppr", "Tab": "Tab", "period": ".", "left": "←", "right": "→", "up": "↑", "down": "↓",
+    "mouse:272": "Clic gauche", "mouse:273": "Clic droit", "mouse_down": "Molette ↓", "mouse_up": "Molette ↑",
+}
+
+
+def main() -> None:
+    try:
+        raw = subprocess.run(["hyprctl", "-j", "binds"], capture_output=True, text=True, check=True).stdout
+        binds = json.loads(raw or "[]")
+    except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):
+        binds = []
+    lines, seen, grouped = [], set(), {}
+    for bind in binds:
+        desc = (bind.get("description") or "").strip()
+        if not desc or desc.startswith("XF86"):
+            continue
+        mods = [name for bit, name in MODS if int(bind.get("modmask") or 0) & bit]
+        keycode = bind.get("keycode") or 0
+        key = bind.get("key") or DIGITS.get(keycode, f"code:{keycode}")
+        if keycode in DIGITS and re.search(r"\d+$", desc):
+            # « Aller au bureau 1..10 » -> une seule ligne
+            label = re.sub(r"\s*\d+$", " 1…10", desc)
+            grouped.setdefault(label, " + ".join(mods + ["1…0"]))
+            continue
+        combo = " + ".join(mods + [PRETTY.get(key, key.upper() if len(key) == 1 else key)])
+        if (combo, desc) in seen:
+            continue
+        seen.add((combo, desc))
+        lines.append(f"{combo:<26}  {desc}")
+    lines += [f"{combo:<26}  {label}" for label, combo in grouped.items()]
+    if not lines:
+        lines = ["Impossible de lire les raccourcis (Hyprland est-il lancé ?)"]
+    subprocess.run(
+        ["fuzzel", "--dmenu", "--prompt", "\U000F030C  ", "--placeholder", "Filtrer les raccourcis…",
+         "--width", "72", "--lines", "18", "--font", "JetBrainsMono Nerd Font:size=12"],
+        input="\n".join(lines), text=True, check=False,
+    )
+
+
+if __name__ == "__main__":
+    main()

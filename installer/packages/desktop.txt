@@ -1,0 +1,57 @@
+# NOVA OS — bureau Hyprland néon
+hyprland
+hyprlock
+hypridle
+hyprpolkitagent
+hyprpicker
+hyprsunset
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+qt5-wayland
+qt6-wayland
+waybar
+fuzzel
+swaync
+swayosd
+swaybg
+grim
+slurp
+satty
+wl-clipboard
+cliphist
+wtype
+brightnessctl
+playerctl
+pavucontrol
+network-manager-applet
+blueman
+libnotify
+sddm
+# Écran de connexion : le greeter SDDM tourne sous X11
+xorg-server
+ghostty
+nautilus
+gvfs
+gvfs-mtp
+file-roller
+loupe
+papers
+gnome-calculator
+gnome-disk-utility
+gnome-text-editor
+firefox
+firefox-i18n-fr
+mpv
+# Apparence
+adw-gtk-theme
+papirus-icon-theme
+noto-fonts
+noto-fonts-emoji
+ttf-jetbrains-mono-nerd
+inter-font
+# Assistant Nova IA (interface GTK 4 + IA locale)
+python
+python-gobject
+gtk4
+gtk4-layer-shell
+ollama

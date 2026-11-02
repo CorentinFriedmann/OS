@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# nova-quick <nom> state|apply|run — actions rapides du centre de notifications.
+# swaync découpe ses commandes sur les espaces : tout passe donc par ce script.
+# Pour « apply », swaync fournit l'état voulu dans $SWAYNC_TOGGLE_STATE.
+set -uo pipefail
+name="${1:?nom manquant}"; verb="${2:-state}"
+want="${SWAYNC_TOGGLE_STATE:-false}"
+bool() { if "$@"; then echo true; else echo false; fi; }
+close_panel() { swaync-client -cp >/dev/null 2>&1; sleep 0.3; }
+case "$name:$verb" in
+  wifi:state) bool test "$(nmcli radio wifi 2>/dev/null)" = enabled ;;
+  wifi:apply) if [[ "$want" == true ]]; then nmcli radio wifi on; else nmcli radio wifi off; fi ;;
+  bluetooth:state) bool sh -c 'bluetoothctl show 2>/dev/null | grep -q "Powered: yes"' ;;
+  bluetooth:apply) if [[ "$want" == true ]]; then bluetoothctl power on; else bluetoothctl power off; fi >/dev/null ;;
+  avion:state) bool test "$(nmcli radio all 2>/dev/null | awk 'NR==2 {print $2}')" = disabled ;;
+  avion:apply) if [[ "$want" == true ]]; then nmcli radio all off; else nmcli radio all on; fi ;;
+  jeu:state) bool test "$(nova-mode get)" = jeu ;;
+  jeu:apply) if [[ "$want" == true ]]; then nova-mode set jeu; else nova-mode set equilibre; fi ;;
+  eco:state) bool test "$(nova-mode get)" = eco ;;
+  eco:apply) if [[ "$want" == true ]]; then nova-mode set eco; else nova-mode set equilibre; fi ;;
+  nuit:state) nova-nightlight status ;;
+  nuit:apply) if [[ "$want" == true ]]; then nova-nightlight on; else nova-nightlight off; fi ;;
+  capture:run) close_panel; exec nova-screenshot zone ;;
+  verrou:run) close_panel; exec nova-lock ;;
+  assistant:run) close_panel; exec nova-assistant toggle ;;
+  *) echo "nova-quick : action inconnue « $name $verb »" >&2; exit 2 ;;
+esac

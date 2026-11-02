@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Historique du presse-papiers (Super+V), façon Windows.
+set -euo pipefail
+pkill -x fuzzel 2>/dev/null && exit 0
+choice="$(cliphist list | fuzzel --dmenu --prompt "󰆒  " --placeholder "Historique du presse-papiers" --width 60)" || exit 0
+[[ -n "$choice" ]] || exit 0
+printf '%s' "$choice" | cliphist decode | wl-copy

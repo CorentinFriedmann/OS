@@ -1,0 +1,3 @@
+# NOVA OS : actions système sans mot de passe pour les administrateurs (groupe wheel).
+# Ces deux programmes n'acceptent que des arguments vérifiés.
+%wheel ALL=(root) NOPASSWD: /usr/lib/nova/nova-mode-apply, /usr/lib/nova/grub-reboot-windows

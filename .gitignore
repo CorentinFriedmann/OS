@@ -1,0 +1,9 @@
+# Constructions locales (scripts/build-packages.sh, scripts/build-iso.sh, tests)
+/out/
+/work/
+packages/*/src/
+packages/*/pkg/
+packages/*/*.pkg.tar.*
+__pycache__/
+*.pyc
+.pytest_cache/

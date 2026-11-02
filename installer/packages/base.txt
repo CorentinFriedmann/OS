@@ -1,0 +1,73 @@
+# NOVA OS — socle du système (toujours installé)
+base
+base-devel
+linux-firmware
+sof-firmware
+alsa-ucm-conf
+# Noyau optimisé CachyOS (ordonnanceur BORE) + noyau LTS de secours
+linux-cachyos
+linux-cachyos-headers
+linux-lts
+# Dépôts optimisés CachyOS (clés et miroirs)
+cachyos-keyring
+cachyos-mirrorlist
+cachyos-v3-mirrorlist
+cachyos-v4-mirrorlist
+# Démarrage, disques et instantanés (retour arrière depuis GRUB)
+grub
+efibootmgr
+os-prober
+grub-btrfs
+inotify-tools
+snapper
+snap-pac
+btrfs-progs
+dosfstools
+exfatprogs
+ntfs-3g
+plymouth
+# Performances
+zram-generator
+power-profiles-daemon
+scx-scheds
+scx-tools
+ananicy-cpp
+cachyos-ananicy-rules
+iw
+# Réseau et Bluetooth
+networkmanager
+wireless-regdb
+bluez
+bluez-utils
+# Son
+pipewire
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
+wireplumber
+# Outils du quotidien
+sudo
+man-db
+man-pages
+xdg-user-dirs
+xdg-utils
+fish
+starship
+fastfetch
+eza
+bat
+fd
+ripgrep
+zoxide
+fzf
+btop
+jq
+git
+curl
+wget
+rsync
+unzip
+p7zip
+paru
+unicode-emoji
+reflector

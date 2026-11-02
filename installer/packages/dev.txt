@@ -1,0 +1,16 @@
+# NOVA OS — profil développement
+code
+github-cli
+neovim
+lazygit
+docker
+docker-compose
+docker-buildx
+python-pip
+nodejs
+npm
+rustup
+go
+direnv
+just
+tree

@@ -1,0 +1,11 @@
+[Unit]
+Description=Nova OS — finalisation au premier démarrage
+After=local-fs.target
+ConditionPathExists=/boot/grub/grub.cfg
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/nova/nova-firstboot
+
+[Install]
+WantedBy=multi-user.target

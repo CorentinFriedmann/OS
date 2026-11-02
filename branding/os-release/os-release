@@ -1,0 +1,11 @@
+NAME="Nova OS"
+PRETTY_NAME="Nova OS"
+ID=nova
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;0;240;255"
+LOGO=nova
+HOME_URL="https://github.com/CorentinFriedmann/os"
+DOCUMENTATION_URL="https://github.com/CorentinFriedmann/os/tree/main/docs"
+SUPPORT_URL="https://github.com/CorentinFriedmann/os/issues"
+BUG_REPORT_URL="https://github.com/CorentinFriedmann/os/issues"

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# nova-osd <action> — volume / luminosité avec affichage néon à l'écran.
+# Utilise swayosd s'il est installé, sinon wpctl / brightnessctl.
+set -euo pipefail
+action="${1:?usage: nova-osd server|volume-up|volume-down|mute|mic-mute|brightness-up|brightness-down}"
+if [[ "$action" == server ]]; then
+  # Démarré à l'ouverture de session : affichage néon du volume / de la luminosité
+  command -v swayosd-server >/dev/null || exit 0
+  exec swayosd-server --style "$(nova-config swayosd/style.css)"
+fi
+if command -v swayosd-client >/dev/null && pgrep -x swayosd-server >/dev/null; then
+  case "$action" in
+    volume-up) exec swayosd-client --output-volume raise --max-volume 150 ;;
+    volume-down) exec swayosd-client --output-volume lower ;;
+    mute) exec swayosd-client --output-volume mute-toggle ;;
+    mic-mute) exec swayosd-client --input-volume mute-toggle ;;
+    brightness-up) exec swayosd-client --brightness raise ;;
+    brightness-down) exec swayosd-client --brightness lower ;;
+  esac
+fi
+case "$action" in
+  volume-up) wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+ ;;
+  volume-down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+  mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+  mic-mute) wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;;
+  brightness-up) brightnessctl -e4 -n2 set 5%+ >/dev/null ;;
+  brightness-down) brightnessctl -e4 -n2 set 5%- >/dev/null ;;
+  *) echo "action inconnue : $action" >&2; exit 2 ;;
+esac

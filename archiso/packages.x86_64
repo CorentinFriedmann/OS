@@ -1,0 +1,71 @@
+# NOVA OS — paquets ajoutés à l'image live (en plus du profil « releng » d'Arch)
+# Nova
+nova-branding
+nova-desktop
+nova-performance
+nova-assistant
+nova-installer
+# Bureau
+hyprland
+hyprlock
+hypridle
+hyprpolkitagent
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+qt6-wayland
+waybar
+fuzzel
+swaync
+swayosd
+swaybg
+grim
+slurp
+wl-clipboard
+cliphist
+brightnessctl
+playerctl
+pavucontrol
+libnotify
+network-manager-applet
+ghostty
+fish
+starship
+fastfetch
+eza
+bat
+firefox
+firefox-i18n-fr
+# Réseau, son
+networkmanager
+pipewire
+pipewire-pulse
+wireplumber
+sof-firmware
+# Apparence
+noto-fonts
+noto-fonts-emoji
+ttf-jetbrains-mono-nerd
+inter-font
+papirus-icon-theme
+adw-gtk-theme
+# Assistant (interface)
+python
+python-gobject
+gtk4
+gtk4-layer-shell
+# Langue française
+glibc-locales
+# Installation
+gum
+mtools
+pciutils
+os-prober
+cachyos-keyring
+cachyos-mirrorlist
+cachyos-v3-mirrorlist
+cachyos-v4-mirrorlist
+# Graphique Intel / AMD (session live fluide)
+mesa
+vulkan-intel
+intel-media-driver
+vulkan-radeon

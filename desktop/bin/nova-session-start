@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Ouverture de session Nova : transmet l'environnement Wayland à systemd, puis
+# démarre les services utilisateur dans le bon ordre (évite les courses au démarrage).
+nova-session-env
+systemctl --user start hyprpolkitagent.service 2>/dev/null || true
+systemctl --user start nova-daemon.service 2>/dev/null || true

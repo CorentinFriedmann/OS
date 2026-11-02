@@ -1,0 +1,287 @@
+#!/usr/bin/env bash
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  NOVA OS — installateur                                          ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# Usage :
+#   nova-install                     installation guidée
+#   nova-install --dry-run           montre le plan sans rien modifier
+#   nova-install --config FICHIER    installation automatique (réponses dans le fichier)
+#   nova-install --stop-after ÉTAPE  s'arrête après : partition | mount | pacstrap (tests)
+set -Eeuo pipefail
+
+NOVA_LIB=${NOVA_LIB:-/usr/lib/nova-installer}
+[[ -d "$NOVA_LIB/lib" ]] || NOVA_LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export NOVA_LIB
+NOVA_LOG=${NOVA_LOG:-/var/log/nova-install.log}
+export NOVA_LOG
+MNT=${NOVA_MNT:-/mnt}
+DRY_RUN=0
+STOP_AFTER=""
+CONFIG=""
+
+# shellcheck source=lib/ui.sh
+source "$NOVA_LIB/lib/ui.sh"
+# shellcheck source=lib/disks.sh
+source "$NOVA_LIB/lib/disks.sh"
+# shellcheck source=lib/system.sh
+source "$NOVA_LIB/lib/system.sh"
+
+usage() { sed -n '5,9p' "$0" | sed 's/^# \{0,1\}//'; }
+
+while (( $# )); do
+  case "$1" in
+    --dry-run) DRY_RUN=1 ;;
+    --config) CONFIG=${2:?fichier manquant}; shift ;;
+    --stop-after) STOP_AFTER=${2:?étape manquante}; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) die "Option inconnue : $1" ;;
+  esac
+  shift
+done
+
+# --- vérifications préalables ---------------------------------------------------
+preflight() {
+  [[ $EUID -eq 0 ]] || die "L'installateur doit être lancé en administrateur (sudo nova-install)."
+  if [[ ! -d /sys/firmware/efi/efivars && -z "${NOVA_SKIP_UEFI_CHECK:-}" ]]; then
+    die "Le PC a démarré en mode « Legacy/BIOS ». Redémarre la clé USB en mode UEFI (indispensable pour le dual-boot avec Windows)."
+  fi
+  mkdir -p "$(dirname "$NOVA_LOG")"
+  : >>"$NOVA_LOG"
+  chmod 600 "$NOVA_LOG"
+}
+
+check_network() {
+  local url
+  for url in https://geo.mirror.pkgbuild.com https://mirror.cachyos.org https://archlinux.org; do
+    curl -fsS --max-time 8 -o /dev/null "$url" && return 0
+  done
+  return 1
+}
+
+ensure_network() {
+  check_network && { ui_ok "Connexion à internet"; return; }
+  ui_warn "Pas de connexion à internet (nécessaire pour télécharger Nova OS)."
+  if [[ -t 0 ]] && command -v nmtui >/dev/null && ui_confirm "Se connecter à un réseau Wi-Fi maintenant ?"; then
+    nmtui connect || true
+  fi
+  check_network || die "Toujours pas de connexion : branche un câble réseau ou connecte-toi au Wi-Fi (icône en haut à droite), puis relance l'installation."
+  ui_ok "Connexion à internet"
+}
+
+# --- questions -------------------------------------------------------------------
+KEYBOARDS=(
+  "Français (AZERTY)|fr-latin9|fr|"
+  "Français (BÉPO)|fr-bepo|fr|bepo"
+  "Belge (AZERTY)|be-latin1|be|"
+  "Suisse romand (QWERTZ)|fr_CH-latin1|ch|fr"
+  "Canadien français|cf|ca|fr"
+  "Anglais (QWERTY US)|us|us|"
+)
+
+ask_disk() {
+  local entries=() line name size model label
+  while IFS='|' read -r name size model; do
+    label="$name — $(human "$size") — $model"
+    disk_windows_signs "$name" >/dev/null 2>&1 && label+=" — Windows détecté"
+    entries+=("$label")
+  done < <(disk_list)
+  (( ${#entries[@]} )) || die "Aucun disque utilisable n'a été trouvé."
+  line=$(ui_choose "Sur quel disque installer Nova OS ?" "${entries[@]}")
+  NOVA_DISK=${line%% *}
+}
+
+ask_mode() {
+  local free windows=0
+  disk_windows_signs "$NOVA_DISK" >/dev/null 2>&1 && windows=1
+  free=$(free_bytes "$NOVA_DISK")
+  local dual
+  dual="À côté de Windows — dans l'espace libre ($(human "$free") disponibles)"
+  local erase="Effacer TOUT le disque et n'installer que Nova OS"
+  if (( windows )); then
+    ui_info "Windows est présent sur $NOVA_DISK."
+    local choice
+    choice=$(ui_choose "Comment installer Nova OS ?" "$dual" "$erase")
+    if [[ "$choice" == "$dual" ]]; then NOVA_MODE=dualboot; else NOVA_MODE=erase; fi
+  elif (( free >= MIN_FREE_GIB * 1024**3 )); then
+    local choice
+    choice=$(ui_choose "Comment installer Nova OS ?" "Dans l'espace libre ($(human "$free"))" "$erase")
+    if [[ "$choice" == Dans* ]]; then NOVA_MODE=dualboot; else NOVA_MODE=erase; fi
+  else
+    NOVA_MODE=erase
+  fi
+}
+
+ask_identity() {
+  NOVA_FULLNAME=$(ui_input "Ton prénom (affiché à la connexion)" "${NOVA_FULLNAME:-}")
+  local suggested
+  suggested=$(iconv -f utf8 -t ascii//TRANSLIT <<< "${NOVA_FULLNAME:-utilisateur}" 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9_-' | cut -c1-24)
+  while true; do
+    NOVA_USER=$(ui_input "Nom d'utilisateur (minuscules, sans espace)" "${suggested:-nova}")
+    [[ "$NOVA_USER" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] && [[ "$NOVA_USER" != root ]] && break
+    ui_warn "Nom invalide : lettres minuscules, chiffres, - et _ uniquement."
+  done
+  while true; do
+    NOVA_PASSWORD=$(ui_password "Mot de passe (session et administration)")
+    local again
+    again=$(ui_password "Confirme le mot de passe")
+    [[ -n "$NOVA_PASSWORD" && "$NOVA_PASSWORD" == "$again" ]] && break
+    ui_warn "Les mots de passe sont vides ou différents, recommence."
+  done
+  NOVA_HOSTNAME=$(ui_input "Nom de l'ordinateur sur le réseau" "nova")
+  [[ "$NOVA_HOSTNAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,62}$ ]] || NOVA_HOSTNAME=nova
+}
+
+ask_locale() {
+  local labels=() entry choice
+  for entry in "${KEYBOARDS[@]}"; do labels+=("${entry%%|*}"); done
+  choice=$(ui_choose "Disposition du clavier" "${labels[@]}")
+  for entry in "${KEYBOARDS[@]}"; do
+    if [[ "${entry%%|*}" == "$choice" ]]; then
+      IFS='|' read -r _ NOVA_KEYMAP NOVA_XKB_LAYOUT NOVA_XKB_VARIANT <<< "$entry"
+    fi
+  done
+  NOVA_TIMEZONE=$(ui_input "Fuseau horaire" "Europe/Paris")
+  [[ -f "/usr/share/zoneinfo/$NOVA_TIMEZONE" ]] || { ui_warn "Fuseau inconnu, Europe/Paris utilisé."; NOVA_TIMEZONE=Europe/Paris; }
+  NOVA_LOCALE=fr_FR.UTF-8
+}
+
+ask_profiles() {
+  local chosen
+  chosen=$(ui_choose_multi "Que veux-tu installer en plus du bureau Nova ?" \
+    "Jeux (Steam, Proton, MangoHud…),Développement (VS Code, Docker, Git…),Quotidien et multimédia (LibreOffice, GIMP, OBS…)" \
+    "Jeux (Steam, Proton, MangoHud…)" "Développement (VS Code, Docker, Git…)" "Quotidien et multimédia (LibreOffice, GIMP, OBS…)")
+  NOVA_PROFILES=""
+  [[ "$chosen" == *Jeux* ]] && NOVA_PROFILES+="jeux,"
+  [[ "$chosen" == *Développement* ]] && NOVA_PROFILES+="dev,"
+  [[ "$chosen" == *Quotidien* ]] && NOVA_PROFILES+="multimedia,"
+  NOVA_PROFILES=${NOVA_PROFILES%,}
+}
+
+load_config() {
+  [[ -r "$CONFIG" ]] || die "Fichier de configuration illisible : $CONFIG"
+  # shellcheck disable=SC1090
+  source "$CONFIG"
+  : "${NOVA_DISK:?NOVA_DISK manquant}" "${NOVA_MODE:?NOVA_MODE manquant (dualboot|erase)}"
+  : "${NOVA_USER:=nova}" "${NOVA_FULLNAME:=Nova}" "${NOVA_PASSWORD:?NOVA_PASSWORD manquant}"
+  : "${NOVA_HOSTNAME:=nova}" "${NOVA_TIMEZONE:=Europe/Paris}" "${NOVA_LOCALE:=fr_FR.UTF-8}"
+  : "${NOVA_KEYMAP:=fr-latin9}" "${NOVA_XKB_LAYOUT:=fr}" "${NOVA_XKB_VARIANT:=}" "${NOVA_PROFILES:=jeux,dev,multimedia}"
+}
+
+# --- plan et garde-fous --------------------------------------------------------------
+NOVA_ESP=""
+validate_plan() {
+  [[ -b "$NOVA_DISK" ]] || die "$NOVA_DISK n'est pas un disque."
+  [[ "$NOVA_MODE" == dualboot || "$NOVA_MODE" == erase ]] || die "Mode inconnu : $NOVA_MODE"
+  if [[ "$NOVA_MODE" == dualboot ]]; then
+    local free
+    free=$(free_bytes "$NOVA_DISK")
+    if (( free < MIN_FREE_GIB * 1024**3 )); then
+      die "Pas assez d'espace libre sur $NOVA_DISK : $(human "$free") trouvés, ${MIN_FREE_GIB} Gio minimum (60 Gio conseillés).
+   Libère de la place depuis Windows : Gestion des disques → clic droit sur C: → « Réduire le volume »."
+    fi
+    NOVA_ESP=$(disk_esp "$NOVA_DISK") || die "Aucune partition EFI sur $NOVA_DISK : Windows est-il bien installé en mode UEFI ?"
+    local esp_free
+    esp_free=$(esp_free_mb "$NOVA_ESP")
+    (( esp_free >= 20 )) || die "La partition EFI ($NOVA_ESP) est presque pleine (${esp_free} Mo libres, 20 Mo nécessaires)."
+  fi
+}
+
+show_plan() {
+  ui_step "Récapitulatif"
+  local free
+  free=$(free_bytes "$NOVA_DISK")
+  printf '  Disque          : %s\n' "$NOVA_DISK"
+  if [[ "$NOVA_MODE" == dualboot ]]; then
+    printf '  Mode            : %sà côté de Windows%s (Windows n'"'"'est pas modifié)\n' "$GREEN" "$RESET"
+    printf '  Nouvelle partition Nova : %s dans l'"'"'espace libre\n' "$(human "$free")"
+    printf '  Démarrage       : partition EFI existante %s (non formatée)\n' "$NOVA_ESP"
+  else
+    printf '  Mode            : %sdisque entier — TOUTES les données de %s seront effacées%s\n' "$RED" "$NOVA_DISK" "$RESET"
+  fi
+  printf '  Utilisateur     : %s (%s) · ordinateur « %s »\n' "$NOVA_USER" "$NOVA_FULLNAME" "$NOVA_HOSTNAME"
+  printf '  Clavier         : %s %s · fuseau %s\n' "$NOVA_XKB_LAYOUT" "$NOVA_XKB_VARIANT" "$NOVA_TIMEZONE"
+  printf '  Profils         : %s\n' "${NOVA_PROFILES:-aucun}"
+  printf '  Matériel        : processeur %s · graphique %s%s\n' "$(cpu_vendor)" "$(gpu_vendors | tr '\n' ' ')" "$(is_laptop && echo '· portable')"
+  if disk_has_bitlocker "$NOVA_DISK"; then
+    ui_warn "BitLocker est actif sur Windows : garde ta clé de récupération à portée de main (account.microsoft.com/devices/recoverykey)."
+  fi
+}
+
+confirm_plan() {
+  [[ "${NOVA_CONFIRM:-}" == yes ]] && return 0
+  if [[ "$NOVA_MODE" == erase ]]; then
+    local typed
+    typed=$(ui_input "Pour effacer $NOVA_DISK, tape EFFACER en majuscules" "")
+    [[ "$typed" == EFFACER ]] || die "Installation annulée, rien n'a été modifié."
+  else
+    ui_confirm "Lancer l'installation ?" || die "Installation annulée, rien n'a été modifié."
+  fi
+}
+
+# --- exécution ------------------------------------------------------------------------
+stop_if() { [[ "$STOP_AFTER" == "$1" ]] && { ui_ok "Arrêt demandé après l'étape « $1 »."; exit 0; }; }
+
+run_install() {
+  local root esp backup
+  ui_step "Préparation du disque"
+  backup=$(backup_partition_table "$NOVA_DISK")
+  ui_ok "Sauvegarde de la table des partitions : $backup"
+  if [[ "$NOVA_MODE" == dualboot ]]; then
+    root=$(create_partition_in_free "$NOVA_DISK") || die "Création de la partition impossible."
+    esp=$NOVA_ESP
+    ui_ok "Partition Nova créée : $root (Windows intact)"
+  else
+    read -r esp root < <(wipe_and_partition "$NOVA_DISK") || die "Partitionnement impossible."
+    ui_run "Formatage de la partition EFI" format_esp "$esp"
+  fi
+  ui_run "Formatage btrfs (compression zstd)" format_root "$root"
+  ui_run "Création des sous-volumes (/, /home, instantanés…)" create_subvolumes "$root" "$MNT"
+  stop_if partition
+  mount_target "$root" "$esp" "$MNT"
+  ui_ok "Système de fichiers monté dans $MNT"
+  stop_if mount
+  ui_step "Installation de Nova OS"
+  install_base_system "$MNT" "$NOVA_PROFILES"
+  stop_if pacstrap
+  configure_system "$MNT"
+  cp "$NOVA_LOG" "$MNT/var/log/nova-install.log" 2>/dev/null || true
+  # La sauvegarde de la table des partitions d'origine est gardée sur le système installé
+  # (la copie de la clé USB, en mémoire, disparaît au redémarrage)
+  mkdir -p "$MNT/var/lib/nova"
+  cp "$backup" "$MNT/var/lib/nova/" 2>/dev/null || true
+  unmount_target "$MNT"
+}
+
+main() {
+  preflight
+  (( DRY_RUN )) || [[ -n "$CONFIG" ]] || clear
+  ui_banner
+  if [[ -n "$CONFIG" ]]; then
+    load_config
+  else
+    ui_step "1/4 · Disque"
+    ask_disk
+    ask_mode
+    ui_step "2/4 · Toi"
+    ask_identity
+    ui_step "3/4 · Langue et clavier"
+    ask_locale
+    ui_step "4/4 · Logiciels"
+    ask_profiles
+  fi
+  validate_plan
+  show_plan
+  if (( DRY_RUN )); then
+    ui_ok "Mode simulation : aucune modification n'a été faite."
+    exit 0
+  fi
+  [[ "$STOP_AFTER" == partition || "$STOP_AFTER" == mount ]] || ensure_network
+  confirm_plan
+  run_install
+  ui_step "Terminé"
+  printf '%s  ✦ Nova OS est installé !%s\n' "$GREEN" "$RESET"
+  printf '  Retire la clé USB puis redémarre. Au démarrage, choisis « Nova OS » (Windows reste dans le menu).\n'
+  printf '  Ensuite : Super+Espace pour parler à Nova, Super+F1 pour voir les raccourcis.\n'
+}
+
+main

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# nova-screenshot zone|ecran|fenetre — capture d'écran enregistrée dans
+# ~/Images/Captures et copiée dans le presse-papiers.
+set -euo pipefail
+mode="${1:-zone}"
+pictures="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Images")"
+dir="$pictures/Captures"
+mkdir -p "$dir"
+file="$dir/Capture_$(date +%Y-%m-%d_%H-%M-%S).png"
+case "$mode" in
+  zone)
+    geometry="$(slurp -d -b 05060d88 -c 00f0ffff -s 00f0ff22 -w 2)" || exit 0
+    grim -g "$geometry" "$file" ;;
+  fenetre)
+    geometry="$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')"
+    grim -g "$geometry" "$file" ;;
+  ecran|*)
+    grim "$file" ;;
+esac
+wl-copy --type image/png < "$file"
+action="$(notify-send -a "Capture" -i "$file" "Capture enregistrée" "${file/#$HOME/~}" \
+  --action=open=Ouvrir --action=edit=Annoter --action=folder=Dossier || true)"
+case "$action" in
+  open) xdg-open "$file" ;;
+  edit) command -v satty >/dev/null && satty --filename "$file" --output-filename "$file" ;;
+  folder) xdg-open "$dir" ;;
+esac

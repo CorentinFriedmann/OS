@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Nova IA
+GenericName=Assistant intelligent
+Comment=Parle à Nova : pilote ton PC, cherche sur le web, analyse ton écran
+Exec=nova-assistant show
+Icon=nova
+Terminal=false
+Categories=Utility;
+Keywords=ia;ai;assistant;nova;claude;chat;
+StartupNotify=false

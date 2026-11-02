@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Redémarre une seule fois sur Windows (dual-boot), puis Nova redevient
+# le système par défaut. « --available » : teste si Windows est détecté.
+set -euo pipefail
+helper=/usr/lib/nova/grub-reboot-windows
+if [[ "${1:-}" == --available ]]; then
+  exec sudo -n "$helper" --check
+fi
+if sudo -n "$helper"; then
+  exec systemctl reboot
+fi
+notify-send -u critical -a Nova "Windows introuvable" \
+  "Aucune entrée Windows dans le menu de démarrage (lance « sudo grub-mkconfig -o /boot/grub/grub.cfg »)."
+exit 1

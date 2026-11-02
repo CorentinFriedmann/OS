@@ -1,0 +1,8 @@
+#!/bin/sh
+# Nova IA — fenêtre flottante (Super+Espace). gtk4-layer-shell doit être chargé
+# avant libwayland-client, d'où le LD_PRELOAD (exigence documentée de la bibliothèque).
+export PYTHONPATH="/usr/lib/nova-assistant:/usr/lib/nova-assistant/vendor${PYTHONPATH:+:$PYTHONPATH}"
+if [ -e /usr/lib/libgtk4-layer-shell.so ]; then
+  export LD_PRELOAD="/usr/lib/libgtk4-layer-shell.so${LD_PRELOAD:+:$LD_PRELOAD}"
+fi
+exec /usr/bin/python3 -m nova_ai.overlay "$@"

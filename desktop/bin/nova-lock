@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Verrouille la session avec l'écran néon de Nova (une seule instance).
+pidof hyprlock >/dev/null 2>&1 && exit 0
+exec hyprlock --config "$(nova-config hypr/hyprlock.conf)" "$@"

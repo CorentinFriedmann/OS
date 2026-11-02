@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# nova-mode-apply <eco|equilibre|performance|jeu|boot> — partie « administrateur »
+# des modes de performance de Nova (appelée via sudo par nova-mode, ou au démarrage).
+set -uo pipefail
+STATE_DIR=/run/nova
+DEFAULT_FILE=/etc/nova/mode
+
+mode="${1:-}"
+if [[ "$mode" == boot ]]; then
+  mode="$(cat "$DEFAULT_FILE" 2>/dev/null || echo equilibre)"
+fi
+case "$mode" in
+  eco|equilibre|performance|jeu) ;;
+  *) echo "mode inconnu : $mode" >&2; exit 2 ;;
+esac
+
+# 1) Profil d'énergie (power-profiles-daemon pilote l'EPP des processeurs Intel/AMD)
+profile=balanced
+case "$mode" in
+  eco) profile=power-saver ;;
+  performance|jeu) profile=performance ;;
+esac
+if command -v powerprofilesctl >/dev/null; then
+  powerprofilesctl set "$profile" 2>/dev/null || powerprofilesctl set balanced 2>/dev/null || true
+fi
+
+# 2) Turbo Intel : coupé en mode éco (gros gain d'autonomie), actif sinon
+if [[ -w /sys/devices/system/cpu/intel_pstate/no_turbo ]]; then
+  if [[ "$mode" == eco ]]; then
+    echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
+  else
+    echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
+  fi
+fi
+
+# 3) Ordonnanceur sched-ext (scx_lavd) : économie en éco, latence minimale en jeu.
+#    En équilibré / performance, on garde BORE, l'ordonnanceur du noyau CachyOS.
+if command -v scxctl >/dev/null; then
+  case "$mode" in
+    eco) scxctl switch --sched lavd --mode powersave >/dev/null 2>&1 || scxctl start --sched lavd --mode powersave >/dev/null 2>&1 ;;
+    jeu) scxctl switch --sched lavd --mode gaming >/dev/null 2>&1 || scxctl start --sched lavd --mode gaming >/dev/null 2>&1 ;;
+    *) scxctl stop >/dev/null 2>&1 ;;
+  esac
+fi
+
+# 4) Disque : écritures moins fréquentes en éco (le disque dort plus longtemps)
+if [[ "$mode" == eco ]]; then
+  sysctl -q vm.dirty_writeback_centisecs=6000 || true
+else
+  sysctl -q vm.dirty_writeback_centisecs=1500 || true
+fi
+
+# 5) Wi-Fi : économie d'énergie en éco/équilibré, latence minimale en performance/jeu
+if command -v iw >/dev/null; then
+  ps_state=on
+  [[ "$mode" == performance || "$mode" == jeu ]] && ps_state=off
+  for dev in /sys/class/net/*/wireless; do
+    [[ -e "$dev" ]] || continue
+    iface="$(basename "$(dirname "$dev")")"
+    iw dev "$iface" set power_save "$ps_state" 2>/dev/null || true
+  done
+fi
+
+mkdir -p "$STATE_DIR"
+echo "$mode" > "$STATE_DIR/mode"
+chmod 644 "$STATE_DIR/mode"

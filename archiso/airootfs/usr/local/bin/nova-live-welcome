@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Session d'essai : notification de bienvenue avec un bouton « Installer ».
+sleep 4
+action=$(notify-send -a "Nova OS" -i nova -u critical "Bienvenue dans Nova OS" \
+  "Session d'essai : rien n'est modifié sur ton ordinateur. Pour installer Nova OS, clique sur « Installer » (ou Super+D puis « Installer Nova OS »)." \
+  --action=install=Installer --action=later="Plus tard")
+if [[ "$action" == install ]]; then
+  exec ghostty "--title=Installation de Nova OS" -e sudo nova-install
+fi

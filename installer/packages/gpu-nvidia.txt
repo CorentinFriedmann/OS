@@ -1,0 +1,6 @@
+# Graphique NVIDIA (pilote ouvert, modules précompilés CachyOS)
+linux-cachyos-nvidia-open
+nvidia-utils
+lib32-nvidia-utils
+nvidia-settings
+libva-nvidia-driver

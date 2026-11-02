@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# nova-wallpaper restore [défaut] | set <image> | next
+# Le choix de l'utilisateur est mémorisé dans ~/.config/nova/wallpaper.
+set -euo pipefail
+state="${XDG_CONFIG_HOME:-$HOME/.config}/nova/wallpaper"
+system_dir=/usr/share/backgrounds/nova
+apply() {
+  pkill -x swaybg 2>/dev/null || true
+  setsid -f swaybg -m fill -i "$1" >/dev/null 2>&1
+}
+case "${1:-restore}" in
+  restore)
+    image="${2:-$system_dir/nova-city.jpg}"
+    [[ -f "$state" && -f "$(<"$state")" ]] && image="$(<"$state")"
+    apply "$image" ;;
+  set)
+    image="$(realpath "${2:?image manquante}")"
+    mkdir -p "$(dirname "$state")"
+    printf '%s\n' "$image" > "$state"
+    apply "$image" ;;
+  next)
+    mapfile -t images < <(find "$system_dir" "$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Images")/Fonds" \
+      -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.webp' \) ! -name '*-lock.*' 2>/dev/null | sort)
+    (( ${#images[@]} )) || exit 0
+    current="$( [[ -f "$state" ]] && cat "$state" || echo "")"
+    next="${images[0]}"
+    for i in "${!images[@]}"; do
+      if [[ "${images[$i]}" == "$current" ]]; then next="${images[$(( (i + 1) % ${#images[@]} ))]}"; fi
+    done
+    "$0" set "$next" ;;
+  *) echo "usage: nova-wallpaper restore|set <image>|next" >&2; exit 2 ;;
+esac

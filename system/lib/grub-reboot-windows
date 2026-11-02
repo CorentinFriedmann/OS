@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Redémarre une seule fois sur Windows (lancé via sudo par nova-reboot-windows).
+# « --check » : code 0 si une entrée Windows existe dans le menu GRUB.
+set -euo pipefail
+cfg=/boot/grub/grub.cfg
+[[ -r "$cfg" ]] || exit 1
+entry="$(grep -oP "^menuentry '\K[^']*Windows[^']*" "$cfg" | head -n1 || true)"
+[[ -n "$entry" ]] || exit 1
+[[ "${1:-}" == --check ]] && exit 0
+grub-reboot "$entry"

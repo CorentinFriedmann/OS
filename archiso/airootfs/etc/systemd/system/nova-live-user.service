@@ -1,0 +1,11 @@
+[Unit]
+Description=Nova OS live — création de l'utilisateur de la session d'essai
+Before=getty@tty1.service systemd-user-sessions.service
+ConditionPathExists=!/home/nova
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/nova-live-setup
+
+[Install]
+WantedBy=multi-user.target

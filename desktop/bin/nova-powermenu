@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Menu d'alimentation néon (Super+Échap, Ctrl+Alt+Suppr, bouton marche).
+set -euo pipefail
+pkill -x fuzzel 2>/dev/null && exit 0
+options=(
+  "󰌾  Verrouiller"
+  "󰒲  Mettre en veille"
+  "󰍃  Se déconnecter"
+  "󰜉  Redémarrer"
+)
+if nova-reboot-windows --available >/dev/null 2>&1; then
+  options+=("󰖳  Redémarrer sous Windows")
+fi
+options+=("󰐥  Éteindre")
+choice="$(printf '%s\n' "${options[@]}" | fuzzel --dmenu --prompt "󰐥  " \
+  --placeholder "Que veux-tu faire ?" --lines "${#options[@]}" --width 32)" || exit 0
+case "$choice" in
+  *Verrouiller) exec nova-lock ;;
+  *veille) exec systemctl suspend ;;
+  *déconnecter)
+    if command -v hyprshutdown >/dev/null; then exec hyprshutdown; fi
+    exec hyprctl dispatch 'hl.dsp.exit()' ;;
+  *"sous Windows") exec nova-reboot-windows ;;
+  *Redémarrer) exec systemctl reboot ;;
+  *Éteindre) exec systemctl poweroff ;;
+esac

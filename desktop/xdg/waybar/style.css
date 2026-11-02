@@ -1,0 +1,169 @@
+/* ╔══════════════════════════════════════════════════════════════╗
+ * ║  NOVA OS — style néon de la barre (Waybar / GTK CSS)          ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ * Palette : fond #05060d, cyan #00f0ff, violet #8a5cff, magenta #ff2bd6
+ */
+
+@define-color nova-bg rgba(8, 10, 22, 0.78);
+@define-color nova-bg-hover rgba(20, 26, 52, 0.92);
+@define-color nova-fg #e6f1ff;
+@define-color nova-dim #8b95b8;
+@define-color nova-muted #4a5378;
+@define-color nova-cyan #00f0ff;
+@define-color nova-violet #8a5cff;
+@define-color nova-magenta #ff2bd6;
+@define-color nova-green #3dffa8;
+@define-color nova-yellow #ffd23f;
+@define-color nova-red #ff3860;
+
+* {
+  font-family: "Inter", "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+}
+
+window#waybar {
+  background: transparent;
+  color: @nova-fg;
+}
+
+tooltip {
+  background: rgba(8, 10, 22, 0.95);
+  border: 1px solid alpha(@nova-cyan, 0.45);
+  border-radius: 12px;
+  box-shadow: 0 0 14px alpha(@nova-cyan, 0.25);
+}
+tooltip label { color: @nova-fg; padding: 4px; }
+
+/* Les trois îlots de verre ------------------------------------------- */
+.modules-left,
+.modules-center,
+.modules-right {
+  background: @nova-bg;
+  border-radius: 14px;
+  border: 1px solid alpha(@nova-cyan, 0.16);
+  padding: 2px 8px;
+  box-shadow: 0 0 10px alpha(@nova-violet, 0.18), inset 0 1px 0 alpha(#ffffff, 0.04);
+}
+
+/* Chaque module ------------------------------------------------------ */
+#clock, #mpris, #custom-nova-ai, #custom-nova-mode, #cpu, #memory, #temperature,
+#wireplumber, #backlight, #network, #bluetooth, #battery, #tray,
+#custom-notifications, #custom-power, #window {
+  padding: 0 9px;
+  margin: 3px 0;
+  border-radius: 10px;
+  color: @nova-fg;
+  transition: background 200ms ease, color 200ms ease;
+}
+
+#clock:hover, #mpris:hover, #custom-nova-mode:hover, #cpu:hover, #memory:hover,
+#wireplumber:hover, #backlight:hover, #network:hover, #bluetooth:hover,
+#battery:hover, #custom-notifications:hover {
+  background: @nova-bg-hover;
+}
+
+/* Logo */
+#image { padding: 0 6px 0 4px; }
+
+/* Bureaux virtuels : points néon --------------------------------------- */
+#workspaces { margin: 0 4px; }
+#workspaces button {
+  padding: 0 5px;
+  margin: 4px 1px;
+  color: @nova-muted;
+  background: transparent;
+  border-radius: 8px;
+  transition: all 250ms cubic-bezier(0.05, 0.9, 0.1, 1.05);
+}
+#workspaces button:hover {
+  color: @nova-fg;
+  background: alpha(@nova-violet, 0.18);
+  box-shadow: none;
+}
+#workspaces button.active {
+  color: @nova-cyan;
+  padding: 0 12px;
+  background: alpha(@nova-cyan, 0.12);
+  text-shadow: 0 0 6px alpha(@nova-cyan, 0.95);
+}
+#workspaces button.urgent {
+  color: @nova-magenta;
+  text-shadow: 0 0 8px @nova-magenta;
+}
+
+#window { color: @nova-dim; font-weight: 400; }
+
+/* Horloge centrale, typo futuriste ------------------------------------ */
+#clock {
+  font-family: "Orbitron", "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: @nova-fg;
+  text-shadow: 0 0 8px alpha(@nova-cyan, 0.85);
+}
+
+/* Orbe de l'assistant IA --------------------------------------------- */
+#custom-nova-ai {
+  color: @nova-cyan;
+  font-size: 15px;
+  text-shadow: 0 0 8px alpha(@nova-cyan, 0.9);
+  background: linear-gradient(135deg, alpha(@nova-cyan, 0.14), alpha(@nova-magenta, 0.14));
+  border: 1px solid alpha(@nova-cyan, 0.35);
+}
+#custom-nova-ai:hover {
+  background: linear-gradient(135deg, alpha(@nova-cyan, 0.28), alpha(@nova-magenta, 0.28));
+}
+#custom-nova-ai.cloud { color: @nova-magenta; text-shadow: 0 0 8px alpha(@nova-magenta, 0.9); border-color: alpha(@nova-magenta, 0.4); }
+#custom-nova-ai.thinking { animation: nova-pulse 1.2s ease-in-out infinite alternate; }
+#custom-nova-ai.offline { color: @nova-muted; text-shadow: none; border-color: alpha(@nova-muted, 0.4); }
+
+@keyframes nova-pulse {
+  from { text-shadow: 0 0 4px alpha(@nova-cyan, 0.5); }
+  to   { text-shadow: 0 0 14px @nova-cyan, 0 0 22px alpha(@nova-magenta, 0.8); }
+}
+
+/* Modes de performance ----------------------------------------------- */
+#custom-nova-mode.eco { color: @nova-green; }
+#custom-nova-mode.equilibre { color: @nova-cyan; }
+#custom-nova-mode.performance { color: @nova-yellow; text-shadow: 0 0 6px alpha(@nova-yellow, 0.7); }
+#custom-nova-mode.jeu { color: @nova-magenta; text-shadow: 0 0 8px alpha(@nova-magenta, 0.9); }
+
+/* Tiroir matériel */
+#cpu { color: @nova-cyan; }
+#memory { color: @nova-violet; }
+#temperature { color: @nova-dim; }
+#temperature.critical { color: @nova-red; }
+
+#wireplumber.muted { color: @nova-muted; }
+#network.disconnected { color: @nova-muted; }
+#bluetooth.disabled, #bluetooth.off { color: @nova-muted; }
+#bluetooth.connected { color: @nova-cyan; }
+
+/* Batterie ----------------------------------------------------------- */
+#battery.charging, #battery.plugged { color: @nova-green; }
+#battery.warning:not(.charging) { color: @nova-yellow; }
+#battery.critical:not(.charging) {
+  color: @nova-red;
+  animation: nova-blink 0.9s steps(2) infinite alternate;
+}
+@keyframes nova-blink {
+  to { color: @nova-fg; background: alpha(@nova-red, 0.35); }
+}
+
+#tray > .needs-attention { background: alpha(@nova-magenta, 0.3); }
+
+#custom-notifications { font-size: 14px; }
+#custom-power {
+  color: @nova-magenta;
+  font-size: 14px;
+  margin-right: 2px;
+}
+#custom-power:hover {
+  background: alpha(@nova-magenta, 0.2);
+  text-shadow: 0 0 8px @nova-magenta;
+}

@@ -1,0 +1,49 @@
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Bureau néon de Nova OS : configuration Hyprland (Lua), Waybar, lanceur,
+# notifications, verrouillage, terminal, shell et utilitaires « nova-* ».
+pkgname=nova-desktop
+pkgver=${NOVA_PKGVER:-0.1.0}
+pkgrel=1
+pkgdesc="Nova OS — bureau Hyprland néon (configurations et utilitaires)"
+arch=('any')
+url="https://github.com/CorentinFriedmann/os"
+license=('MIT')
+depends=('bash' 'python')
+optdepends=('hyprland: compositeur Wayland'
+            'waybar: barre supérieure'
+            'fuzzel: lanceur et menus'
+            'swaync: centre de notifications'
+            'ghostty: terminal'
+            'fish: shell'
+            'starship: invite de commande')
+
+# Copie avec droits explicites (cp + chmod plutôt que « install » : fiable avec
+# toutes les versions de fakeroot).
+_put() {  # _put DROITS SOURCE DESTINATION
+  mkdir -p "$(dirname "$3")"
+  cp "$2" "$3"
+  chmod "$1" "$3"
+}
+_put_into() {  # _put_into DROITS DOSSIER FICHIERS...
+  local mode=$1 dir=$2 file
+  shift 2
+  mkdir -p "$dir"
+  for file in "$@"; do _put "$mode" "$file" "$dir/$(basename "$file")"; done
+}
+
+package() {
+  local src="$startdir/../../desktop"
+  mkdir -p "$pkgdir/usr/share/nova"
+  cp -r "$src/hypr" "$src/xdg" "$src/ghostty" "$src/fastfetch" "$pkgdir/usr/share/nova/"
+  _put 644 "$src/starship/starship.toml" "$pkgdir/usr/share/nova/starship.toml"
+  _put 644 "$src/fish/nova.fish" "$pkgdir/etc/fish/conf.d/nova.fish"
+  _put 644 "$src/glib/90_nova.gschema.override" "$pkgdir/usr/share/glib-2.0/schemas/90_nova.gschema.override"
+  _put_into 755 "$pkgdir/usr/bin" "$src"/bin/*
+  # Fichiers copiés dans le dossier personnel des nouveaux utilisateurs
+  mkdir -p "$pkgdir/etc/skel"
+  cp -r "$src/skel/.config" "$pkgdir/etc/skel/"
+  # Droits explicites (indépendants de la version d'install/fakeroot utilisée)
+  find "$pkgdir" -type f -exec chmod 644 {} +
+  find "$pkgdir" -type d -exec chmod 755 {} +
+  chmod 755 "$pkgdir"/usr/bin/*
+}

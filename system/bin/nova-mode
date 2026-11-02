@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# nova-mode — modes de performance de Nova OS
+#   nova-mode get | set <mode> | next | toggle-game | menu | status [--waybar]
+# Modes : eco · equilibre · performance · jeu
+set -uo pipefail
+MODES=(eco equilibre performance jeu)
+declare -A LABEL=([eco]="Éco" [equilibre]="Équilibré" [performance]="Performance" [jeu]="Jeu")
+declare -A ICON=([eco]="󰌪" [equilibre]="󰗑" [performance]="󱐋" [jeu]="󰊗")
+declare -A DESC=(
+  [eco]="Autonomie maximale : turbo coupé, effets visuels réduits"
+  [equilibre]="Le meilleur compromis au quotidien (par défaut)"
+  [performance]="Puissance maximale du processeur"
+  [jeu]="Performance + latence minimale, effets coupés, plein écran sans délai"
+)
+declare -A VISUAL=([eco]=eco [equilibre]=auto [performance]=full [jeu]=game)
+
+current() { cat /run/nova/mode 2>/dev/null || echo equilibre; }
+
+normalize() {
+  case "${1,,}" in
+    eco|éco|economie|économie|batterie|power-saver) echo eco ;;
+    equilibre|équilibré|equilibré|balanced|normal) echo equilibre ;;
+    performance|perf|turbo|max) echo performance ;;
+    jeu|jeux|game|gaming) echo jeu ;;
+    *) return 1 ;;
+  esac
+}
+
+apply_visuals() {
+  local dir="${XDG_RUNTIME_DIR:-/tmp}/nova"
+  mkdir -p "$dir"
+  echo "${VISUAL[$1]}" > "$dir/visual-mode"
+  if command -v hyprctl >/dev/null && [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+    hyprctl eval 'nova_refresh()' >/dev/null 2>&1 || true
+  fi
+}
+
+set_mode() {
+  local mode
+  mode="$(normalize "$1")" || { echo "Mode inconnu : $1 (eco, equilibre, performance, jeu)" >&2; return 2; }
+  if ! sudo -n /usr/lib/nova/nova-mode-apply "$mode" 2>/dev/null; then
+    pkexec /usr/lib/nova/nova-mode-apply "$mode" || { echo "Changement de mode refusé." >&2; return 1; }
+  fi
+  apply_visuals "$mode"
+  pkill -RTMIN+9 -x waybar 2>/dev/null || true
+  command -v notify-send >/dev/null && notify-send -a "Nova" -i nova -t 2500 \
+    "Mode ${LABEL[$mode]}" "${DESC[$mode]}" 2>/dev/null
+  echo "Mode ${LABEL[$mode]} activé."
+}
+
+case "${1:-status}" in
+  get) current ;;
+  set) set_mode "${2:?mode manquant}" ;;
+  next)
+    cur="$(current)"
+    for i in "${!MODES[@]}"; do
+      if [[ "${MODES[$i]}" == "$cur" ]]; then set_mode "${MODES[$(( (i + 1) % ${#MODES[@]} ))]}"; exit; fi
+    done
+    set_mode equilibre ;;
+  toggle-game) if [[ "$(current)" == jeu ]]; then set_mode equilibre; else set_mode jeu; fi ;;
+  menu)
+    pkill -x fuzzel 2>/dev/null && exit 0
+    cur="$(current)"
+    choice="$(for m in "${MODES[@]}"; do
+        mark=""; [[ "$m" == "$cur" ]] && mark="  ●"
+        printf '%s  %s — %s%s\n' "${ICON[$m]}" "${LABEL[$m]}" "${DESC[$m]}" "$mark"
+      done | fuzzel --dmenu --prompt "󰓅  " --placeholder "Mode de performance" --lines 4 --width 70)" || exit 0
+    label="$(sed -E 's/^[^ ]+  ([^ ]+) — .*/\1/' <<< "$choice")"
+    for m in "${MODES[@]}"; do [[ "${LABEL[$m]}" == "$label" ]] && set_mode "$m"; done ;;
+  status)
+    cur="$(current)"
+    if [[ "${2:-}" == --waybar ]]; then
+      printf '{"text":"%s  %s","class":"%s","tooltip":"Mode %s\\n%s\\nClic : changer de mode"}\n' \
+        "${ICON[$cur]}" "${LABEL[$cur]}" "$cur" "${LABEL[$cur]}" "${DESC[$cur]}"
+    else
+      echo "Mode ${LABEL[$cur]} — ${DESC[$cur]}"
+    fi ;;
+  -h|--help|help) sed -n '2,4p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) set_mode "$1" ;;
+esac

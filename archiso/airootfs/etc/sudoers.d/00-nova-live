@@ -1,0 +1,2 @@
+# Session live : l'utilisateur « nova » peut tout faire sans mot de passe
+nova ALL=(ALL:ALL) NOPASSWD: ALL

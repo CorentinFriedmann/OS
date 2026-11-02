@@ -1,0 +1,49 @@
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Installateur de Nova OS (dual-boot Windows ou disque entier).
+pkgname=nova-installer
+pkgver=${NOVA_PKGVER:-0.1.0}
+pkgrel=1
+pkgdesc="Nova OS — installateur (à côté de Windows ou sur disque entier)"
+arch=('any')
+url="https://github.com/CorentinFriedmann/os"
+license=('MIT')
+depends=('bash' 'gum' 'arch-install-scripts' 'gptfdisk' 'btrfs-progs' 'dosfstools' 'mtools'
+         'ntfs-3g' 'util-linux' 'pciutils' 'curl' 'nova-performance')
+
+# Copie avec droits explicites (cp + chmod plutôt que « install » : fiable avec
+# toutes les versions de fakeroot).
+_put() {  # _put DROITS SOURCE DESTINATION
+  mkdir -p "$(dirname "$3")"
+  cp "$2" "$3"
+  chmod "$1" "$3"
+}
+_put_into() {  # _put_into DROITS DOSSIER FICHIERS...
+  local mode=$1 dir=$2 file
+  shift 2
+  mkdir -p "$dir"
+  for file in "$@"; do _put "$mode" "$file" "$dir/$(basename "$file")"; done
+}
+
+package() {
+  local src="$startdir/../../installer"
+  _put 755 "$src/nova-install" "$pkgdir/usr/lib/nova-installer/nova-install"
+  _put_into 644 "$pkgdir/usr/lib/nova-installer/lib" "$src"/lib/*.sh
+  _put_into 644 "$pkgdir/usr/lib/nova-installer/packages" "$src"/packages/*.txt
+  mkdir -p "$pkgdir/usr/bin"
+  ln -s /usr/lib/nova-installer/nova-install "$pkgdir/usr/bin/nova-install"
+  mkdir -p "$pkgdir/usr/share/applications"
+  cat > "$pkgdir/usr/share/applications/nova-install.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Installer Nova OS
+Comment=Installer Nova OS à côté de Windows ou sur tout le disque
+Exec=ghostty "--title=Installation de Nova OS" -e sudo nova-install
+Icon=nova
+Terminal=false
+Categories=System;
+Keywords=installer;installation;nova;
+DESKTOP
+  # Droits explicites (indépendants de la version d'install/fakeroot utilisée)
+  find "$pkgdir" -type f -exec chmod 644 {} +
+  chmod 755 "$pkgdir/usr/lib/nova-installer/nova-install"
+}
