@@ -33,6 +33,9 @@
   "image#nova": {
     "path": "/usr/share/pixmaps/nova-logo.png",
     "size": 22,
+    // Indispensable : sans « interval », Waybar recharge l'image toutes les
+    // millisecondes (processeur saturé, barre bloquée au démarrage)
+    "interval": 86400,
     "on-click": "nova-launcher",
     "on-click-right": "nova-mode menu",
     "tooltip": false

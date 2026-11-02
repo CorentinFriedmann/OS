@@ -277,7 +277,8 @@ PY
 
 # --- 4. Premier démarrage ------------------------------------------------------------------------
 if [[ "$RESULT" == INSTALL_OK ]]; then
-  prepare_bar_diagnostics
+  # Diagnostic de la barre (variantes de Waybar), seulement sur demande : NOVA_VM_DIAG_BARRE=1
+  [[ "${NOVA_VM_DIAG_BARRE:-}" == 1 ]] && prepare_bar_diagnostics
   log ""
   log "4. Premier démarrage du système installé (captures d'écran)"
   if qemu_start premier-demarrage; then
@@ -332,7 +333,7 @@ if [[ "$RESULT" == INSTALL_OK ]]; then
   soft "aucun plantage (core dump)" '! grep -q "dumped core" "$JOURNAL"'
   soft "aucun service en échec" '! grep -qE "Failed to start|Failed with result" "$JOURNAL"'
   grep -E "Failed to start|Failed with result|dumped core" "$JOURNAL" 2>/dev/null | head -n 15 | sed 's/^/    /' | tee -a "$REPORT"
-  log "  · diagnostic de la barre (variantes) :"
+  [[ -s "$OUT/variantes-barre.txt" ]] && log "  · diagnostic de la barre (variantes) :"
   read -ra variants <<< "$(awk '/variantes :/ { sub(/.*variantes : /, ""); print }' "$OUT/variantes-barre.txt" 2>/dev/null)"
   for variant in "${variants[@]}"; do
     if grep -q "wb-$variant\[.*Bar configured" "$JOURNAL"; then state="affichée"; else state="BLOQUÉE"; fi
