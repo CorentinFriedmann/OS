@@ -244,8 +244,40 @@ else
 fi
 detach
 
+# Diagnostic de la barre (test uniquement) : variantes de Waybar lancées avec la session,
+# chacune journalisée sous « wb-<variante> », pour voir lesquelles s'affichent
+prepare_bar_diagnostics() {
+  local home_mnt="$WORK/home" lua
+  attach
+  NOVA=$(part "$LOOP" 5)
+  mkdir -p "$home_mnt"
+  if mount -o ro,subvol=@ "$NOVA" "$MNT" 2>/dev/null && mount -o subvol=@home "$NOVA" "$home_mnt" 2>/dev/null; then
+    lua="$home_mnt/testeur/.config/hypr/hyprland.lua"
+    if python3 "$HERE/bar-variants.py" "$ROOT/desktop/xdg/waybar" "$MNT" "$home_mnt/testeur/.nova-test" >> "$OUT/variantes-barre.txt" 2>&1 \
+       && [[ -f "$lua" ]]; then
+      # Par la liste de démarrage de Nova (un second « hyprland.start » pourrait remplacer le sien)
+      python3 - "$lua" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path, encoding="utf-8").read()
+diag = ("sh -c 'sleep 12; cd ~/.nova-test && for v in $(cat variantes); do "
+        "systemd-cat -t wb-$v waybar -c $v.json -s $v.css & done'")
+extra = '  autostart_extra = { "nm-applet --indicator", "blueman-applet", "%s" }, -- test en VM\n' % diag
+marker = 'require("nova").setup({\n'
+assert marker in text, "appel setup introuvable"
+open(path, "w", encoding="utf-8").write(text.replace(marker, marker + extra, 1))
+PY
+      chown -R 1000:1000 "$home_mnt/testeur/.nova-test"
+      log "  · diagnostic de la barre : $(tail -n1 "$OUT/variantes-barre.txt")"
+    fi
+  fi
+  umount "$home_mnt" 2>/dev/null
+  detach
+}
+
 # --- 4. Premier démarrage ------------------------------------------------------------------------
 if [[ "$RESULT" == INSTALL_OK ]]; then
+  prepare_bar_diagnostics
   log ""
   log "4. Premier démarrage du système installé (captures d'écran)"
   if qemu_start premier-demarrage; then
@@ -300,6 +332,13 @@ if [[ "$RESULT" == INSTALL_OK ]]; then
   soft "aucun plantage (core dump)" '! grep -q "dumped core" "$JOURNAL"'
   soft "aucun service en échec" '! grep -qE "Failed to start|Failed with result" "$JOURNAL"'
   grep -E "Failed to start|Failed with result|dumped core" "$JOURNAL" 2>/dev/null | head -n 15 | sed 's/^/    /' | tee -a "$REPORT"
+  log "  · diagnostic de la barre (variantes) :"
+  read -ra variants <<< "$(awk '/variantes :/ { sub(/.*variantes : /, ""); print }' "$OUT/variantes-barre.txt" 2>/dev/null)"
+  for variant in "${variants[@]}"; do
+    if grep -q "wb-$variant\[.*Bar configured" "$JOURNAL"; then state="affichée"; else state="BLOQUÉE"; fi
+    log "    $variant : $state"
+  done
+  grep -E "wb-[a-z0-9-]+\[" "$JOURNAL" 2>/dev/null | grep -iE "error|warn|exception" | grep -vE "RFKILL|temperature|backlight|batter|bluetooth" | head -n 15 | cut -c1-200 | sed 's/^/    /' | tee -a "$REPORT"
   log "  · barre du haut (journal nova-bar) :"
   grep -E "nova-bar\[" "$JOURNAL" 2>/dev/null | grep -vE "dbind|desktop appearance" | head -n 25 | cut -c1-220 | sed 's/^/    /' | tee -a "$REPORT"
 fi
