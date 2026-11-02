@@ -552,6 +552,8 @@ class AssistantWindow(Gtk.ApplicationWindow):
                 self.entry.set_placeholder_text(self.PLACEHOLDER)
                 if text:
                     self.send(text, spoken=True)
+                elif voice.last_error:
+                    self._notice(f"✗ {voice.last_error}", "error")
                 else:
                     self._notice("Je n'ai rien entendu. Vérifie le micro (icône du son) et réessaie.")
                 return False

@@ -85,3 +85,16 @@ def test_transcribe_uses_worker_only_when_installed(isolated_home, tmp_path):
     fake_install(isolated_home)
     assert voice.transcribe(wav, runner=runner) == "ouvre Firefox"
     assert runner.calls[0][2:4] == ["transcribe", str(wav)]
+
+
+def test_transcribe_reports_worker_error(isolated_home, tmp_path):
+    fake_install(isolated_home)
+    wav = tmp_path / "a.wav"
+    wav.write_bytes(b"")
+
+    def crash(argv, **kwargs):
+        return subprocess.CompletedProcess(argv, 1, "", "Traceback…\nRuntimeError: modèle illisible\n")
+
+    assert voice.transcribe(wav, runner=crash) == ""
+    assert voice.last_error == "Erreur du moteur vocal : RuntimeError: modèle illisible"
+    assert "Traceback" in (voice.voice_dir() / "derniere-erreur.txt").read_text(encoding="utf-8")

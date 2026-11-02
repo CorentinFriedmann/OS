@@ -29,6 +29,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--models-dir", default=None)
     parser.add_argument("--voice")
     parser.add_argument("--out")
+    parser.add_argument("--no-vad", action="store_true", help="sans filtre de silence")
     args = parser.parse_args(argv)
 
     if args.action == "prepare":
@@ -37,7 +38,7 @@ def main(argv: list[str]) -> int:
 
     if args.action == "transcribe":
         model = whisper(args.model, args.models_dir)
-        segments, _info = model.transcribe(args.audio, language="fr", beam_size=1, vad_filter=True,
+        segments, _info = model.transcribe(args.audio, language="fr", beam_size=1, vad_filter=not args.no_vad,
                                            condition_on_previous_text=False)
         print(" ".join(segment.text.strip() for segment in segments).strip())
         return 0

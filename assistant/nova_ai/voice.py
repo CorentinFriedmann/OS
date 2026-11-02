@@ -26,6 +26,7 @@ VOICES_URL = "https://huggingface.co/rhasspy/piper-voices/resolve/main"
 DEFAULT_VOICE = "fr_FR-siwis-medium"
 WORKER = Path(__file__).with_name("voice_worker.py")
 Progress = Callable[[str], None]
+last_error = ""  # dernière erreur du moteur vocal (affichée à l'utilisateur)
 
 
 def voice_dir() -> Path:
@@ -148,15 +149,29 @@ class Recorder:
             self.path.unlink(missing_ok=True)
 
 
-def transcribe(wav: Path, runner=subprocess.run) -> str:
-    """Texte prononcé dans le fichier (vide si rien n'a été compris)."""
+def transcribe(wav: Path, runner=subprocess.run, vad: bool = True) -> str:
+    """Texte prononcé dans le fichier (vide si rien n'a été compris ; voir last_error)."""
+    global last_error
+    last_error = ""
     if not installed():
+        last_error = "La voix de Nova n'est pas installée."
         return ""
+    argv = [str(env_python()), str(WORKER), "transcribe", str(wav), "--model", stt_model(),
+            "--models-dir", str(voice_dir() / "modeles")]
+    if not vad:
+        argv.append("--no-vad")
     try:
-        result = runner([str(env_python()), str(WORKER), "transcribe", str(wav), "--model", stt_model(),
-                         "--models-dir", str(voice_dir() / "modeles")],
-                        capture_output=True, text=True, timeout=180, check=False)
-    except (OSError, subprocess.TimeoutExpired):
+        result = runner(argv, capture_output=True, text=True, timeout=180, check=False)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        last_error = f"Reconnaissance vocale impossible : {error}"
+        return ""
+    if result.returncode != 0:
+        lines = [line for line in (result.stderr or "").strip().splitlines() if line.strip()]
+        last_error = f"Erreur du moteur vocal : {lines[-1] if lines else f'code {result.returncode}'}"
+        try:
+            (voice_dir() / "derniere-erreur.txt").write_text(result.stderr or "", encoding="utf-8")
+        except OSError:
+            pass
         return ""
     return " ".join(result.stdout.split()).strip()
 
