@@ -1,11 +1,11 @@
-# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/OS>
 # Installateur de Nova OS (dual-boot Windows ou disque entier).
 pkgname=nova-installer
 pkgver=${NOVA_PKGVER:-0.1.0}
 pkgrel=1
 pkgdesc="Nova OS — installateur (à côté de Windows ou sur disque entier)"
 arch=('any')
-url="https://github.com/CorentinFriedmann/os"
+url="https://github.com/CorentinFriedmann/OS"
 license=('MIT')
 depends=('bash' 'gum' 'arch-install-scripts' 'gptfdisk' 'btrfs-progs' 'dosfstools' 'mtools'
          'ntfs-3g' 'util-linux' 'pciutils' 'curl' 'nova-performance')

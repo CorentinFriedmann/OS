@@ -69,7 +69,7 @@ rm -f "$PROFILE"/airootfs/etc/systemd/system/sockets.target.wants/systemd-networ
 sed -i -E \
   -e "s|^iso_name=.*|iso_name=\"novaos\"|" \
   -e "s|^iso_label=.*|iso_label=\"NOVA_$(date -u +%Y%m)\"|" \
-  -e "s|^iso_publisher=.*|iso_publisher=\"Nova OS <https://github.com/CorentinFriedmann/os>\"|" \
+  -e "s|^iso_publisher=.*|iso_publisher=\"Nova OS <https://github.com/CorentinFriedmann/OS>\"|" \
   -e "s|^iso_application=.*|iso_application=\"Nova OS — essai et installation\"|" \
   -e "s|^iso_version=.*|iso_version=\"$VERSION\"|" \
   "$PROFILE/profiledef.sh"

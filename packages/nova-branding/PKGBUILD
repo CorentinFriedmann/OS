@@ -1,4 +1,4 @@
-# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/OS>
 # Identité visuelle de Nova OS : logos, fonds d'écran, polices, thèmes de
 # démarrage (GRUB, Plymouth) et de connexion (SDDM), os-release.
 pkgname=nova-branding
@@ -6,7 +6,7 @@ pkgver=${NOVA_PKGVER:-0.1.0}
 pkgrel=1
 pkgdesc="Nova OS — identité visuelle (logos, fonds d'écran, thèmes GRUB/Plymouth/SDDM)"
 arch=('any')
-url="https://github.com/CorentinFriedmann/os"
+url="https://github.com/CorentinFriedmann/OS"
 license=('MIT' 'OFL-1.1')
 backup=('etc/sddm.conf.d/10-nova.conf')
 install=nova-branding.install

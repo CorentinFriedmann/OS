@@ -62,7 +62,7 @@ d'alimentation → Modifier des paramètres actuellement non disponibles →* d�
 ## 3. Créer la clé USB de Nova
 
 1. Télécharge la dernière version sur la page
-   [Releases](https://github.com/CorentinFriedmann/os/releases/latest) :
+   [Releases](https://github.com/CorentinFriedmann/OS/releases/latest) :
    le fichier **`novaos-….iso`** et **`SHA256SUMS`**.
    *(Si l'image est en plusieurs morceaux `.part0`, `.part1`…, la page de la version explique
    comment les recoller en une commande.)*

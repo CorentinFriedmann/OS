@@ -1,4 +1,4 @@
-# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/OS>
 # Bureau néon de Nova OS : configuration Hyprland (Lua), Waybar, lanceur,
 # notifications, verrouillage, terminal, shell et utilitaires « nova-* ».
 pkgname=nova-desktop
@@ -6,7 +6,7 @@ pkgver=${NOVA_PKGVER:-0.1.0}
 pkgrel=1
 pkgdesc="Nova OS — bureau Hyprland néon (configurations et utilitaires)"
 arch=('any')
-url="https://github.com/CorentinFriedmann/os"
+url="https://github.com/CorentinFriedmann/OS"
 license=('MIT')
 depends=('bash' 'python')
 optdepends=('hyprland: compositeur Wayland'

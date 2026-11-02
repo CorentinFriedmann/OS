@@ -2,7 +2,7 @@
 # NOVA OS — installateur : paquets, configuration du système, démarrage.
 
 NOVA_PKG_DIR=${NOVA_PKG_DIR:-${NOVA_LIB:-/usr/lib/nova-installer}/packages}
-NOVA_REPO_URL=${NOVA_REPO_URL:-https://github.com/CorentinFriedmann/os/releases/download/repo}
+NOVA_REPO_URL=${NOVA_REPO_URL:-https://github.com/CorentinFriedmann/OS/releases/download/repo}
 KERNEL_CMDLINE="quiet splash loglevel=3 rd.udev.log_level=3 vt.global_cursor_default=0 nowatchdog nmi_watchdog=0 zswap.enabled=0 split_lock_detect=off"
 
 read_list() { grep -vE '^[[:space:]]*(#|$)' "$NOVA_PKG_DIR/$1.txt"; }

@@ -1,4 +1,4 @@
-# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/OS>
 # Nova IA : assistant hybride (Ollama en local, Claude dans le cloud).
 # Le SDK officiel « anthropic » est embarqué (dossier vendor) avec ses
 # dépendances, pour ne pas dépendre de paquets Python externes.
@@ -7,7 +7,7 @@ pkgver=${NOVA_PKGVER:-0.1.0}
 pkgrel=1
 pkgdesc="Nova IA — assistant hybride intégré (local + Claude), fenêtre Super+Espace"
 arch=('x86_64')
-url="https://github.com/CorentinFriedmann/os"
+url="https://github.com/CorentinFriedmann/OS"
 license=('MIT')
 _pyver=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo 3.14)
 depends=("python>=${_pyver}" "python<${_pyver%.*}.$(( ${_pyver#*.} + 1 ))" 'python-gobject' 'gtk4' 'gtk4-layer-shell' 'libnotify')

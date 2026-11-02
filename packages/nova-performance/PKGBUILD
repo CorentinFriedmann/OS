@@ -1,4 +1,4 @@
-# Maintainer: Nova OS <https://github.com/CorentinFriedmann/os>
+# Maintainer: Nova OS <https://github.com/CorentinFriedmann/OS>
 # Réglages de performance « façon CachyOS » et modes Éco / Équilibré /
 # Performance / Jeu, mise à jour en une commande, dépôts optimisés.
 pkgname=nova-performance
@@ -6,7 +6,7 @@ pkgver=${NOVA_PKGVER:-0.1.0}
 pkgrel=1
 pkgdesc="Nova OS — réglages de performance, modes d'énergie et outils système"
 arch=('any')
-url="https://github.com/CorentinFriedmann/os"
+url="https://github.com/CorentinFriedmann/OS"
 license=('MIT')
 depends=('bash' 'sudo' 'polkit')
 optdepends=("power-profiles-daemon: profils d'énergie"

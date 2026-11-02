@@ -8,8 +8,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/CorentinFriedmann/os/actions/workflows/build.yml"><img src="https://github.com/CorentinFriedmann/os/actions/workflows/build.yml/badge.svg" alt="Construction"></a>
-  <a href="https://github.com/CorentinFriedmann/os/releases/latest"><img src="https://img.shields.io/github/v/release/CorentinFriedmann/os?label=ISO&color=00f0ff" alt="Dernière ISO"></a>
+  <a href="https://github.com/CorentinFriedmann/OS/actions/workflows/build.yml"><img src="https://github.com/CorentinFriedmann/OS/actions/workflows/build.yml/badge.svg" alt="Construction"></a>
+  <a href="https://github.com/CorentinFriedmann/OS/releases/latest"><img src="https://img.shields.io/github/v/release/CorentinFriedmann/OS?label=ISO&color=00f0ff" alt="Dernière ISO"></a>
 </p>
 
 ---
@@ -45,7 +45,7 @@ cartes graphiques AMD et NVIDIA.
 
 ## Installer
 
-1. Télécharge l'ISO sur la page [Releases](https://github.com/CorentinFriedmann/os/releases/latest).
+1. Télécharge l'ISO sur la page [Releases](https://github.com/CorentinFriedmann/OS/releases/latest).
 2. Libère au moins 30 Go (60 conseillés) depuis Windows, puis écris l'ISO sur une clé USB (Rufus).
 3. Démarre sur la clé : essaie Nova sans rien modifier, puis clique sur **Installer**.
 
@@ -97,7 +97,7 @@ Tests rapides : `scripts/ci/lint.sh`, `cd assistant && python -m pytest`,
    mises à jour.
 
 Les journaux de chaque construction sont dans la release
-[`ci-logs`](https://github.com/CorentinFriedmann/os/releases/tag/ci-logs).
+[`ci-logs`](https://github.com/CorentinFriedmann/OS/releases/tag/ci-logs).
 
 ## État du projet
 
