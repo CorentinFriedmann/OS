@@ -1,6 +1,6 @@
 """Nova IA — fenêtre flottante néon (Super+Espace).
 
-`nova-assistant [toggle|show|hide|welcome|setup]` : une seule instance
+`nova-assistant [toggle|show|hide|welcome|setup|voice]` : une seule instance
 (Gtk.Application), les appels suivants la pilotent.
 """
 from __future__ import annotations
@@ -181,6 +181,9 @@ class AssistantWindow(Gtk.ApplicationWindow):
         self.client = NovaClient()
         self.mode = "auto"
         self.busy = False
+        self.spoken = False       # la demande en cours a été dictée : répondre à voix haute
+        self.reply_parts: list[str] = []
+        self._recorder = None
         self.turn: Turn | None = None
         self.welcomed = False
         self._setup_layer_shell()
@@ -249,6 +252,14 @@ class AssistantWindow(Gtk.ApplicationWindow):
     # --- interactions -----------------------------------------------------------------
     def _on_key(self, _controller, keyval, _keycode, state) -> bool:
         if keyval == Gdk.KEY_Escape:
+            from . import voice
+
+            voice.stop_speaking()
+            if self._recorder is not None:
+                self._recorder.stop()
+                self._recorder = None
+                self.mic.remove_css_class("recording")
+                return True
             if self.busy:
                 threading.Thread(target=lambda: self._safe(self.client.request, "cancel"), daemon=True).start()
             else:
@@ -357,10 +368,12 @@ class AssistantWindow(Gtk.ApplicationWindow):
         self.refresh_status()
 
     # --- envoi d'une demande ------------------------------------------------------------
-    def send(self, text: str) -> None:
+    def send(self, text: str, spoken: bool = False) -> None:
         text = text.strip()
         if not text or self.busy:
             return
+        self.spoken = spoken
+        self.reply_parts = []
         self.entry.set_text("")
         self.busy = True
         holder, _label = self.bubble(text, "user")
@@ -430,6 +443,7 @@ class AssistantWindow(Gtk.ApplicationWindow):
             self.badge.set_css_classes(["nova-badge", css])
         elif kind == "text":
             turn.append_text(event["text"])
+            self.reply_parts.append(event["text"])
         elif kind == "web_search":
             turn.chip("web", "🌐 Recherche sur le web…", "web")
         elif kind == "tool_start":
@@ -446,32 +460,102 @@ class AssistantWindow(Gtk.ApplicationWindow):
         elif kind == "done":
             turn.finish()
             self.busy = False
+            self._speak_reply()
         self.scroll_to_end()
         return False
 
     # --- voix ---------------------------------------------------------------------------
+    PLACEHOLDER = "Demande-moi n'importe quoi…"
+
+    def _speak_reply(self) -> None:
+        from . import voice
+
+        when = voice.voice_settings().get("speak_replies", "voice")
+        if self.reply_parts and (when == "always" or (when == "voice" and self.spoken)):
+            reply = "".join(self.reply_parts)
+            threading.Thread(target=voice.speak, args=(reply,), daemon=True).start()
+        self.spoken = False
+
+    def _notice(self, text: str, css: str = "notice") -> None:
+        if self.turn is None:
+            self.turn = Turn(self)
+            self.messages.append(self.turn.box)
+        self.turn.message(text, css)
+        self.scroll_to_end()
+
+    def _offer_voice_install(self) -> None:
+        card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8, css_classes=["confirm"])
+        card.append(Gtk.Label(label="Parler à Nova", xalign=0, css_classes=["confirm-title"]))
+        card.append(Gtk.Label(
+            label="Pour que Nova t'entende et te réponde à voix haute, il faut installer sa voix, une seule fois "
+                  "(environ 800 Mo à télécharger). Tout fonctionne ensuite sur ton PC, sans internet.",
+            xalign=0, wrap=True, css_classes=["confirm-body"]))
+        buttons = Gtk.Box(spacing=8, halign=Gtk.Align.END)
+        later = Gtk.Button(label="Plus tard", css_classes=["deny"])
+        go = Gtk.Button(label="Installer la voix", css_classes=["allow"])
+        status = Gtk.Label(label="", xalign=0, wrap=True, css_classes=["chip"])
+
+        def progress(text: str) -> None:
+            GLib.idle_add(lambda: status.set_text(text) and False)
+
+        def run_install() -> None:
+            from . import voice
+
+            ok = voice.install(progress)
+            message = ("✓ C'est prêt : clique sur le micro (ou Super+Maj+Espace), parle, puis clique à nouveau."
+                       if ok else "✗ L'installation de la voix a échoué (connexion internet ?).")
+            GLib.idle_add(lambda: self._notice(message, "notice" if ok else "error") and False)
+
+        def start(*_args) -> None:
+            buttons.set_visible(False)
+            card.append(status)
+            status.set_text("Préparation…")
+            threading.Thread(target=run_install, daemon=True).start()
+
+        later.connect("clicked", lambda *_: card.set_visible(False))
+        go.connect("clicked", start)
+        buttons.append(later)
+        buttons.append(go)
+        card.append(buttons)
+        self.messages.append(card)
+        go.grab_focus()
+        self.scroll_to_end()
+
     def _toggle_voice(self, *_args) -> None:
         from . import voice
 
-        recorder = getattr(self, "_recorder", None)
+        voice.stop_speaking()
+        recorder = self._recorder
         if recorder is None:
+            if self.busy:
+                return
             ok, why = voice.available()
             if not ok:
-                if self.turn is None:
-                    self.turn = Turn(self)
-                    self.messages.append(self.turn.box)
-                self.turn.message(why, "notice")
+                if not voice.installed():
+                    self._offer_voice_install()
+                else:
+                    self._notice(why)
                 return
             self._recorder = voice.Recorder()
             self._recorder.start()
             self.mic.add_css_class("recording")
+            self.entry.set_placeholder_text("Je t'écoute… (micro ou Super+Maj+Espace quand tu as fini)")
             return
         self._recorder = None
         self.mic.remove_css_class("recording")
+        self.entry.set_placeholder_text("Transcription…")
 
         def work():
             text = recorder.stop_and_transcribe()
-            GLib.idle_add(lambda: (self.send(text) if text else None) and False)
+
+            def done() -> bool:
+                self.entry.set_placeholder_text(self.PLACEHOLDER)
+                if text:
+                    self.send(text, spoken=True)
+                else:
+                    self._notice("Je n'ai rien entendu. Vérifie le micro (icône du son) et réessaie.")
+                return False
+            GLib.idle_add(done)
         threading.Thread(target=work, daemon=True).start()
 
 
@@ -507,6 +591,8 @@ class NovaApp(Gtk.Application):
             window.show_now()
             if action == "ask" and len(args) > 1:
                 window.send(" ".join(args[1:]))
+            elif action == "voice":
+                window._toggle_voice()
         return 0
 
 

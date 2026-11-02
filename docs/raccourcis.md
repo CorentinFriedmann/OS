@@ -13,7 +13,8 @@ avec une recherche.
 
 | Raccourci | Action |
 |---|---|
-| **Super+Espace** | Parler à **Nova**, l'assistant IA |
+| **Super+Espace** | Écrire à **Nova**, l'assistant IA |
+| **Super+Maj+Espace** | **Parler** à Nova (appuie à nouveau quand tu as fini) : elle te répond à voix haute |
 | **Super+D** | Lanceur d'applications (tape le début du nom) |
 | **Super+Entrée** | Terminal |
 | **Super+E** | Fichiers |

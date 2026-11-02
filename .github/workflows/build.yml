@@ -58,6 +58,10 @@ jobs:
           cd assistant
           /tmp/venv/bin/python -m pytest -q 2>&1 | tee ../out/logs/assistant-tests.log
 
+      - name: Voix de Nova (Piper parle, faster-whisper comprend)
+        id: voix
+        run: bash scripts/ci/voice-check.sh 2>&1 | tee out/logs/voix.log
+
       - name: Installateur sur disques virtuels (dual-boot à côté d'un faux Windows)
         id: installateur
         run: sudo bash installer/tests/test-partitioning.sh 2>&1 | tee out/logs/installateur-tests.log

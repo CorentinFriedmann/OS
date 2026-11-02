@@ -17,6 +17,7 @@ confirmation avant tout ce qui modifie le système.
 | Où | Comment |
 |---|---|
 | Partout | **Super+Espace** : la fenêtre néon de Nova s'ouvre par-dessus ton bureau (Échap pour la fermer) |
+| À la voix | **Super+Maj+Espace** : tu parles, Nova répond à voix haute (voir plus bas) |
 | Barre du haut | Clic sur l'orbe ✦ (elle pulse quand Nova réfléchit, et passe au magenta quand Claude répond) |
 | Terminal | `nova` pour discuter, ou `nova "ta question"` pour une question rapide |
 
@@ -125,6 +126,7 @@ d'office, même si tu les acceptes.
 | `nova privacy on\|off` | confidentialité stricte (jamais de cloud) |
 | `nova model [nom]` | voir ou changer le modèle local (téléchargé si besoin) |
 | `nova status` | état de l'assistant |
+| `nova voix installer` / `nova voix test` | installer et essayer la voix |
 | `nova reset` | nouvelle conversation |
 
 ## Réglages avancés
@@ -153,15 +155,22 @@ sensitive = "always"       # commandes, installations
 
 Après une modification : `systemctl --user restart nova-daemon`.
 
-## Dictée vocale (facultative)
+## Parler à Nova
 
-Le bouton micro de la fenêtre de Nova transcrit ta voix **en local** avec whisper.cpp :
+Nova t'entend et te répond **à voix haute**, avec une voix française naturelle. Tout se passe
+**sur ton PC** : ta voix n'est jamais envoyée sur internet.
 
-1. `paru -S whisper.cpp`
-2. place un modèle `ggml-*.bin` (par exemple `ggml-small.bin`, multilingue) dans
-   `~/.local/share/nova/whisper/`
+1. **Super+Maj+Espace** (ou le bouton micro de la fenêtre) : Nova t'écoute.
+2. Parle, puis appuie à nouveau sur **Super+Maj+Espace** (ou le micro).
+3. Nova écrit ce qu'elle a compris, agit, et te répond à voix haute. **Échap** la fait taire.
 
-S'il manque quelque chose, Nova te dit quoi au premier clic sur le micro.
+La première fois, Nova propose d'**installer sa voix** (environ 800 Mo, une seule fois) :
+faster-whisper pour comprendre ce que tu dis, Piper pour lui donner une voix. Tu peux aussi le
+faire dans un terminal : `nova voix installer`, puis `nova voix test` pour essayer.
+
+Réglages (section `[voice]` de `assistant.toml`) : `speak_replies = "voice"` (répondre à voix
+haute quand tu as parlé, par défaut), `"always"` ou `"never"` ; `stt_model = "small"` ou `"base"`
+(plus léger, choisi automatiquement sous 12 Go de mémoire).
 
 ## Vie privée, en résumé
 

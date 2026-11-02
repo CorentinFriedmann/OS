@@ -40,7 +40,8 @@ DEFAULTS: dict[str, Any] = {
         "action": "never",  # actions courantes (ouvrir une appli, régler le son…)
         "sensitive": "always",  # commandes shell, installation de logiciels…
     },
-    "voice": {"enabled": False, "whisper_model": "", "tts": "auto"},
+    # stt_model : vide = « small » ou « base » selon la mémoire ; speak_replies : voice | always | never
+    "voice": {"stt_model": "", "tts_voice": "fr_FR-siwis-medium", "speak_replies": "voice"},
     "conversation": {"idle_reset_minutes": 20, "max_exchanges": 40},
 }
 

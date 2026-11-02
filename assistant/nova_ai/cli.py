@@ -7,6 +7,7 @@
   nova privacy on|off       confidentialité stricte (jamais de cloud)
   nova model [nom]          modèle local (téléchargé si besoin)
   nova status [--waybar]    état (JSON pour l'orbe de la barre)
+  nova voix [installer|test] la voix de Nova (parler et l'entendre répondre)
   nova reset                nouvelle conversation
   nova daemon               démarre le démon (utilisé par systemd)
 """
@@ -222,6 +223,15 @@ def setup() -> None:
     if mode in ("auto", "local", "cloud"):
         config["mode"] = mode
     path = save_config(config)
+
+    # 4. Voix
+    from . import voice
+
+    print(paint("bold", "\n4. Voix : parler à Nova et l'entendre répondre (100 % local)"))
+    if voice.installed():
+        print(paint("green", "  ✓ La voix est installée."))
+    elif _yes("  Installer la voix maintenant (~800 Mo, une seule fois) ?"):
+        voice.install(lambda text: print("  " + text))
     _reload_daemon()
     print(paint("green", f"\n  ✓ Configuration enregistrée ({path}). Super+Espace pour parler à Nova !\n"))
 
@@ -246,6 +256,33 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if command == "setup":
         setup()
+        return 0
+    if command in ("voix", "voice"):
+        from . import voice
+
+        action = args[1] if len(args) > 1 else ""
+        if action in ("installer", "install"):
+            return 0 if voice.install(lambda text: print(text)) else 1
+        if action == "test":
+            if not voice.installed():
+                print("La voix n'est pas installée : nova voix installer")
+                return 1
+            print("Parle pendant 5 secondes…")
+            recorder = voice.Recorder()
+            recorder.start()
+            import time
+
+            time.sleep(5)
+            text = recorder.stop_and_transcribe()
+            print(f"Compris : « {text} »" if text else "Rien compris (vérifie le micro).")
+            voice.speak(f"Tu as dit : {text}" if text else "Je n'ai rien entendu.")
+            if voice._speaker:
+                voice._speaker.wait()
+            return 0
+        settings = voice.voice_settings()
+        print(f"Voix : {'installée' if voice.installed() else 'non installée (nova voix installer)'}")
+        print(f"Reconnaissance : faster-whisper « {voice.stt_model(settings)} » · voix : Piper {settings['tts_voice']}")
+        print(f"Réponses à voix haute : {settings['speak_replies']} (voice = quand tu parles, always, never)")
         return 0
     if command in ("mode", "privacy", "model"):
         config = load_config()

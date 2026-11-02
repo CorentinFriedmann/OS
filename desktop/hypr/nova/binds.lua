@@ -19,6 +19,7 @@ function M.apply(cfg)
   -- Applications ----------------------------------------------------------
   bind(mod .. " + Return", exec(apps.terminal), "Terminal")
   bind(mod .. " + space", exec(apps.assistant), "Assistant IA Nova")
+  bind(mod .. " + SHIFT + space", exec("nova-assistant voice"), "Parler à Nova (à voix haute)")
   bind(mod .. " + D", exec(apps.launcher), "Lanceur d'applications")
   bind(mod .. " + E", exec(apps.files), "Fichiers")
   bind(mod .. " + B", exec(apps.browser), "Navigateur web")
