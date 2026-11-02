@@ -67,6 +67,7 @@ curl
 wget
 rsync
 unzip
+7zip
 p7zip
 paru
 unicode-emoji

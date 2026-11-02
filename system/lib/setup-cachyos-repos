@@ -26,6 +26,15 @@ awk -v block="$block" '
   /^\[core\]/ && !done { printf "%s\n", block; done = 1 }
   { print }
 ' "$conf" > "$tmp"
+# Les paquets optimisés sont marqués x86_64_v3 / x86_64_v4 : pacman doit les accepter
+case "$level" in
+  v4) arch="x86_64 x86_64_v3 x86_64_v4" ;;
+  v3) arch="x86_64 x86_64_v3" ;;
+  *) arch="" ;;
+esac
+if [[ -n "$arch" ]]; then
+  sed -i -E "s/^#?[[:space:]]*Architecture[[:space:]]*=.*/Architecture = $arch/" "$tmp"
+fi
 install -m 644 "$tmp" "$conf"
 rm -f "$tmp"
 echo "Dépôts CachyOS ($level) activés dans $conf"

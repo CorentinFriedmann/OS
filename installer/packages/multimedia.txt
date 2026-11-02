@@ -1,7 +1,6 @@
 # NOVA OS — profil quotidien et multimédia
 libreoffice-fresh
 libreoffice-fresh-fr
-hunspell-fr
 gimp
 obs-studio
 spotify-launcher
