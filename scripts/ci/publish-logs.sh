@@ -21,7 +21,7 @@ trap 'rm -rf "$stage"' EXIT
 
 shopt -s nullglob
 for file in out/logs/* out/iso/SHA256SUMS out/vm/*.txt out/vm/*.log out/vm/*.png out/vm/grub.cfg out/vm/pacman.conf out/vm/live/*; do
-  [[ -f "$file" && -r "$file" ]] || continue
+  [[ -f "$file" && -r "$file" && -s "$file" ]] || continue   # GitHub refuse les fichiers vides
   flat=${file#out/}
   cp "$file" "$stage/$job--${flat//\//-}"
 done

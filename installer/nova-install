@@ -26,6 +26,10 @@ source "$NOVA_LIB/lib/disks.sh"
 # shellcheck source=lib/system.sh
 source "$NOVA_LIB/lib/system.sh"
 
+# Toute erreur imprévue est signalée clairement (au lieu d'un arrêt silencieux)
+# (uniquement dans le script principal, pas dans les sous-commandes « $(…) »)
+trap '[[ $BASHPID == "$$" ]] && ui_error "Erreur inattendue (ligne $LINENO : $BASH_COMMAND). Détails dans $NOVA_LOG"' ERR
+
 usage() { sed -n '5,9p' "$0" | sed 's/^# \{0,1\}//'; }
 
 while (( $# )); do
@@ -219,7 +223,12 @@ confirm_plan() {
 }
 
 # --- exécution ------------------------------------------------------------------------
-stop_if() { [[ "$STOP_AFTER" == "$1" ]] && { ui_ok "Arrêt demandé après l'étape « $1 »."; exit 0; }; }
+stop_if() {
+  if [[ "$STOP_AFTER" == "$1" ]]; then
+    ui_ok "Arrêt demandé après l'étape « $1 »."
+    exit 0
+  fi
+}
 
 run_install() {
   local root esp backup

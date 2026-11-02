@@ -94,9 +94,12 @@ check "table des partitions inchangée" '[[ "$(sgdisk -p "$disk")" == "$before" 
 echo "C. Disque entier"
 disk=$(new_disk blank 40G)
 write_config "$WORK/c.cfg" "$disk" erase
-if installer "$WORK/c.cfg" --stop-after partition > "$WORK/c.out" 2>&1; then ok "installateur terminé sans erreur"; else ko "installateur en échec"; tail -20 "$WORK/c.out"; fi
+# --stop-after mount : passe AU-DELÀ de l'étape « partition » (comme une vraie installation)
+if installer "$WORK/c.cfg" --stop-after mount > "$WORK/c.out" 2>&1; then ok "installateur terminé sans erreur"; else ko "installateur en échec"; tail -20 "$WORK/c.out"; fi
 check "partition EFI de 1 Gio en FAT32" '[[ "$(blkid -p -o value -s TYPE "$(part "$disk" 1)")" == vfat && "$(blockdev --getsize64 "$(part "$disk" 1)")" == 1073741824 ]]'
 check "racine btrfs" '[[ "$(blkid -p -o value -s TYPE "$(part "$disk" 2)")" == btrfs ]]'
+check "système monté : /, /home, /.snapshots, /boot/efi" 'mountpoint -q "$WORK/mnt" && mountpoint -q "$WORK/mnt/home" && mountpoint -q "$WORK/mnt/.snapshots" && mountpoint -q "$WORK/mnt/boot/efi"'
+umount -R "$WORK/mnt" 2>/dev/null
 rm -f /tmp/nova-gpt-"$(basename "$disk")"-*.bin
 
 echo "D. Simulation (--dry-run)"
