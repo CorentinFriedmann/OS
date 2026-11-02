@@ -16,8 +16,10 @@
 
 | | |
 |---|---|
-| ![Menu de démarrage](docs/screenshots/menu-demarrage.jpg) | ![Écran de connexion](docs/screenshots/connexion.jpg) |
-| ![Bureau et lanceur](docs/screenshots/lanceur.jpg) | ![Nova, l'assistant IA](docs/screenshots/assistant-nova.jpg) |
+| ![Menu de démarrage, avec Windows](docs/screenshots/menu-demarrage.jpg) | ![Écran de connexion](docs/screenshots/connexion.jpg) |
+| ![Bureau Nova et l'assistant](docs/screenshots/bureau.jpg) | ![Session d'essai sur clé USB](docs/screenshots/session-essai.jpg) |
+
+<sub>Captures prises automatiquement à chaque version : Nova installé à côté de Windows dans une machine virtuelle, puis démarré.</sub>
 
 ## Ce que Nova OS apporte
 
