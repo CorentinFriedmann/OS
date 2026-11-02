@@ -1,5 +1,28 @@
 #!/usr/bin/env bash
 # Barre du haut (Waybar) avec la configuration néon de Nova. Waybar ignore
-# XDG_CONFIG_DIRS : on lui donne donc les fichiers explicitement. Une
-# configuration personnelle dans ~/.config/waybar reste prioritaire.
-exec waybar -c "$(nova-config waybar/config.jsonc)" -s "$(nova-config waybar/style.css)" "$@"
+# XDG_CONFIG_DIRS : on lui donne donc les fichiers explicitement (une
+# configuration personnelle dans ~/.config/waybar reste prioritaire).
+# Ses messages vont dans le journal : journalctl --user -t nova-bar
+# Si elle s'arrête sur une erreur, elle est relancée (5 fois au plus d'affilée).
+config=$(nova-config waybar/config.jsonc) || exit 1
+style=$(nova-config waybar/style.css) || exit 1
+# Journal système si disponible ; sinon lancement direct (la barre passe avant les messages)
+if systemd-cat -t nova-bar true 2>/dev/null; then
+  journal() { systemd-cat -t nova-bar "$@"; }
+else
+  journal() { "$@"; }
+fi
+pkill -x waybar 2>/dev/null && sleep 0.5   # une seule barre à la fois
+failures=0
+while (( failures < 5 )); do
+  started=$SECONDS
+  journal waybar -c "$config" -s "$style" "$@"
+  code=$?
+  (( code == 0 )) && exit 0                     # arrêt normal (fin de session)
+  (( SECONDS - started > 60 )) && failures=0    # a tourné un moment : on repart de zéro
+  failures=$((failures + 1))
+  echo "Waybar s'est arrêté (code $code) : relance $failures/5" | journal cat
+  sleep 2
+done
+echo "Waybar s'arrête sans cesse : abandon (voir journalctl --user -t nova-bar)" | journal cat
+exit 1

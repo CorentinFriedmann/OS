@@ -294,10 +294,14 @@ if [[ "$RESULT" == INSTALL_OK ]]; then
   check "démarrage complet (« Startup finished » dans le journal)" 'grep -q "Startup finished" "$JOURNAL"'
   check "écran de connexion SDDM lancé" 'grep -q "Started.*Simple Desktop Display Manager" "$JOURNAL"'
   soft "connexion de « testeur » acceptée" 'grep -q "session opened for user testeur" "$JOURNAL"'
-  soft "session Hyprland lancée" 'grep -qi "hyprland" "$OUT/session-wayland.log" 2>/dev/null'
+  soft "session Hyprland lancée" 'grep -q "Connected to a wayland compositor: Hyprland" "$JOURNAL"'
+  soft "barre du haut (Waybar) lancée" 'grep -q "nova-bar.*Bar configured" "$JOURNAL"'
+  soft "centre de notifications lancé une seule fois" '! grep -q "already running" "$JOURNAL"'
   soft "aucun plantage (core dump)" '! grep -q "dumped core" "$JOURNAL"'
   soft "aucun service en échec" '! grep -qE "Failed to start|Failed with result" "$JOURNAL"'
   grep -E "Failed to start|Failed with result|dumped core" "$JOURNAL" 2>/dev/null | head -n 15 | sed 's/^/    /' | tee -a "$REPORT"
+  log "  · barre du haut (journal nova-bar) :"
+  grep -E "nova-bar\[" "$JOURNAL" 2>/dev/null | grep -vE "dbind|desktop appearance" | head -n 25 | cut -c1-220 | sed 's/^/    /' | tee -a "$REPORT"
 fi
 
 log ""

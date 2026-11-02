@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
-# Centre de notifications (swaync) avec la configuration Nova, explicitement
-# (une configuration personnelle dans ~/.config/swaync reste prioritaire).
+# Centre de notifications (swaync), une seule instance : par son service systemd
+# (activé aussi par D-Bus), qui lit la configuration Nova via XDG_CONFIG_DIRS.
+# Sans systemd, lancement direct avec la configuration Nova.
+if systemctl --user cat swaync.service >/dev/null 2>&1; then
+  exec systemctl --user start swaync.service
+fi
+pgrep -x swaync >/dev/null && exit 0
 exec swaync -c "$(nova-config swaync/config.json)" -s "$(nova-config swaync/style.css)" "$@"
