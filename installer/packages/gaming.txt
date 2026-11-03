@@ -5,7 +5,6 @@ lib32-gamemode
 gamescope
 mangohud
 lib32-mangohud
-proton-cachyos
 proton-cachyos-slr
 lutris
 wine-staging
