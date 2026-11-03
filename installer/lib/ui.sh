@@ -116,6 +116,7 @@ ui_run() {
     local pid code
     "$@" >>"$NOVA_LOG" 2>&1 &
     pid=$!
+    # shellcheck disable=SC2016 # $1 est développé par le bash enfant
     gum spin --spinner dot --title "$title" -- \
       bash -c 'while kill -0 "$1" 2>/dev/null; do sleep 0.2; done' _ "$pid" || true
     code=0
