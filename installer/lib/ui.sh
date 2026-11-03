@@ -111,8 +111,16 @@ ui_confirm() {
 ui_run() {
   local title=$1; shift
   if (( HAVE_GUM )) && [[ -z "${NOVA_VERBOSE:-}" ]]; then
-    # shellcheck disable=SC2016 # développé par le bash enfant, pas ici
-    if gum spin --spinner dot --title "$title" -- bash -c '"$@" >>"$NOVA_LOG" 2>&1' _ "$@"; then
+    # La commande tourne ici même (en arrière-plan) : elle garde l'accès aux fonctions
+    # et variables de l'installateur. gum n'affiche que l'animation pendant l'attente.
+    local pid code
+    "$@" >>"$NOVA_LOG" 2>&1 &
+    pid=$!
+    gum spin --spinner dot --title "$title" -- \
+      bash -c 'while kill -0 "$1" 2>/dev/null; do sleep 0.2; done' _ "$pid" || true
+    code=0
+    wait "$pid" || code=$?   # « || » : pas d'arrêt immédiat avec set -e
+    if (( code == 0 )); then
       ui_ok "$title"
       return 0
     fi
