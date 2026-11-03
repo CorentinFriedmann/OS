@@ -12,7 +12,7 @@
   "spacing": 2,
   "reload_style_on_change": true,
 
-  "modules-left": ["image#nova", "custom/workspaces", "custom/window"],
+  "modules-left": ["image#nova", "custom/workspaces", "custom/nova-install", "custom/window"],
   "modules-center": ["clock"],
   "modules-right": [
     "mpris",
@@ -38,6 +38,16 @@
     "interval": 86400,
     "on-click": "nova-launcher",
     "on-click-right": "nova-mode menu",
+    "tooltip": false
+  },
+
+  // Session d'essai uniquement (clé USB) : bouton bien visible pour installer Nova.
+  // Sur le système installé, la commande n'affiche rien et le bouton disparaît.
+  "custom/nova-install": {
+    "exec": "test -d /run/archiso && echo live",
+    "interval": "once",
+    "format": "󰇚  Installer Nova OS",
+    "on-click": "ghostty '--title=Installation de Nova OS' -e sudo nova-install",
     "tooltip": false
   },
 
@@ -163,7 +173,10 @@
     "format-plugged": "󰚥  {capacity}%",
     "format-full": "󰚥  100%",
     "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰁹"],
-    "tooltip-format": "{timeTo}",
+    "format-time": "{H} h {M} min",
+    "tooltip-format": "Batterie : {capacity} %",
+    "tooltip-format-discharging": "Sur batterie : {capacity} %, encore {time}",
+    "tooltip-format-charging": "En charge : {capacity} %, pleine dans {time}",
     "interval": 30
   },
 

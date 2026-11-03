@@ -79,7 +79,10 @@ end
 function M.apply(cfg)
   local look = cfg.look
 
-  hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+  -- Échelle automatique, sauf en machine virtuelle : l'écran virtuel n'annonce pas sa
+  -- taille physique et Hyprland grossirait tout ×2 (bureau minuscule, barre tronquée).
+  local scale = util.virtual_machine() and 1 or "auto"
+  hl.monitor({ output = "", mode = "preferred", position = "auto", scale = scale })
 
   hl.config({
     general = {

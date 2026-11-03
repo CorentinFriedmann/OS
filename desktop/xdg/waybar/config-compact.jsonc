@@ -1,0 +1,50 @@
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  NOVA OS — barre compacte (écrans étroits)                    ║
+// ╚══════════════════════════════════════════════════════════════╝
+// Choisie par nova-bar quand l'écran fait moins de 1500 points de large
+// (petit écran, grande mise à l'échelle, machine virtuelle). Elle reprend
+// config.jsonc et ne garde que l'essentiel, sans texte superflu.
+// Les options définies ici passent avant celles du fichier inclus.
+{
+  "include": ["/usr/share/nova/xdg/waybar/config.jsonc"],
+
+  "modules-left": ["image#nova", "custom/workspaces", "custom/nova-install"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "custom/nova-ai",
+    "wireplumber",
+    "backlight",
+    "network",
+    "battery",
+    "tray",
+    "custom/notifications",
+    "custom/power"
+  ],
+
+  "custom/nova-install": {
+    "exec": "test -d /run/archiso && echo live",
+    "interval": "once",
+    "format": "󰇚  Installer",
+    "on-click": "ghostty '--title=Installation de Nova OS' -e sudo nova-install",
+    "tooltip": false
+  },
+
+  // Réseau : icône seule, le détail est dans l'info-bulle
+  "network": {
+    "format-wifi": "󰖩",
+    "format-ethernet": "󰈀",
+    "format-linked": "󰈀",
+    "format-disconnected": "󰖪",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
+    "tooltip-format-ethernet": "Filaire : {ifname}\n{ipaddr}",
+    "tooltip-format-disconnected": "Hors ligne",
+    "on-click": "nova-network"
+  },
+
+  "backlight": {
+    "format": "󰃟",
+    "tooltip-format": "Luminosité : {percent} %",
+    "on-scroll-up": "nova-osd brightness-up",
+    "on-scroll-down": "nova-osd brightness-down"
+  }
+}

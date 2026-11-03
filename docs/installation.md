@@ -118,7 +118,8 @@ n'est modifié sur ton PC. Le clavier est en AZERTY.
 ## 6. Installer
 
 1. Connecte-toi à internet : icône réseau en haut à droite (ou `nmtui` dans un terminal).
-2. Dans la notification « Bienvenue dans Nova OS », clique sur **Installer**.
+2. Clique sur le bouton bleu **« Installer Nova OS »** en haut à gauche de la barre (ou sur
+   **Installer** dans la notification « Bienvenue dans Nova OS »).
    *(Ou : Super+D → « Installer Nova OS », ou Super+Entrée puis `sudo nova-install`.)*
 3. Réponds aux questions :
 
@@ -209,6 +210,9 @@ PC, mais rien n'est modifié sur ton disque.
 3. **Configuration → Affichage → Écran** : contrôleur **VMSVGA**, mémoire vidéo **128 Mo**,
    et **coche « Activer l'accélération 3D »** : sans elle, le bureau ne peut pas s'afficher.
 4. Démarre la machine. Le bureau apparaît au bout d'une à deux minutes.
+5. Clique sur le logo **✦** en haut à gauche pour ouvrir les applications, ou sur le bouton
+   bleu **« Installer »** pour installer Nova dans la machine virtuelle. Pour que la touche
+   Super (Windows) arrive à Nova, clique d'abord dans la fenêtre de la machine virtuelle.
 
 Si le bureau ne s'affiche pas, la session d'essai le détecte et affiche un écran d'aide en
 mode texte. Il te propose aussi d'installer Nova en mode texte. Dans la machine virtuelle,

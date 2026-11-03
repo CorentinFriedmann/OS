@@ -68,6 +68,18 @@ tooltip label { color: @nova-fg; padding: 4px 6px; }
 #custom-workspaces { padding: 0 10px; margin: 5px 2px; font-size: 12px; }
 #custom-window { color: @nova-dim; font-weight: 400; }
 
+/* Session d'essai : bouton « Installer Nova OS », la seule touche d'accent pleine */
+#custom-nova-install {
+  padding: 0 12px;
+  margin: 5px 4px;
+  border-radius: 9px;
+  color: #0b0d12;
+  background: @nova-accent;
+  font-weight: 600;
+  transition: background 180ms ease;
+}
+#custom-nova-install:hover { background: #a9c7ff; }
+
 /* Horloge centrale ------------------------------------------------------ */
 #clock {
   font-size: 14px;

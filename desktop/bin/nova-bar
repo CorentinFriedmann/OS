@@ -6,6 +6,21 @@
 # Si elle s'arrête sur une erreur, elle est relancée (5 fois au plus d'affilée).
 config=$(nova-config waybar/config.jsonc) || exit 1
 style=$(nova-config waybar/style.css) || exit 1
+# Écran étroit (petit écran, grande mise à l'échelle, machine virtuelle) : barre
+# compacte, sinon elle déborde à droite. Seulement avec la configuration de Nova.
+narrowest_width() {
+  timeout 3 hyprctl monitors -j 2>/dev/null | python3 -c '
+import json, sys
+widths = [round((m["height"] if m.get("transform", 0) % 2 else m["width"]) / (m.get("scale") or 1))
+          for m in json.load(sys.stdin)]
+print(min(widths))' 2>/dev/null
+}
+if [[ "$config" == /usr/share/nova/xdg/waybar/config.jsonc && -z "${NOVA_BAR_FULL:-}" ]]; then
+  width=$(narrowest_width)
+  if [[ "$width" =~ ^[0-9]+$ ]] && (( width < 1500 )); then
+    config=/usr/share/nova/xdg/waybar/config-compact.jsonc
+  fi
+fi
 # Journal système si disponible ; sinon lancement direct (la barre passe avant les messages)
 if systemd-cat -t nova-bar true 2>/dev/null; then
   journal() { systemd-cat -t nova-bar "$@"; }
