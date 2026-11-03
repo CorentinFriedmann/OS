@@ -68,7 +68,6 @@ wget
 rsync
 unzip
 7zip
-7zip
 paru
 unicode-emoji
 reflector
