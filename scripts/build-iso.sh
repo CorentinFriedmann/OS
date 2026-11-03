@@ -78,6 +78,7 @@ file_permissions+=(
   ["/etc/sudoers.d/00-nova-live"]="0:0:440"
   ["/usr/local/bin/nova-live-setup"]="0:0:755"
   ["/usr/local/bin/nova-live-welcome"]="0:0:755"
+  ["/usr/local/bin/nova-live-session"]="0:0:755"
   ["/usr/local/bin/nova-autoinstall"]="0:0:755"
 )
 PERMS

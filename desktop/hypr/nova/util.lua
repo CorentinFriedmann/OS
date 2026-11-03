@@ -94,6 +94,21 @@ function M.on_ac_power()
   return not has_battery
 end
 
+-- Nom de l'hyperviseur si Nova tourne dans une machine virtuelle, sinon nil.
+local HYPERVISORS = {
+  { "virtualbox", "VirtualBox" }, { "innotek", "VirtualBox" }, { "vmware", "VMware" },
+  { "qemu", "QEMU" }, { "kvm", "QEMU" }, { "bochs", "QEMU" }, { "parallels", "Parallels" },
+  { "virtual machine", "Hyper-V" },
+}
+function M.virtual_machine()
+  local id = ((M.read_file("/sys/class/dmi/id/sys_vendor") or "") .. " "
+    .. (M.read_file("/sys/class/dmi/id/product_name") or "")):lower()
+  for _, known in ipairs(HYPERVISORS) do
+    if id:find(known[1], 1, true) then return known[2] end
+  end
+  return nil
+end
+
 -- Premier chemin existant parmi une liste (thèmes de curseur, etc.).
 function M.first_existing(paths, fallback)
   for _, candidate in ipairs(paths) do

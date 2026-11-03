@@ -66,6 +66,7 @@ cachyos-v3-mirrorlist
 cachyos-v4-mirrorlist
 # Graphique Intel / AMD (session live fluide)
 mesa
+mesa-utils
 vulkan-intel
 intel-media-driver
 vulkan-radeon

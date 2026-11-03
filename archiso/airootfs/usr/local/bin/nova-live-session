@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+# Session d'essai : lance le bureau Hyprland sur la première console.
+#
+# Si le bureau ne s'affiche pas (pas d'accélération graphique, machine virtuelle
+# mal réglée…), on ne laisse pas un écran noir : on explique ce qui se passe et
+# on propose d'installer Nova OS en mode texte, de réessayer ou d'ouvrir une console.
+set -uo pipefail
+
+runtime=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+pret="$runtime/nova-bureau-pret"     # créé par nova-live-welcome au démarrage du bureau
+journal="$runtime/nova-bureau.log"
+delai=${NOVA_DELAI_BUREAU:-60}         # secondes laissées au bureau pour apparaître
+
+# lancer_bureau : 0 = le bureau a démarré (puis a été quitté), 1 = il s'est arrêté
+# avant d'apparaître, 2 = il n'est pas apparu à temps (arrêté par nous).
+lancer_bureau() {
+  local lanceur=start-hyprland attente=0 pid
+  command -v start-hyprland > /dev/null || lanceur=Hyprland
+  rm -f "$pret"
+  "$lanceur" > "$journal" 2>&1 &
+  pid=$!
+  while kill -0 "$pid" 2> /dev/null; do
+    if [[ -e "$pret" ]]; then
+      logger -t nova-live-session "bureau affiché"
+      wait "$pid"
+      return 0
+    fi
+    if (( attente >= delai )); then
+      kill "$pid" 2> /dev/null
+      pkill -x Hyprland 2> /dev/null
+      sleep 3
+      pkill -KILL -x Hyprland 2> /dev/null
+      wait "$pid" 2> /dev/null
+      return 2
+    fi
+    sleep 1
+    attente=$((attente + 1))
+  done
+  wait "$pid" 2> /dev/null
+  [[ -e "$pret" ]] && return 0
+  return 1
+}
+
+conseil() {
+  case $(systemd-detect-virt 2> /dev/null) in
+    oracle)
+      cat <<'TXT'
+  Tu es dans VirtualBox : le bureau a besoin de l'accélération 3D.
+    1. Éteins la machine virtuelle (choix « Éteindre » ci-dessous).
+    2. Configuration > Affichage > Écran : contrôleur graphique VMSVGA,
+       mémoire vidéo 128 Mo, et coche « Activer l'accélération 3D ».
+    3. Redémarre la machine virtuelle.
+TXT
+      ;;
+    vmware)
+      cat <<'TXT'
+  Tu es dans VMware : active « Accélérer les graphismes 3D » dans les
+  réglages d'affichage de la machine virtuelle, puis redémarre-la.
+TXT
+      ;;
+    kvm | qemu)
+      cat <<'TXT'
+  Tu es dans QEMU/KVM : utilise la carte graphique virtio
+  (virt-manager : Vidéo « Virtio » + affichage Spice avec OpenGL activé).
+TXT
+      ;;
+    none | "")
+      cat <<'TXT'
+  Ta carte graphique n'a pas pu être utilisée par la session d'essai.
+  Tu peux quand même installer Nova OS en mode texte : rien n'est
+  modifié sans ta confirmation, et Windows n'est jamais touché.
+TXT
+      ;;
+    *)
+      cat <<'TXT'
+  Tu es dans une machine virtuelle : active l'accélération 3D dans ses
+  réglages d'affichage, puis redémarre-la.
+TXT
+      ;;
+  esac
+}
+
+journal_hyprland() {
+  find "$runtime/hypr" -name hyprland.log -printf '%T@ %p\n' 2> /dev/null | sort -rn | head -n 1 | cut -d' ' -f2-
+}
+
+# Vrai si Hyprland n'a trouvé aucune carte graphique capable de dessiner le bureau
+sans_rendu() {
+  local log
+  log=$(journal_hyprland)
+  [[ -n "$log" ]] && grep -qE "Can't create renderer|no renderer" "$log"
+}
+
+# Dernières erreurs utiles du bureau (sans le bruit habituel), pour comprendre ou nous les envoyer
+dernieres_erreurs() {
+  local log
+  log=$(journal_hyprland)
+  if [[ -n "$log" ]]; then
+    grep -E '^(ERR|CRIT) ' "$log" |
+      grep -vE 'eglQueryDeviceStringEXT|wl_display_connect|Wayland backend|Requested backend|Implementation wayland|parse edid'
+  else
+    grep -iE 'error|fail|crit' "$journal" 2> /dev/null
+  fi | awk '!vu[$0]++' | tail -n 3 | cut -c1-110 | sed 's/^/    /'
+}
+
+choisir() {
+  if command -v gum > /dev/null; then
+    GUM_CHOOSE_SHOW_HELP=false gum choose --header "Que veux-tu faire ?" \
+      --header.foreground 12 --cursor.foreground 12 "$@"
+  else
+    local choix
+    PS3="Ton choix (numéro) : "
+    select choix in "$@"; do [[ -n "$choix" ]] && break; done
+    printf '%s\n' "$choix"
+  fi
+}
+
+ecran_de_secours() {
+  local raison=$1
+  clear
+  printf '\n  \e[1;94mNova OS\e[0m  ·  session d'"'"'essai\n\n'
+  case "$raison" in
+    2) printf '  \e[1mLe bureau ne s'"'"'est pas affiché au bout de %s secondes.\e[0m\n\n' "$delai" ;;
+    3) printf '  \e[1mL'"'"'accélération 3D de la machine virtuelle est désactivée :\n  le bureau resterait sur un écran noir.\e[0m\n\n' ;;
+    *) printf '  \e[1mLe bureau n'"'"'a pas pu démarrer.\e[0m\n\n' ;;
+  esac
+  if [[ "$raison" != 3 ]] && sans_rendu; then
+    printf '  Aucune carte graphique n'"'"'a pu dessiner le bureau (accélération 3D absente).\n\n'
+  fi
+  conseil
+  if [[ "$raison" != 3 ]]; then
+    local erreurs
+    erreurs=$(dernieres_erreurs)
+    [[ -n "$erreurs" ]] && printf '\n  \e[2mDétails techniques :\n%s\e[0m\n' "$erreurs"
+  fi
+  printf '\n'
+}
+
+# VirtualBox sans accélération 3D : la carte graphique ne fait que du rendu
+# logiciel et le bureau reste noir. On le détecte avant de lancer quoi que ce soit.
+acceleration_3d_ok() {
+  [[ $(systemd-detect-virt 2> /dev/null) == oracle ]] || return 0
+  command -v eglinfo > /dev/null || return 0
+  local rendu
+  rendu=$(timeout 30 eglinfo -B -p gbm 2> /dev/null | grep -m 1 -i renderer)
+  [[ "$rendu" == *llvmpipe* || "$rendu" == *softpipe* ]] && return 1
+  return 0
+}
+
+# menu RAISON : revient quand l'utilisateur veut (re)lancer le bureau
+menu() {
+  local raison=$1 relancer="Réessayer le bureau"
+  [[ "$raison" == 3 ]] && relancer="Démarrer le bureau quand même"
+  while :; do
+    ecran_de_secours "$raison"
+    case $(choisir "Installer Nova OS (en mode texte)" "$relancer" "Ouvrir une console" "Éteindre") in
+      Installer*)
+        sudo nova-install
+        printf '\nAppuie sur Entrée pour revenir au menu.'
+        read -r _
+        ;;
+      Réessayer* | Démarrer*) return ;;
+      Ouvrir*)
+        printf '\nTape « exit » pour revenir au menu.\n\n'
+        fish
+        ;;
+      Éteindre*) systemctl poweroff ;;
+    esac
+  done
+}
+
+raison=0
+acceleration_3d_ok || raison=3
+while :; do
+  if [[ "$raison" != 3 ]]; then
+    lancer_bureau
+    raison=$?
+    if [[ "$raison" == 0 ]]; then
+      # Le bureau a fonctionné puis a été quitté : la console le relance d'elle-même
+      exit 0
+    fi
+  fi
+  logger -t nova-live-session "bureau non affiché (raison $raison)"
+  menu "$raison"
+  raison=0
+done

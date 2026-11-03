@@ -200,6 +200,8 @@ RESULT=$(tr -d '\r\n' 2>/dev/null < "$OUT/live/resultat.txt")
 check "installation terminée sans erreur (${RESULT:-aucun résultat})" '[[ "$RESULT" == INSTALL_OK ]]'
 skipped=$(grep -h "Paquets ignorés" "$OUT/live/nova-install.log" 2>/dev/null | head -n1)
 [[ -n "$skipped" ]] && log "  ! $skipped"
+check "session d'essai : bureau affiché (pas d'écran de secours)" \
+  'grep -q "nova-live-session.*: bureau affiché" "$OUT/live/journal-live.txt" && ! grep -q "nova-live-session.*: bureau non affiché" "$OUT/live/journal-live.txt"'
 
 # --- 3. Vérifications hors ligne -------------------------------------------------------------
 log ""

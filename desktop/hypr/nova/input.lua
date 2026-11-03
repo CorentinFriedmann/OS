@@ -24,7 +24,13 @@ function M.apply(cfg)
       },
     },
     gestures = { workspace_swipe_cancel_ratio = 0.2 },
-    cursor = { hide_on_key_press = true, inactive_timeout = 5 },
+    cursor = {
+      hide_on_key_press = true,
+      inactive_timeout = 5,
+      -- Machines virtuelles (VirtualBox, VMware…) : le curseur matériel y est
+      -- souvent invisible ou décalé, on le dessine nous-mêmes.
+      no_hardware_cursors = util.virtual_machine() and "Enabled" or "Auto",
+    },
     binds = { workspace_back_and_forth = true, allow_workspace_cycles = true },
   })
 

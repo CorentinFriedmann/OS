@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Session d'essai : notification de bienvenue avec un bouton « Installer ».
+# Signale d'abord à nova-live-session que le bureau a bien démarré.
+: > "${XDG_RUNTIME_DIR:-/tmp}/nova-bureau-pret"
 sleep 4
 action=$(notify-send -a "Nova OS" -i nova -u critical "Bienvenue dans Nova OS" \
   "Session d'essai : rien n'est modifié sur ton ordinateur. Pour installer Nova OS, clique sur « Installer » (ou Super+D puis « Installer Nova OS »)." \

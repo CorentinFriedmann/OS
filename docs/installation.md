@@ -13,6 +13,9 @@ qui libères de la place depuis Windows, et Nova s'installe uniquement dans cet 
 - au moins **30 Go** libres sur le disque (**60 Go conseillés**, plus si tu joues beaucoup) ;
 - une connexion à internet (Wi-Fi ou câble).
 
+> **Envie d'essayer d'abord dans une machine virtuelle ?** C'est possible avec VirtualBox,
+> sans rien toucher sur ton PC : voir [Essayer dans VirtualBox](#essayer-dans-virtualbox).
+
 ---
 
 ## 1. Sauvegarde
@@ -193,7 +196,29 @@ Quand tout va bien, l'ancien système peut être supprimé : `sudo btrfs subvolu
 (après avoir remonté `/mnt` comme ci-dessus).
 </details>
 
+## Essayer dans VirtualBox
+
+Nova tourne aussi dans une machine virtuelle VirtualBox (7.x). C'est plus lent que sur ton
+PC, mais rien n'est modifié sur ton disque.
+
+1. **Nouvelle** machine : image ISO de Nova, type **Linux / Arch Linux (64-bit)**, coche
+   **« Ignorer l'installation sans surveillance »**. 4 à 8 Go de mémoire, **4 processeurs**,
+   disque dynamique de **60 Go**.
+2. **Configuration → Système → Carte mère** : coche **« Activer EFI »** (indispensable) et
+   décoche *Secure Boot*.
+3. **Configuration → Affichage → Écran** : contrôleur **VMSVGA**, mémoire vidéo **128 Mo**,
+   et **coche « Activer l'accélération 3D »** : sans elle, le bureau ne peut pas s'afficher.
+4. Démarre la machine. Le bureau apparaît au bout d'une à deux minutes.
+
+Si le bureau ne s'affiche pas, la session d'essai le détecte et affiche un écran d'aide en
+mode texte. Il te propose aussi d'installer Nova en mode texte. Dans la machine virtuelle,
+choisis **« Effacer tout le disque »** : seul le disque **virtuel** est effacé.
+
 ## Dépannage
+
+**Écran noir dans VirtualBox.**
+Éteins la machine virtuelle et active l'accélération 3D (voir
+[Essayer dans VirtualBox](#essayer-dans-virtualbox)).
 
 **Le PC démarre directement sur Windows, sans menu.**
 Le BIOS a remis Windows en premier. Dans le BIOS, rubrique *Boot* / *Ordre de démarrage*,
