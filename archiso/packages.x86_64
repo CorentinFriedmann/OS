@@ -70,3 +70,5 @@ mesa-utils
 vulkan-intel
 intel-media-driver
 vulkan-radeon
+# VirtualBox : agents invité complets (presse-papier partagé, écran qui suit la fenêtre)
+virtualbox-guest-utils

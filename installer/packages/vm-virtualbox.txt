@@ -1,0 +1,3 @@
+# Installation dans VirtualBox : agents invité (presse-papier partagé, écran qui suit
+# la fenêtre, dossiers partagés)
+virtualbox-guest-utils

@@ -51,6 +51,9 @@ if [[ -n "${missing// }" ]]; then
     exit 1
   fi
 fi
+# VirtualBox : releng installe les agents sans interface (-nox), incompatibles avec
+# les agents complets de Nova (presse-papier partagé, écran qui suit la fenêtre)
+sed -i '/^virtualbox-guest-utils-nox$/d' "$PROFILE/packages.x86_64"
 comm -12 <(echo "$wanted") <(echo "$available") >> "$PROFILE/packages.x86_64"
 sort -u -o "$PROFILE/packages.x86_64" "$PROFILE/packages.x86_64"
 
