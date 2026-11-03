@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Menu d'alimentation néon (Super+Échap, Ctrl+Alt+Suppr, bouton marche).
+# Menu d'alimentation (Super+Échap, Ctrl+Alt+Suppr, bouton marche).
 set -euo pipefail
 pkill -x fuzzel 2>/dev/null && exit 0
 options=(

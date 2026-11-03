@@ -1,4 +1,4 @@
-# NOVA OS — bureau Hyprland néon
+# NOVA OS — bureau Hyprland « verre »
 hyprland
 hyprlock
 hypridle

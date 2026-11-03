@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Bureaux et fenêtre active pour la barre de Nova (modules « custom » de Waybar).
 
-  nova-hypr-status workspaces   →  pastilles des bureaux, l'actif en cyan
+  nova-hypr-status workspaces   →  pastilles des bureaux, l'actif en bleu glacier
   nova-hypr-status window       →  titre de la fenêtre active
 
 Remplace les modules hyprland/* de Waybar, qui restent bloqués au démarrage avec
@@ -21,7 +21,7 @@ import time
 
 PERSISTENT = 5  # bureaux toujours affichés
 ICONS = {"active": "", "used": "", "empty": ""}  # ● ◉ ○ (Nerd Font)
-COLORS = {"active": "#00f0ff", "used": "#e6f1ff", "empty": "#4a5378", "urgent": "#ff2bd6"}
+COLORS = {"active": "#8ab4ff", "used": "#c9d0dc", "empty": "#4b5263", "urgent": "#f5a97f"}  # palette « Verre »
 EVENTS = {
     "workspaces": {"workspace", "workspacev2", "createworkspace", "createworkspacev2", "destroyworkspace",
                    "destroyworkspacev2", "focusedmon", "focusedmonv2", "moveworkspace", "moveworkspacev2",

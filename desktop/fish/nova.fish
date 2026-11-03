@@ -7,27 +7,27 @@ status is-interactive; or return
 
 set -g fish_greeting
 
-# Couleurs néon (appliquées une seule fois : fish_config reste libre ensuite)
+# Couleurs « verre » (appliquées une seule fois : fish_config reste libre ensuite)
 if not set -q nova_colors_v1
-    set -U fish_color_command 00f0ff
-    set -U fish_color_keyword ff2bd6
-    set -U fish_color_param e6f1ff
-    set -U fish_color_quote ffd23f
-    set -U fish_color_redirection 8a5cff
-    set -U fish_color_operator ff2bd6
-    set -U fish_color_end 8a5cff
-    set -U fish_color_error ff3860
-    set -U fish_color_comment 4a5378
-    set -U fish_color_autosuggestion 4a5378
+    set -U fish_color_command 8ab4ff
+    set -U fish_color_keyword b9adff
+    set -U fish_color_param eef1f6
+    set -U fish_color_quote f2cf86
+    set -U fish_color_redirection a4adbd
+    set -U fish_color_operator b9adff
+    set -U fish_color_end a4adbd
+    set -U fish_color_error ff8f8f
+    set -U fish_color_comment 4b5263
+    set -U fish_color_autosuggestion 4b5263
     set -U fish_color_valid_path --underline
-    set -U fish_pager_color_prefix 00f0ff --bold
-    set -U fish_pager_color_completion c8d3f5
-    set -U fish_pager_color_description 8b95b8
+    set -U fish_pager_color_prefix 8ab4ff --bold
+    set -U fish_pager_color_completion d5dbe6
+    set -U fish_pager_color_description a4adbd
     set -U fish_pager_color_selected_background --background=1a2040
     set -U nova_colors_v1 1
 end
 
-# Invite néon (starship)
+# Invite (starship)
 if type -q starship
     if not set -q STARSHIP_CONFIG
         if test -f ~/.config/starship.toml

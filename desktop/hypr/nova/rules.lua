@@ -43,7 +43,7 @@ function M.apply(_cfg)
   hl.window_rule({ name = "nova-games-tearing", match = { class = "^(steam_app_.*|gamescope)$" }, immediate = true })
   floating("nova-steam-friends", { class = "^(steam)$", title = "^(Liste d'amis|Friends List)$" }, { size = "420 720" })
 
-  -- Calques (layer-shell) : flou néon sous la barre, les menus et l'assistant
+  -- Calques (layer-shell) : verre dépoli sous la barre, les menus et l'assistant
   local blurred = {
     { "waybar", 0.25 },
     { "launcher", 0.2 },             -- fuzzel

@@ -87,7 +87,7 @@ function M.apply(cfg)
   bind(mod .. " + S", hl.dsp.workspace.toggle_special("nova"), "Afficher / masquer le bureau caché")
   bind(mod .. " + ALT + S", hl.dsp.window.move({ workspace = "special:nova" }), "Envoyer au bureau caché")
 
-  -- Touches multimédia (avec affichage néon à l'écran) ----------------------
+  -- Touches multimédia (avec affichage à l'écran) ----------------------
   local media = { locked = true, repeating = true }
   bind("XF86AudioRaiseVolume", exec("nova-osd volume-up"), "Volume +", media)
   bind("XF86AudioLowerVolume", exec("nova-osd volume-down"), "Volume -", media)

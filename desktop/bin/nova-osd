@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# nova-osd <action> — volume / luminosité avec affichage néon à l'écran.
+# nova-osd <action> — volume / luminosité avec affichage à l'écran.
 # Utilise swayosd s'il est installé, sinon wpctl / brightnessctl.
 set -euo pipefail
 action="${1:?usage: nova-osd server|volume-up|volume-down|mute|mic-mute|brightness-up|brightness-down}"
 if [[ "$action" == server ]]; then
-  # Démarré à l'ouverture de session : affichage néon du volume / de la luminosité
+  # Démarré à l'ouverture de session : affichage du volume / de la luminosité
   command -v swayosd-server >/dev/null || exit 0
   exec swayosd-server --style "$(nova-config swayosd/style.css)"
 fi

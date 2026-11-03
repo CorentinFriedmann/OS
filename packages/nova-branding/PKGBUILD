@@ -1,5 +1,5 @@
 # Maintainer: Nova OS <https://github.com/CorentinFriedmann/OS>
-# Identité visuelle de Nova OS : logos, fonds d'écran, polices, thèmes de
+# Identité visuelle de Nova OS : logos, fonds d'écran, thèmes de
 # démarrage (GRUB, Plymouth) et de connexion (SDDM), os-release.
 pkgname=nova-branding
 pkgver=${NOVA_PKGVER:-0.1.0}
@@ -7,7 +7,8 @@ pkgrel=1
 pkgdesc="Nova OS — identité visuelle (logos, fonds d'écran, thèmes GRUB/Plymouth/SDDM)"
 arch=('any')
 url="https://github.com/CorentinFriedmann/OS"
-license=('MIT' 'OFL-1.1')
+license=('MIT')
+depends=('inter-font')   # police de l'interface (écran de connexion, barre, verrouillage)
 backup=('etc/sddm.conf.d/10-nova.conf')
 install=nova-branding.install
 
@@ -37,9 +38,6 @@ package() {
   done
   # Fonds d'écran
   _put_into 644 "$pkgdir/usr/share/backgrounds/nova" "$src"/wallpapers/*.jpg
-  # Police Orbitron (OFL)
-  _put_into 644 "$pkgdir/usr/share/fonts/nova" "$src"/fonts/orbitron/*.ttf
-  _put 644 "$src/fonts/orbitron/OFL.txt" "$pkgdir/usr/share/licenses/$pkgname/OFL-Orbitron.txt"
   # Thème GRUB (menu Nova / Windows / instantanés)
   _put_into 644 "$pkgdir/usr/share/grub/themes/nova" "$src"/grub/nova/*.*
   _put_into 644 "$pkgdir/usr/share/grub/themes/nova/icons" "$src"/grub/nova/icons/*.png

@@ -1,5 +1,5 @@
 // ╔══════════════════════════════════════════════════════════════╗
-// ║  NOVA OS — écran de connexion néon (thème SDDM, Qt 6)         ║
+// ║  NOVA OS — écran de connexion « verre » (thème SDDM, Qt 6)    ║
 // ╚══════════════════════════════════════════════════════════════╝
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -8,13 +8,14 @@ Rectangle {
     id: root
     width: 1920
     height: 1080
-    color: "#05060d"
+    color: "#0b0d12"
 
-    readonly property color cyan: "#00f0ff"
-    readonly property color magenta: "#ff2bd6"
-    readonly property color violet: "#8a5cff"
-    readonly property color fg: "#e6f1ff"
-    readonly property color dim: "#8b95b8"
+    // Palette « Verre » (branding/palette.json)
+    readonly property color accent: "#8ab4ff"
+    readonly property color danger: "#ff8f8f"
+    readonly property color fg: "#eef1f6"
+    readonly property color dim: "#a4adbd"
+    readonly property color muted: "#6c7486"
     readonly property var frLocale: Qt.locale("fr_FR")
     property int sessionIndex: sessionModel.lastIndex >= 0 ? sessionModel.lastIndex : 0
 
@@ -36,7 +37,7 @@ Rectangle {
         function onLoginSucceeded() { message.text = "" }
     }
 
-    // --- fond : ville néon + voile sombre -------------------------------------------
+    // --- fond : lumière douce + voile sombre -------------------------------------------
     Image {
         anchors.fill: parent
         source: config.background || "background.jpg"
@@ -47,9 +48,9 @@ Rectangle {
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#8805060d" }
-            GradientStop { position: 0.6; color: "#5505060d" }
-            GradientStop { position: 1.0; color: "#dd05060d" }
+            GradientStop { position: 0.0; color: "#660b0d12" }
+            GradientStop { position: 0.6; color: "#330b0d12" }
+            GradientStop { position: 1.0; color: "#990b0d12" }
         }
     }
 
@@ -61,20 +62,19 @@ Rectangle {
         Text {
             id: clock
             anchors.horizontalCenter: parent.horizontalCenter
-            font.family: "Orbitron"
-            font.pixelSize: Math.round(root.height * 0.09)
-            font.weight: Font.Black
+            font.family: "Inter"
+            font.pixelSize: Math.round(root.height * 0.10)
+            font.weight: Font.Light
             color: root.fg
-            style: Text.Outline
-            styleColor: "#3300f0ff"
             text: Qt.formatTime(new Date(), "HH:mm")
         }
         Text {
             id: date
             anchors.horizontalCenter: parent.horizontalCenter
-            font.family: "Orbitron"
+            font.family: "Inter"
             font.pixelSize: Math.round(root.height * 0.022)
-            color: root.magenta
+            font.weight: Font.Medium
+            color: root.dim
             text: root.frLocale.toString(new Date(), "dddd d MMMM")
         }
     }
@@ -96,20 +96,9 @@ Rectangle {
         anchors.centerIn: parent
         anchors.verticalCenterOffset: root.height * 0.08
         radius: 26
-        color: "#d90a0d1a"
-        border.color: "#6600f0ff"
+        color: "#b8141820"
+        border.color: "#1fffffff"
         border.width: 1
-
-        // halo néon autour de la carte
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: -6
-            z: -1
-            radius: parent.radius + 6
-            color: "transparent"
-            border.color: "#2200f0ff"
-            border.width: 6
-        }
 
         SequentialAnimation {
             id: shake
@@ -134,11 +123,10 @@ Rectangle {
             }
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "NOVA OS"
-                font.family: "Orbitron"
-                font.pixelSize: 22
-                font.letterSpacing: 6
-                font.weight: Font.Black
+                text: "Nova OS"
+                font.family: "Inter"
+                font.pixelSize: 24
+                font.weight: Font.DemiBold
                 color: root.fg
             }
 
@@ -151,13 +139,13 @@ Rectangle {
                 font.family: "Inter"
                 font.pixelSize: 16
                 color: root.fg
-                placeholderTextColor: "#4a5378"
+                placeholderTextColor: root.muted
                 leftPadding: 18
                 background: Rectangle {
                     radius: 14
                     color: "#0dffffff"
-                    border.width: userField.activeFocus ? 2 : 1
-                    border.color: userField.activeFocus ? root.cyan : "#4d8a5cff"
+                    border.width: 1
+                    border.color: userField.activeFocus ? root.accent : "#1fffffff"
                 }
                 KeyNavigation.tab: passwordField
                 onAccepted: passwordField.forceActiveFocus()
@@ -173,14 +161,14 @@ Rectangle {
                 font.family: "Inter"
                 font.pixelSize: 16
                 color: root.fg
-                placeholderTextColor: "#4a5378"
+                placeholderTextColor: root.muted
                 leftPadding: 18
                 focus: true
                 background: Rectangle {
                     radius: 14
                     color: "#0dffffff"
-                    border.width: passwordField.activeFocus ? 2 : 1
-                    border.color: passwordField.activeFocus ? root.cyan : "#4d8a5cff"
+                    border.width: 1
+                    border.color: passwordField.activeFocus ? root.accent : "#1fffffff"
                 }
                 KeyNavigation.tab: loginButton
                 onAccepted: root.doLogin()
@@ -193,20 +181,16 @@ Rectangle {
                 onClicked: root.doLogin()
                 contentItem: Text {
                     text: busy.running ? "Connexion…" : "Se connecter"
-                    font.family: "Orbitron"
+                    font.family: "Inter"
                     font.pixelSize: 15
-                    font.weight: Font.Bold
-                    color: "#05060d"
+                    font.weight: Font.DemiBold
+                    color: "#0b0d12"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
                 background: Rectangle {
                     radius: 14
-                    gradient: Gradient {
-                        orientation: Gradient.Horizontal
-                        GradientStop { position: 0.0; color: loginButton.down ? "#00b8c4" : root.cyan }
-                        GradientStop { position: 1.0; color: loginButton.down ? "#6a44cc" : root.violet }
-                    }
+                    color: loginButton.down ? "#6f9dfa" : (loginButton.hovered ? "#a9c7ff" : root.accent)
                 }
             }
 
@@ -216,7 +200,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignHCenter
                 font.family: "Inter"
                 font.pixelSize: 14
-                color: "#ff3860"
+                color: root.danger
                 text: ""
                 visible: text.length > 0
             }
@@ -256,7 +240,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
-            background: Rectangle { radius: 12; color: "#cc0a0d1a"; border.color: "#4d8a5cff"; border.width: 1 }
+            background: Rectangle { radius: 12; color: "#b8141820"; border.color: "#1fffffff"; border.width: 1 }
         }
     }
 
@@ -285,13 +269,13 @@ Rectangle {
                     text: modelData.label
                     font.family: "Inter"
                     font.pixelSize: 14
-                    color: modelData.action === "poweroff" ? root.magenta : root.fg
+                    color: modelData.action === "poweroff" ? root.danger : root.fg
                     verticalAlignment: Text.AlignVCenter
                 }
                 background: Rectangle {
                     radius: 12
-                    color: parent.hovered ? "#2600f0ff" : "#cc0a0d1a"
-                    border.color: modelData.action === "poweroff" ? "#66ff2bd6" : "#4d8a5cff"
+                    color: parent.hovered ? "#24ffffff" : "#b8141820"
+                    border.color: "#1fffffff"
                     border.width: 1
                 }
             }

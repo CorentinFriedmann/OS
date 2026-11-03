@@ -15,9 +15,9 @@ LOGO="$ROOT/logo/nova.svg"
 command -v rsvg-convert >/dev/null || { echo "rsvg-convert introuvable (paquet librsvg)" >&2; exit 1; }
 
 echo "→ Fonds d'écran"
-"$PY" "$GEN" --width 3840 --height 2160 --out "$ROOT/wallpapers/nova-city.jpg"
-"$PY" "$GEN" --width 3840 --height 2160 --variant lock --out "$ROOT/wallpapers/nova-city-lock.jpg"
-"$PY" "$GEN" --width 3840 --height 2160 --seed 1337 --out "$ROOT/wallpapers/nova-city-2.jpg"
+"$PY" "$GEN" --width 3840 --height 2160 --out "$ROOT/wallpapers/nova-verre.jpg"
+"$PY" "$GEN" --width 3840 --height 2160 --variant lock --out "$ROOT/wallpapers/nova-verre-lock.jpg"
+"$PY" "$GEN" --width 3840 --height 2160 --seed 1338 --out "$ROOT/wallpapers/nova-verre-2.jpg"
 
 echo "→ Arrière-plan GRUB (PNG non progressif, 1920x1080)"
 "$PY" "$GEN" --width 1920 --height 1080 --variant lock --out "$ROOT/grub/nova/background.png"

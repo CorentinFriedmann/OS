@@ -10,7 +10,7 @@ apply() {
 }
 case "${1:-restore}" in
   restore)
-    image="${2:-$system_dir/nova-city.jpg}"
+    image="${2:-$system_dir/nova-verre.jpg}"
     [[ -f "$state" && -f "$(<"$state")" ]] && image="$(<"$state")"
     apply "$image" ;;
   set)

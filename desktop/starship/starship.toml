@@ -1,32 +1,32 @@
 # ╔══════════════════════════════════════════════════════════════╗
-# ║  NOVA OS — invite de commande néon (starship)                 ║
+# ║  NOVA OS — invite de commande (starship)                      ║
 # ╚══════════════════════════════════════════════════════════════╝
 # Pour personnaliser : copie ce fichier dans ~/.config/starship.toml
 "$schema" = "https://starship.rs/config-schema.json"
 
 add_newline = true
 format = """
-[╭─](#4a5378)${custom.nova}$username$hostname$directory$git_branch$git_status$python$nodejs$rust$golang$cmd_duration
-[╰─](#4a5378)$character"""
+[╭─](#4b5263)${custom.nova}$username$hostname$directory$git_branch$git_status$python$nodejs$rust$golang$cmd_duration
+[╰─](#4b5263)$character"""
 right_format = "$time"
 
 [custom.nova]
 command = ""
 when = true
-format = "[󰙴 ](bold #00f0ff)"
+format = "[󰙴 ](bold #8ab4ff)"
 
 [username]
 show_always = false
-style_user = "bold #ff2bd6"
+style_user = "bold #b9adff"
 format = "[$user]($style) "
 
 [hostname]
 ssh_only = true
-style = "#8a5cff"
+style = "#a4adbd"
 format = "[@ $hostname]($style) "
 
 [directory]
-style = "bold #00f0ff"
+style = "bold #8ab4ff"
 truncation_length = 3
 truncation_symbol = "…/"
 read_only = " 󰌾"
@@ -34,45 +34,45 @@ format = "[$path]($style)[$read_only]($read_only_style) "
 
 [git_branch]
 symbol = " "
-style = "#ff2bd6"
+style = "#b9adff"
 format = "[$symbol$branch]($style) "
 
 [git_status]
-style = "#ffd23f"
+style = "#f2cf86"
 format = "([$all_status$ahead_behind]($style) )"
 
 [python]
 symbol = " "
-style = "#ffd23f"
+style = "#f2cf86"
 format = "[$symbol$version]($style) "
 
 [nodejs]
 symbol = " "
-style = "#3dffa8"
+style = "#7ee2b8"
 format = "[$symbol$version]($style) "
 
 [rust]
 symbol = " "
-style = "#ff8a3d"
+style = "#f5a97f"
 format = "[$symbol$version]($style) "
 
 [golang]
 symbol = " "
-style = "#00f0ff"
+style = "#8ab4ff"
 format = "[$symbol$version]($style) "
 
 [cmd_duration]
 min_time = 2000
-style = "#8a5cff"
+style = "#a4adbd"
 format = "[󰚭 $duration]($style) "
 
 [time]
 disabled = false
 time_format = "%H:%M"
-style = "#4a5378"
+style = "#4b5263"
 format = "[$time]($style)"
 
 [character]
-success_symbol = "[❯](bold #00f0ff)"
-error_symbol = "[❯](bold #ff3860)"
-vimcmd_symbol = "[❮](bold #3dffa8)"
+success_symbol = "[❯](bold #8ab4ff)"
+error_symbol = "[❯](bold #ff8f8f)"
+vimcmd_symbol = "[❮](bold #7ee2b8)"

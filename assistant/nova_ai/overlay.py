@@ -1,4 +1,4 @@
-"""Nova IA — fenêtre flottante néon (Super+Espace).
+"""Nova IA — fenêtre flottante en verre (Super+Espace).
 
 `nova-assistant [toggle|show|hide|welcome|setup|voice]` : une seule instance
 (Gtk.Application), les appels suivants la pilotent.
@@ -35,70 +35,66 @@ MODES = ["auto", "local", "cloud"]
 MODE_LABELS = {"auto": "Auto", "local": "Local", "cloud": "Cloud"}
 
 CSS = """
+/* Style « verre » de Nova (palette : branding/palette.json) */
 window.nova-overlay { background: transparent; }
 .nova-card {
-  background: rgba(8, 10, 22, 0.88);
+  background: rgba(16, 19, 26, 0.84);
   border-radius: 24px;
-  border: 1px solid rgba(0, 240, 255, 0.35);
-  box-shadow: 0 0 26px rgba(0, 240, 255, 0.18), 0 0 70px rgba(138, 92, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   padding: 16px 18px 18px 18px;
   margin: 28px;
 }
-.nova-title {
-  font-family: "Orbitron", sans-serif; font-weight: 900; font-size: 16px;
-  letter-spacing: 4px; color: #e6f1ff;
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.9);
-}
-.nova-badge { border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 700; }
-.nova-badge.local { background: rgba(61, 255, 168, 0.10); color: #3dffa8; border: 1px solid rgba(61, 255, 168, 0.4); }
-.nova-badge.cloud { background: rgba(255, 43, 214, 0.10); color: #ff2bd6; border: 1px solid rgba(255, 43, 214, 0.45); }
-.nova-badge.offline { background: rgba(74, 83, 120, 0.2); color: #8b95b8; border: 1px solid rgba(74, 83, 120, 0.6); }
+.nova-title { font-family: "Inter", sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.5px; color: #eef1f6; }
+.nova-badge { border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 600; }
+.nova-badge.local { background: rgba(126, 226, 184, 0.10); color: #7ee2b8; border: 1px solid rgba(126, 226, 184, 0.28); }
+.nova-badge.cloud { background: rgba(185, 173, 255, 0.10); color: #b9adff; border: 1px solid rgba(185, 173, 255, 0.30); }
+.nova-badge.offline { background: rgba(255, 255, 255, 0.04); color: #a4adbd; border: 1px solid rgba(255, 255, 255, 0.10); }
 button.nova-flat {
-  background: rgba(255, 255, 255, 0.04); color: #8b95b8; border-radius: 10px;
-  border: 1px solid rgba(138, 92, 255, 0.25); min-height: 28px; padding: 0 10px; font-size: 12px;
+  background: rgba(255, 255, 255, 0.05); color: #a4adbd; border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08); min-height: 28px; padding: 0 10px; font-size: 12px;
 }
-button.nova-flat:hover { color: #e6f1ff; border-color: rgba(0, 240, 255, 0.5); background: rgba(0, 240, 255, 0.08); }
+button.nova-flat:hover { color: #eef1f6; background: rgba(255, 255, 255, 0.10); }
 .bubble { border-radius: 16px; padding: 10px 14px; font-size: 14px; }
-.bubble.user {
-  background: linear-gradient(135deg, rgba(255, 43, 214, 0.22), rgba(138, 92, 255, 0.22));
-  border: 1px solid rgba(255, 43, 214, 0.35); color: #ffffff;
-}
-.bubble.nova { background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.20); color: #e6f1ff; }
-.meta { color: #4a5378; font-size: 11px; }
-.chip { border-radius: 10px; padding: 3px 10px; background: rgba(138, 92, 255, 0.14); color: #c8b8ff; font-size: 12px; }
-.chip.ok { color: #3dffa8; background: rgba(61, 255, 168, 0.08); }
-.chip.fail { color: #ff3860; background: rgba(255, 56, 96, 0.08); }
-.chip.web { color: #00f0ff; background: rgba(0, 240, 255, 0.08); }
-.notice { color: #ffd23f; font-size: 12px; }
-.error { color: #ff3860; font-size: 13px; }
-.thinking { color: #00f0ff; font-size: 13px; letter-spacing: 3px; }
-.confirm { border-radius: 14px; padding: 12px 14px; background: rgba(255, 210, 63, 0.07); border: 1px solid rgba(255, 210, 63, 0.5); }
-.confirm.sensitive { background: rgba(255, 56, 96, 0.07); border-color: rgba(255, 56, 96, 0.6); }
-.confirm-title { font-weight: 800; color: #ffd23f; }
-.confirm.sensitive .confirm-title { color: #ff3860; }
-.confirm-body { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 12px; color: #e6f1ff; }
-button.allow { background: linear-gradient(135deg, #00f0ff, #8a5cff); color: #05060d; font-weight: 800; border-radius: 10px; border: none; }
-button.deny { background: rgba(255, 255, 255, 0.05); color: #e6f1ff; border-radius: 10px; border: 1px solid rgba(255, 56, 96, 0.5); }
+.bubble.user { background: rgba(138, 180, 255, 0.16); border: 1px solid rgba(138, 180, 255, 0.24); color: #f4f6fa; }
+.bubble.nova { background: rgba(255, 255, 255, 0.045); border: 1px solid rgba(255, 255, 255, 0.07); color: #e2e7ef; }
+.meta { color: #6c7486; font-size: 11px; }
+.chip { border-radius: 10px; padding: 3px 10px; background: rgba(255, 255, 255, 0.06); color: #c9d0dc; font-size: 12px; }
+.chip.ok { color: #7ee2b8; background: rgba(126, 226, 184, 0.08); }
+.chip.fail { color: #ff8f8f; background: rgba(255, 143, 143, 0.08); }
+.chip.web { color: #8ab4ff; background: rgba(138, 180, 255, 0.08); }
+.notice { color: #f2cf86; font-size: 12px; }
+.error { color: #ff8f8f; font-size: 13px; }
+.thinking { color: #8ab4ff; font-size: 13px; letter-spacing: 3px; }
+.confirm { border-radius: 14px; padding: 12px 14px; background: rgba(242, 207, 134, 0.06); border: 1px solid rgba(242, 207, 134, 0.35); }
+.confirm.sensitive { background: rgba(255, 143, 143, 0.06); border-color: rgba(255, 143, 143, 0.40); }
+.confirm-title { font-weight: 700; color: #f2cf86; }
+.confirm.sensitive .confirm-title { color: #ff8f8f; }
+.confirm-body { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 12px; color: #e2e7ef; }
+button.allow { background: #8ab4ff; color: #0b0d12; font-weight: 700; border-radius: 10px; border: none; }
+button.allow:hover { background: #a9c7ff; }
+button.deny { background: rgba(255, 255, 255, 0.06); color: #eef1f6; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.10); }
 button.suggestion {
-  background: rgba(0, 240, 255, 0.06); color: #9fe9ff; border-radius: 999px;
-  border: 1px solid rgba(0, 240, 255, 0.25); padding: 2px 12px; font-size: 12px; min-height: 26px;
+  background: rgba(255, 255, 255, 0.05); color: #c9d0dc; border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08); padding: 2px 12px; font-size: 12px; min-height: 26px;
 }
-button.suggestion:hover { background: rgba(0, 240, 255, 0.16); color: #ffffff; }
+button.suggestion:hover { background: rgba(138, 180, 255, 0.14); color: #ffffff; }
 entry.nova-entry {
   min-height: 46px; border-radius: 14px; background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 240, 255, 0.30); color: #e6f1ff; font-size: 15px; padding: 0 14px;
-  caret-color: #00f0ff; box-shadow: none; outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.10); color: #eef1f6; font-size: 15px; padding: 0 14px;
+  caret-color: #8ab4ff; box-shadow: none; outline: none;
 }
-entry.nova-entry:focus-within { border-color: #00f0ff; box-shadow: 0 0 14px rgba(0, 240, 255, 0.35); }
+entry.nova-entry:focus-within { border-color: rgba(138, 180, 255, 0.65); }
 button.nova-send {
   min-width: 46px; min-height: 46px; border-radius: 14px; border: none;
-  background: linear-gradient(135deg, #00f0ff, #8a5cff); color: #05060d; font-size: 18px; font-weight: 900;
+  background: #8ab4ff; color: #0b0d12; font-size: 18px; font-weight: 800;
 }
+button.nova-send:hover { background: #a9c7ff; }
 button.nova-mic {
-  min-width: 46px; min-height: 46px; border-radius: 14px; color: #ff2bd6;
-  background: rgba(255, 43, 214, 0.08); border: 1px solid rgba(255, 43, 214, 0.35); font-size: 17px;
+  min-width: 46px; min-height: 46px; border-radius: 14px; color: #c9d0dc;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.10); font-size: 17px;
 }
-button.nova-mic.recording { background: rgba(255, 43, 214, 0.35); color: #ffffff; }
+button.nova-mic.recording { background: rgba(255, 143, 143, 0.22); color: #ffffff; border-color: rgba(255, 143, 143, 0.5); }
 """
 
 
@@ -109,13 +105,13 @@ def markdown_to_pango(text: str) -> str:
     for index, part in enumerate(parts):
         if index % 2 == 1:  # bloc de code
             code = GLib.markup_escape_text(part.rstrip("\n"))
-            out.append(f'<span font_family="JetBrainsMono Nerd Font" background="#0d1124" foreground="#9fe9ff">{code}</span>')
+            out.append(f'<span font_family="JetBrainsMono Nerd Font" background="#161a22" foreground="#c3d6ff">{code}</span>')
             continue
         escaped = GLib.markup_escape_text(part)
-        escaped = re.sub(r"`([^`\n]+)`", r'<span font_family="JetBrainsMono Nerd Font" foreground="#00f0ff">\1</span>', escaped)
+        escaped = re.sub(r"`([^`\n]+)`", r'<span font_family="JetBrainsMono Nerd Font" foreground="#c3d6ff">\1</span>', escaped)
         escaped = re.sub(r"\*\*([^*\n]+)\*\*", r"<b>\1</b>", escaped)
         escaped = re.sub(r"(?<![*\w])\*([^*\n]+)\*(?!\w)", r"<i>\1</i>", escaped)
-        escaped = re.sub(r"(?m)^#{1,6}\s+(.+)$", r'<span foreground="#ff2bd6"><b>\1</b></span>', escaped)
+        escaped = re.sub(r"(?m)^#{1,6}\s+(.+)$", r'<span foreground="#eef1f6"><b>\1</b></span>', escaped)
         escaped = re.sub(r"(?m)^\s*[-*]\s+", "  • ", escaped)
         out.append(escaped)
     return "".join(out).strip()
@@ -208,7 +204,7 @@ class AssistantWindow(Gtk.ApplicationWindow):
             logo = Gtk.Image.new_from_file(LOGO)
             logo.set_pixel_size(30)
             header.append(logo)
-        header.append(Gtk.Label(label="NOVA", css_classes=["nova-title"]))
+        header.append(Gtk.Label(label="Nova", css_classes=["nova-title"]))
         self.badge = Gtk.Label(label="…", css_classes=["nova-badge", "offline"], valign=Gtk.Align.CENTER)
         header.append(self.badge)
         header.append(Gtk.Box(hexpand=True))

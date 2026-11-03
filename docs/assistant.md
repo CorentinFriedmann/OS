@@ -16,9 +16,9 @@ confirmation avant tout ce qui modifie le système.
 
 | Où | Comment |
 |---|---|
-| Partout | **Super+Espace** : la fenêtre néon de Nova s'ouvre par-dessus ton bureau (Échap pour la fermer) |
+| Partout | **Super+Espace** : la fenêtre de Nova s'ouvre par-dessus ton bureau (Échap pour la fermer) |
 | À la voix | **Super+Maj+Espace** : tu parles, Nova répond à voix haute (voir plus bas) |
-| Barre du haut | Clic sur l'orbe ✦ (elle pulse quand Nova réfléchit, et passe au magenta quand Claude répond) |
+| Barre du haut | Clic sur l'orbe ✦ (elle pulse quand Nova réfléchit, et devient lavande quand Claude répond) |
 | Terminal | `nova` pour discuter, ou `nova "ta question"` pour une question rapide |
 
 Chaque réponse affiche un badge : **🔒 local** ou **☁ cloud**, pour savoir qui a répondu.

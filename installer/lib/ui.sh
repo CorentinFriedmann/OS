@@ -2,12 +2,12 @@
 # NOVA OS — installateur : interface (gum si présent, sinon questions en texte).
 
 # shellcheck disable=SC2034 # palette complète, utilisée selon les écrans
-CYAN=$'\e[38;2;0;240;255m'
-MAGENTA=$'\e[38;2;255;43;214m'
-VIOLET=$'\e[38;2;138;92;255m'
-GREEN=$'\e[38;2;61;255;168m'
-YELLOW=$'\e[38;2;255;210;63m'
-RED=$'\e[38;2;255;56;96m'
+ACCENT=$'\e[38;2;138;180;255m'
+LAVENDER=$'\e[38;2;185;173;255m'
+VIOLET=$'\e[38;2;164;173;189m'
+GREEN=$'\e[38;2;126;226;184m'
+YELLOW=$'\e[38;2;242;207;134m'
+RED=$'\e[38;2;255;143;143m'
 DIM=$'\e[2m'
 BOLD=$'\e[1m'
 RESET=$'\e[0m'
@@ -15,15 +15,15 @@ RESET=$'\e[0m'
 HAVE_GUM=0
 if command -v gum >/dev/null 2>&1 && [[ -t 0 && -t 1 ]]; then
   HAVE_GUM=1
-  export GUM_CHOOSE_CURSOR_FOREGROUND="#00f0ff" GUM_CHOOSE_SELECTED_FOREGROUND="#ff2bd6"
-  export GUM_CHOOSE_HEADER_FOREGROUND="#8a5cff" GUM_INPUT_CURSOR_FOREGROUND="#00f0ff"
-  export GUM_INPUT_PROMPT_FOREGROUND="#00f0ff" GUM_INPUT_HEADER_FOREGROUND="#8a5cff"
-  export GUM_CONFIRM_PROMPT_FOREGROUND="#e6f1ff" GUM_CONFIRM_SELECTED_BACKGROUND="#ff2bd6"
-  export GUM_SPIN_SPINNER_FOREGROUND="#00f0ff"
+  export GUM_CHOOSE_CURSOR_FOREGROUND="#8ab4ff" GUM_CHOOSE_SELECTED_FOREGROUND="#b9adff"
+  export GUM_CHOOSE_HEADER_FOREGROUND="#a4adbd" GUM_INPUT_CURSOR_FOREGROUND="#8ab4ff"
+  export GUM_INPUT_PROMPT_FOREGROUND="#8ab4ff" GUM_INPUT_HEADER_FOREGROUND="#a4adbd"
+  export GUM_CONFIRM_PROMPT_FOREGROUND="#eef1f6" GUM_CONFIRM_SELECTED_BACKGROUND="#b9adff"
+  export GUM_SPIN_SPINNER_FOREGROUND="#8ab4ff"
 fi
 
 ui_banner() {
-  printf '%s' "$CYAN"
+  printf '%s' "$ACCENT"
   cat <<'EOF'
 
     ███╗   ██╗ ██████╗ ██╗   ██╗ █████╗
@@ -33,11 +33,11 @@ ui_banner() {
     ██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║
     ╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝
 EOF
-  printf '%s       Installation de Nova OS%s\n\n' "$MAGENTA" "$RESET"
+  printf '%s       Installation de Nova OS%s\n\n' "$LAVENDER" "$RESET"
 }
 
 ui_step() { printf '\n%s━━ %s %s%s\n' "$VIOLET" "$1" "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" "$RESET"; }
-ui_info() { printf '%s›%s %s\n' "$CYAN" "$RESET" "$*"; }
+ui_info() { printf '%s›%s %s\n' "$ACCENT" "$RESET" "$*"; }
 ui_ok() { printf '%s✓%s %s\n' "$GREEN" "$RESET" "$*"; }
 ui_warn() { printf '%s!%s %s\n' "$YELLOW" "$RESET" "$*" >&2; }
 ui_error() { printf '%s✗ %s%s\n' "$RED" "$*" "$RESET" >&2; }

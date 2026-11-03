@@ -8,32 +8,32 @@ font-size = 12
 font-feature = calt
 font-feature = liga
 
-# Palette néon Nova
-background = #05060d
-foreground = #e6f1ff
-cursor-color = #00f0ff
-cursor-text = #05060d
-selection-background = #2a1f5a
+# Palette « Verre » de Nova : graphite, couleurs douces, accent bleu glacier
+background = #0e1117
+foreground = #e2e7ef
+cursor-color = #8ab4ff
+cursor-text = #0b0d12
+selection-background = #2a3346
 selection-foreground = #ffffff
-palette = 0=#1a2040
-palette = 1=#ff3860
-palette = 2=#3dffa8
-palette = 3=#ffd23f
-palette = 4=#2f7bff
-palette = 5=#ff2bd6
-palette = 6=#00f0ff
-palette = 7=#c8d3f5
-palette = 8=#4a5378
-palette = 9=#ff6b8b
-palette = 10=#7dffc4
-palette = 11=#ffe27a
-palette = 12=#6aa1ff
-palette = 13=#ff6be4
-palette = 14=#6ff7ff
-palette = 15=#ffffff
+palette = 0=#1c212b
+palette = 1=#ff8f8f
+palette = 2=#7ee2b8
+palette = 3=#f2cf86
+palette = 4=#8ab4ff
+palette = 5=#b9adff
+palette = 6=#7fd3d0
+palette = 7=#c9d0dc
+palette = 8=#4b5263
+palette = 9=#ffa8a8
+palette = 10=#9eecc9
+palette = 11=#f6dba3
+palette = 12=#a9c7ff
+palette = 13=#cdc4ff
+palette = 14=#9fe0dd
+palette = 15=#f4f6fa
 
 # Verre fumé : Hyprland floute ce qui est derrière
-background-opacity = 0.86
+background-opacity = 0.82
 window-padding-x = 14
 window-padding-y = 12
 window-padding-balance = true
@@ -50,6 +50,3 @@ shell-integration-features = cursor,title,sudo
 # Ouverture instantanée des nouvelles fenêtres
 gtk-single-instance = true
 
-# Halo néon discret autour du texte (désactiver : custom-shader =)
-custom-shader = /usr/share/nova/ghostty/shaders/nova-glow.glsl
-custom-shader-animation = false

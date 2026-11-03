@@ -147,7 +147,7 @@ bit près** et que les deux systèmes apparaissent au menu de démarrage.
 
 ## 7. Premier démarrage
 
-Le **menu néon** de Nova s'affiche quelques secondes :
+Le **menu de démarrage** de Nova s'affiche quelques secondes :
 
 | Entrée | Rôle |
 |---|---|

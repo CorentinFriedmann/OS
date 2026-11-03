@@ -27,8 +27,9 @@ from .client import DaemonUnavailable, NovaClient
 
 ORB = "\U000F0674"  # icône « étincelles » (Nerd Font)
 C = {
-    "cyan": "\033[38;2;0;240;255m", "magenta": "\033[38;2;255;43;214m", "violet": "\033[38;2;138;92;255m",
-    "green": "\033[38;2;61;255;168m", "red": "\033[38;2;255;56;96m", "yellow": "\033[38;2;255;210;63m",
+    # Palette « verre » (branding/palette.json)
+    "accent": "\033[38;2;138;180;255m", "lavender": "\033[38;2;185;173;255m", "teal": "\033[38;2;127;211;208m",
+    "green": "\033[38;2;126;226;184m", "red": "\033[38;2;255;143;143m", "yellow": "\033[38;2;242;207;134m",
     "dim": "\033[2m", "bold": "\033[1m", "reset": "\033[0m",
 }
 if not sys.stdout.isatty() or os.environ.get("NO_COLOR"):
@@ -49,16 +50,16 @@ class Printer:
         if kind == "turn_start":
             badge = "🔒 local" if event["backend"] == "local" else "☁  cloud"
             print(paint("dim", f"{badge} · {event['model']}"))
-            print(paint("cyan", f"{ORB} Nova ") , end="", flush=True)
+            print(paint("accent", f"{ORB} Nova ") , end="", flush=True)
         elif kind == "text":
             print(event["text"], end="", flush=True)
         elif kind == "thinking" and not self.thinking_shown:
             self.thinking_shown = True
             print(paint("dim", "(réflexion…) "), end="", flush=True)
         elif kind == "web_search":
-            print(paint("violet", "\n  🌐 recherche sur le web…"), flush=True)
+            print(paint("teal", "\n  🌐 recherche sur le web…"), flush=True)
         elif kind == "tool_start":
-            print(paint("violet", f"\n  ⚙ {event['label']}…"), end="", flush=True)
+            print(paint("teal", f"\n  ⚙ {event['label']}…"), end="", flush=True)
         elif kind == "tool_end":
             mark = paint("green", " ✓") if event.get("ok") else paint("red", " ✗ refusé" if event.get("denied") else " ✗")
             print(mark, flush=True)
@@ -95,10 +96,10 @@ def chat(client: NovaClient) -> None:
         import readline  # noqa: F401 - historique et édition de la ligne
     except ImportError:
         pass
-    print(paint("cyan", f"{ORB} Nova IA {__version__}") + paint("dim", " — /reset nouvelle conversation, /local ou /cloud en préfixe, Ctrl+D pour quitter"))
+    print(paint("accent", f"{ORB} Nova IA {__version__}") + paint("dim", " — /reset nouvelle conversation, /local ou /cloud en préfixe, Ctrl+D pour quitter"))
     while True:
         try:
-            text = input(paint("magenta", "\n❯ "))
+            text = input(paint("lavender", "\n❯ "))
         except (EOFError, KeyboardInterrupt):
             print()
             return
@@ -163,7 +164,7 @@ def pull_model(config: dict, model: str) -> bool:
     def progress(status: str, ratio: float) -> None:
         if ratio >= 0:
             bar = "█" * int(ratio * 30)
-            print(f"\r  {paint('cyan', bar.ljust(30, '░'))} {ratio * 100:5.1f} %  {status[:30]:<30}", end="", flush=True)
+            print(f"\r  {paint('accent', bar.ljust(30, '░'))} {ratio * 100:5.1f} %  {status[:30]:<30}", end="", flush=True)
         elif status != last[0]:
             print(f"\r  {status:<70}", end="", flush=True)
         last[0] = status
@@ -179,7 +180,7 @@ def pull_model(config: dict, model: str) -> bool:
 
 def setup() -> None:
     config = load_config()
-    print(paint("cyan", f"\n  {ORB}  Configuration de Nova IA\n"))
+    print(paint("accent", f"\n  {ORB}  Configuration de Nova IA\n"))
 
     # 1. IA locale
     print(paint("bold", "1. IA locale (privée, hors ligne, gratuite)"))
@@ -187,7 +188,7 @@ def setup() -> None:
         print(paint("yellow", "  Ollama n'est pas démarré. Lance : sudo systemctl enable --now ollama"))
     memory = total_memory_gb()
     suggestion = recommended_local_model(memory)
-    print(f"  Mémoire vive détectée : {memory:.0f} Go → modèle conseillé : {paint('cyan', suggestion)}")
+    print(f"  Mémoire vive détectée : {memory:.0f} Go → modèle conseillé : {paint('accent', suggestion)}")
     model = input(f"  Modèle local [{suggestion}] : ").strip() or suggestion
     config["local"]["model"] = model
     if _yes(f"  Télécharger {model} maintenant ?"):

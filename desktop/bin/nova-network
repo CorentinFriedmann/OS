@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sélecteur Wi-Fi néon : liste les réseaux, se connecte (mot de passe demandé
+# Sélecteur Wi-Fi : liste les réseaux, se connecte (mot de passe demandé
 # si besoin). Clic sur l'icône réseau de la barre.
 set -euo pipefail
 pkill -x fuzzel 2>/dev/null && exit 0

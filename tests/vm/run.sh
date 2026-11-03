@@ -221,7 +221,7 @@ if [[ -b "$NOVA" ]] && mount -o ro,subvol=@ "$NOVA" "$MNT" 2>/dev/null; then
   check "menu GRUB : Nova" 'grep -q "^menuentry .Nova Linux" "$MNT/boot/grub/grub.cfg"'
   check "menu GRUB : pas d'entrées techniques du micrologiciel" '! grep -q "EFI BootNext" "$MNT/boot/grub/grub.cfg"'
   check "menu GRUB : Windows détecté" 'grep -qi "^menuentry .Windows" "$MNT/boot/grub/grub.cfg"'
-  check "menu GRUB : thème néon Nova" 'grep -q "themes/nova/theme.txt" "$MNT/boot/grub/grub.cfg"'
+  check "menu GRUB : thème Nova" 'grep -q "themes/nova/theme.txt" "$MNT/boot/grub/grub.cfg"'
   check "compte « testeur » (fish) administrateur" 'grep -q "^testeur:.*:/usr/bin/fish$" "$MNT/etc/passwd" && grep -qE "^wheel:.*testeur" "$MNT/etc/group"'
   check "compte root verrouillé" 'grep -q "^root:!" "$MNT/etc/shadow"'
   check "mot de passe effacé du disque (script de configuration supprimé)" '[[ ! -e "$MNT/root/nova-configure.sh" ]]'

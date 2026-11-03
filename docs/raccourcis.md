@@ -81,5 +81,5 @@ enregistrée dans **Images/Captures**, avec un bouton pour l'annoter.
 ## Touches multimédia
 
 Volume, micro, luminosité, lecture/pause, piste suivante/précédente : les touches de
-ton clavier fonctionnent directement, avec un affichage néon à l'écran. Elles marchent
+ton clavier fonctionnent directement, avec un affichage discret à l'écran. Elles marchent
 aussi quand la session est verrouillée.

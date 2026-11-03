@@ -9,7 +9,7 @@ mkdir -p "$dir"
 file="$dir/Capture_$(date +%Y-%m-%d_%H-%M-%S).png"
 case "$mode" in
   zone)
-    geometry="$(slurp -d -b 05060d88 -c 00f0ffff -s 00f0ff22 -w 2)" || exit 0
+    geometry="$(slurp -d -b 0b0d1270 -c 8ab4ffcc -s 8ab4ff1a -w 1)" || exit 0
     grim -g "$geometry" "$file" ;;
   fenetre)
     geometry="$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')"

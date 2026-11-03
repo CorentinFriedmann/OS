@@ -1,66 +1,60 @@
 #!/usr/bin/env python3
-"""Génère la bannière du README (docs/banner.png) : fond néon + logo + titre lumineux."""
+"""Génère la bannière du README (docs/banner.png) : fond « verre » + carte de verre, logo et titre."""
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
 BRANDING = ROOT / "branding"
+INTER = BRANDING / "fonts" / "inter" / "InterVariable.ttf"
 
 
-def neon_text(size: tuple[int, int], xy, text: str, font, color, glow_radius: int) -> Image.Image:
-    layer = Image.new("RGBA", size, (0, 0, 0, 0))
-    ImageDraw.Draw(layer).text(xy, text, font=font, fill=color)
-    glow = layer.filter(ImageFilter.GaussianBlur(glow_radius))
-    wide = layer.filter(ImageFilter.GaussianBlur(glow_radius * 3))
-    out = Image.new("RGBA", size, (0, 0, 0, 0))
-    for g in (wide, glow, glow):
-        out = Image.alpha_composite(out, g)
-    return Image.alpha_composite(out, layer)
+def inter(size: int, weight: str) -> ImageFont.FreeTypeFont:
+    font = ImageFont.truetype(str(INTER), size)
+    font.set_variation_by_name(weight)
+    return font
 
 
 def main() -> None:
-    p = argparse.ArgumentParser()
-    p.add_argument("--out", type=Path, default=ROOT / "docs" / "banner.png")
-    args = p.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--out", type=Path, default=ROOT / "docs" / "banner.png")
+    args = parser.parse_args()
 
-    W, H = 1600, 520
-    bg = Image.open(BRANDING / "wallpapers" / "nova-city.jpg").convert("RGB")
-    # Recadrage centré sur l'anneau et l'horizon
-    scale = W / bg.width * 1.35
-    bg = bg.resize((int(bg.width * scale), int(bg.height * scale)), Image.LANCZOS)
-    left = (bg.width - W) // 2
-    top = int(bg.height * 0.40) - H // 2
-    banner = bg.crop((left, top, left + W, top + H)).convert("RGBA")
-    # Voile sombre à gauche pour la lisibilité du titre
-    veil = Image.new("L", (W, H), 0)
-    vd = ImageDraw.Draw(veil)
-    for x in range(W):
-        vd.line([(x, 0), (x, H)], fill=int(190 * max(0.0, 1 - x / (W * 0.75)) ** 1.2))
-    banner = Image.composite(Image.new("RGBA", (W, H), (3, 4, 10, 255)), banner, veil)
+    width, height = 1600, 520
+    background = Image.open(BRANDING / "wallpapers" / "nova-verre.jpg").convert("RGB")
+    scale = width / background.width * 1.25
+    background = background.resize((int(background.width * scale), int(background.height * scale)), Image.LANCZOS)
+    left = (background.width - width) // 2 - 120
+    top = int(background.height * 0.42) - height // 2
+    banner = background.crop((left, top, left + width, top + height)).convert("RGBA")
 
-    logo = Image.open(BRANDING / "logo" / "nova-512.png").convert("RGBA").resize((300, 300), Image.LANCZOS)
-    glow = logo.filter(ImageFilter.GaussianBlur(18))
-    banner.alpha_composite(glow, (70, (H - 300) // 2))
-    banner.alpha_composite(logo, (70, (H - 300) // 2))
+    # Carte de verre : flou de l'arrière-plan, voile clair, liseré fin
+    card = (90, 110, 1110, 410)
+    region = banner.crop(card).filter(ImageFilter.GaussianBlur(28))
+    mask = Image.new("L", banner.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle(card, radius=36, fill=255)
+    frosted = banner.copy()
+    frosted.paste(region, card[:2])
+    frosted = Image.alpha_composite(frosted, Image.new("RGBA", banner.size, (255, 255, 255, 14)))
+    banner = Image.composite(frosted, banner, mask)
+    border = Image.new("RGBA", banner.size, (0, 0, 0, 0))
+    ImageDraw.Draw(border).rounded_rectangle(card, radius=36, outline=(255, 255, 255, 34), width=2)
+    banner = Image.alpha_composite(banner, border)
 
-    title_font = ImageFont.truetype(str(BRANDING / "fonts/orbitron/Orbitron-Black.ttf"), 132)
-    sub_font = ImageFont.truetype(str(BRANDING / "fonts/orbitron/Orbitron-Medium.ttf"), 34)
-    title = neon_text((W, H), (410, 120), "NOVA OS", title_font, (230, 251, 255, 255), 10)
-    # Liseré cyan -> magenta sous le titre
-    bar = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    bd = ImageDraw.Draw(bar)
-    for i in range(760):
-        t = i / 759
-        c = (int(0 + t * 255), int(240 - t * 197), int(255 - t * 41), 255)
-        bd.line([(414 + i, 290), (414 + i, 294)], fill=c)
-    bar = Image.alpha_composite(bar.filter(ImageFilter.GaussianBlur(6)), bar)
-    sub = neon_text((W, H), (414, 322), "Arch  /  Hyprland  /  IA intégrée", sub_font, (0, 240, 255, 255), 6)
-    for layer in (title, bar, sub):
-        banner = Image.alpha_composite(banner, layer)
+    logo = Image.open(BRANDING / "logo" / "nova-512.png").convert("RGBA").resize((200, 200), Image.LANCZOS)
+    banner.alpha_composite(logo, (card[0] + 50, card[1] + 50))
+
+    draw = ImageDraw.Draw(banner)
+    title_font = inter(108, "SemiBold")
+    x, y = card[0] + 290, card[1] + 48
+    draw.text((x, y), "Nova OS", font=title_font, fill=(238, 241, 246, 255))
+    bottom = draw.textbbox((x, y), "Nova OS", font=title_font)[3]
+    draw.rounded_rectangle((x + 6, bottom + 18, x + 66, bottom + 22), radius=2, fill=(138, 180, 255, 255))
+    draw.text((x + 6, bottom + 36), "Rapide, épuré, avec une IA intégrée",
+              font=inter(34, "Regular"), fill=(164, 173, 189, 255))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     banner.convert("RGB").save(args.out, optimize=True)
     print(f"✓ {args.out}")

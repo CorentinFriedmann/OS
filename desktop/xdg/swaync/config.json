@@ -16,7 +16,7 @@
   "control-center-height": 720,
   "notification-window-width": 400,
   "notification-icon-size": 56,
-  "notification-2fa-action": true,
+  "notification-2fa-action": false,
   "notification-inline-replies": true,
   "notification-grouping": true,
   "timeout": 6,

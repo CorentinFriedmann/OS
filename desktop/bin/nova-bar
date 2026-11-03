@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Barre du haut (Waybar) avec la configuration néon de Nova. Waybar ignore
+# Barre du haut (Waybar) avec la configuration de Nova. Waybar ignore
 # XDG_CONFIG_DIRS : on lui donne donc les fichiers explicitement (une
 # configuration personnelle dans ~/.config/waybar reste prioritaire).
 # Ses messages vont dans le journal : journalctl --user -t nova-bar

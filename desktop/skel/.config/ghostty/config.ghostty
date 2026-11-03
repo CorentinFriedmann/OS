@@ -1,5 +1,5 @@
 # NOVA OS — ta configuration Ghostty.
-# Le thème néon de Nova est chargé ici ; ajoute tes réglages en dessous.
+# Le thème de Nova est chargé ici ; ajoute tes réglages en dessous.
 config-file = /usr/share/nova/ghostty/config.ghostty
 
 # Exemples :

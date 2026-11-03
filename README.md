@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-  <b>Le Linux ultra rapide, néon et futuriste, avec une IA intégrée.</b><br>
+  <b>Le Linux ultra rapide, épuré et futuriste, avec une IA intégrée.</b><br>
   Basé sur Arch Linux, optimisé façon CachyOS, bureau Hyprland, assistant Nova.
 </p>
 
 <p align="center">
   <a href="https://github.com/CorentinFriedmann/OS/actions/workflows/build.yml"><img src="https://github.com/CorentinFriedmann/OS/actions/workflows/build.yml/badge.svg" alt="Construction"></a>
-  <a href="https://github.com/CorentinFriedmann/OS/releases/latest"><img src="https://img.shields.io/github/v/release/CorentinFriedmann/OS?label=ISO&color=00f0ff" alt="Dernière ISO"></a>
+  <a href="https://github.com/CorentinFriedmann/OS/releases/latest"><img src="https://img.shields.io/github/v/release/CorentinFriedmann/OS?label=ISO&color=8ab4ff" alt="Dernière ISO"></a>
 </p>
 
 ---
@@ -31,8 +31,8 @@
   pour le web, l'écran, le code et la rédaction. Elle pilote le PC (applications, fenêtres,
   son, modes, logiciels…) et demande confirmation avant toute action sensible.
   [En savoir plus](docs/assistant.md).
-- **🌃 Bureau néon** : Hyprland en mosaïque, bordures en dégradé cyan → magenta, flou, lueurs
-  et animations, réduites automatiquement sur batterie. Raccourcis pensés pour les habitués de
+- **🪟 Bureau en verre** : Hyprland en mosaïque, panneaux en verre dépoli, bordures fines,
+  ombres douces et animations fluides, réduites automatiquement sur batterie. Raccourcis pensés pour les habitués de
   Windows (Super+E, Super+L, Super+V, Super+Maj+S…). [Tous les raccourcis](docs/raccourcis.md).
 - **🎮 Jeux** : Steam, Proton-CachyOS, GameMode, MangoHud, Gamescope, Lutris, Wine ;
   le mode Jeu (**Super+G**) coupe les effets et réduit la latence.
@@ -113,5 +113,5 @@ dans une machine virtuelle, mais pas encore sur une grande variété de vrais PC
 
 Nova OS s'appuie sur [Arch Linux](https://archlinux.org), [CachyOS](https://cachyos.org),
 [Hyprland](https://hypr.land), [Ollama](https://ollama.com) et [Claude](https://claude.com),
-chacun sous sa propre licence. Police Orbitron : SIL Open Font License
-([`branding/fonts/orbitron/OFL.txt`](branding/fonts/orbitron/OFL.txt)).
+chacun sous sa propre licence. Police Inter : SIL Open Font License
+([`branding/fonts/inter/OFL.txt`](branding/fonts/inter/OFL.txt)).

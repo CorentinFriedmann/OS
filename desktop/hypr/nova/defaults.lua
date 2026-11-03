@@ -20,21 +20,21 @@ return {
   touchpad = { natural_scroll = true, tap_to_click = true },
 
   look = {
-    gaps_in = 5,
-    gaps_out = 10,
-    border_size = 2,
-    rounding = 14,
+    gaps_in = 6,
+    gaps_out = 12,
+    border_size = 1,
+    rounding = 16,
     blur = true,
-    glow = true,             -- halo néon autour de la fenêtre active
+    glow = false,            -- halo lumineux autour de la fenêtre active (désactivé : style épuré)
     shadow = true,
     animations = true,
     border_animation = false, -- dégradé tournant : joli mais consomme sur batterie
-    inactive_opacity = 0.96,
+    inactive_opacity = 0.97,
     -- Sur batterie, Nova coupe automatiquement les effets coûteux
     power_aware = true,
   },
 
-  wallpaper = "/usr/share/backgrounds/nova/nova-city.jpg",
+  wallpaper = "/usr/share/backgrounds/nova/nova-verre.jpg",
 
   -- Programmes lancés à l'ouverture de session
   autostart = {

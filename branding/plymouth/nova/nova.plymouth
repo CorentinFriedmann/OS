@@ -1,6 +1,6 @@
 [Plymouth Theme]
 Name=Nova
-Description=Nova OS — anneau orbital néon autour du logo
+Description=Nova OS — un arc fin qui tourne autour du logo
 ModuleName=two-step
 
 [two-step]
@@ -14,10 +14,10 @@ TitleVerticalAlignment=.30
 MessageBelowAnimation=true
 Transition=none
 TransitionDuration=0.0
-BackgroundStartColor=0x05060d
-BackgroundEndColor=0x05060d
-ProgressBarBackgroundColor=0x11152a
-ProgressBarForegroundColor=0x00f0ff
+BackgroundStartColor=0x0b0d12
+BackgroundEndColor=0x0b0d12
+ProgressBarBackgroundColor=0x1a1e26
+ProgressBarForegroundColor=0x8ab4ff
 
 [boot-up]
 UseEndAnimation=false

@@ -1,7 +1,7 @@
 -- ╔══════════════════════════════════════════════════════════════════╗
 -- ║  NOVA OS — ta configuration Hyprland                             ║
 -- ╚══════════════════════════════════════════════════════════════════╝
--- Le thème néon, les raccourcis et les effets de Nova sont chargés depuis
+-- Le thème, les raccourcis et les effets de Nova sont chargés depuis
 -- /usr/share/nova/hypr (mis à jour avec le système).
 -- Ce fichier t'appartient : il n'est jamais écrasé par les mises à jour.
 -- Les changements sont appliqués dès que tu enregistres.

@@ -1,4 +1,4 @@
--- Nova OS — apparence : néon cyberpunk, halo, flou, animations.
+-- Nova OS — apparence : verre minimaliste (flou dépoli, bordures fines, ombres douces).
 --
 -- Effets « intelligents » : sur batterie (ou en mode éco / jeu), les effets
 -- coûteux sont réduits automatiquement pour économiser l'énergie et les FPS.
@@ -7,10 +7,11 @@
 local util = require("nova.util")
 local M = {}
 
-local NEON = {
-  border = { colors = { "rgba(00f0ffff)", "rgba(8a5cffff)", "rgba(ff2bd6ff)" }, angle = 45 },
-  border_inactive = "rgba(8a5cff30)",
-  glow = { colors = { "rgba(00f0ff66)", "rgba(ff2bd666)" }, angle = 45 },
+-- Palette « Nova Verre » (branding/palette.json)
+local STYLE = {
+  border = { colors = { "rgba(c3d6ff8c)", "rgba(8ab4ff73)", "rgba(b9adff66)" }, angle = 135 },
+  border_inactive = "rgba(ffffff14)",
+  glow = { colors = { "rgba(8ab4ff40)", "rgba(b9adff33)" }, angle = 135 },
 }
 
 local function visual_mode_file()
@@ -33,31 +34,33 @@ local function apply_level(look, level)
   hl.config({
     general = {
       allow_tearing = playing,
-      col = { active_border = NEON.border, inactive_border = NEON.border_inactive },
+      col = { active_border = STYLE.border, inactive_border = STYLE.border_inactive },
     },
     decoration = {
       shadow = {
         enabled = look.shadow and fancy,
-        range = 22,
-        render_power = 3,
-        color = "rgba(00000099)",
-        color_inactive = "rgba(00000055)",
+        range = 32,
+        render_power = 2,
+        offset = "0 6",
+        color = "rgba(0000008c)",
+        color_inactive = "rgba(00000047)",
       },
       glow = {
         enabled = look.glow and not playing,
-        range = fancy and 14 or 8,
+        range = fancy and 12 or 6,
         render_power = 3,
-        color = NEON.glow,
+        color = STYLE.glow,
         color_inactive = "rgba(00000000)",
       },
       blur = {
         enabled = look.blur and not playing,
-        size = fancy and 8 or 4,
+        size = fancy and 10 or 5,
         passes = fancy and 3 or 1,
-        noise = 0.015,
-        contrast = 0.95,
-        brightness = 0.85,
-        vibrancy = 0.22,
+        noise = 0.02,
+        contrast = 0.9,
+        brightness = 0.82,
+        vibrancy = 0.15,
+        vibrancy_darkness = 0.2,
         popups = true,
         special = fancy,
       },
@@ -100,7 +103,7 @@ function M.apply(cfg)
       disable_hyprland_logo = true,
       disable_splash_rendering = true,
       force_default_wallpaper = 0,
-      background_color = "rgb(05060d)",
+      background_color = "rgb(0b0d12)",
       focus_on_activate = true,
       mouse_move_enables_dpms = true,
       key_press_enables_dpms = true,
@@ -110,24 +113,24 @@ function M.apply(cfg)
     ecosystem = { no_update_news = true, no_donation_nag = true },
   })
 
-  -- Courbes : réactives avec un léger rebond, signature de Nova
-  hl.curve("nova",       { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.05 } } })
-  hl.curve("novaOut",    { type = "bezier", points = { { 0.3, 0 },    { 0.8, 0.15 } } })
-  hl.curve("smooth",     { type = "bezier", points = { { 0.25, 1 },   { 0.5, 1 } } })
-  hl.curve("linear",     { type = "bezier", points = { { 0, 0 },      { 1, 1 } } })
-  hl.curve("novaSpring", { type = "spring", mass = 1, stiffness = 220, damping = 22 })
+  -- Courbes : fluides et posées, sans rebond (décélération douce)
+  hl.curve("nova",       { type = "bezier", points = { { 0.22, 1 },  { 0.36, 1 } } })
+  hl.curve("novaOut",    { type = "bezier", points = { { 0.55, 0 },  { 1, 0.45 } } })
+  hl.curve("smooth",     { type = "bezier", points = { { 0.25, 1 },  { 0.5, 1 } } })
+  hl.curve("linear",     { type = "bezier", points = { { 0, 0 },     { 1, 1 } } })
+  hl.curve("novaSpring", { type = "spring", mass = 1, stiffness = 190, damping = 28 })
 
   hl.animation({ leaf = "global",           enabled = true, speed = 8, bezier = "default" })
   hl.animation({ leaf = "windows",          enabled = true, speed = 5, spring = "novaSpring" })
-  hl.animation({ leaf = "windowsIn",        enabled = true, speed = 4, spring = "novaSpring", style = "popin 80%" })
-  hl.animation({ leaf = "windowsOut",       enabled = true, speed = 2, bezier = "novaOut", style = "popin 80%" })
+  hl.animation({ leaf = "windowsIn",        enabled = true, speed = 4, spring = "novaSpring", style = "popin 94%" })
+  hl.animation({ leaf = "windowsOut",       enabled = true, speed = 2, bezier = "novaOut", style = "popin 94%" })
   hl.animation({ leaf = "windowsMove",      enabled = true, speed = 4, spring = "novaSpring" })
   hl.animation({ leaf = "border",           enabled = true, speed = 6, bezier = "smooth" })
   hl.animation({ leaf = "fade",             enabled = true, speed = 4, bezier = "smooth" })
   hl.animation({ leaf = "layers",           enabled = true, speed = 4, bezier = "nova" })
-  hl.animation({ leaf = "layersIn",         enabled = true, speed = 4, bezier = "nova", style = "popin 92%" })
+  hl.animation({ leaf = "layersIn",         enabled = true, speed = 4, bezier = "nova", style = "popin 96%" })
   hl.animation({ leaf = "layersOut",        enabled = true, speed = 2, bezier = "novaOut", style = "fade" })
-  hl.animation({ leaf = "workspaces",       enabled = true, speed = 4, bezier = "smooth", style = "slidefade 15%" })
+  hl.animation({ leaf = "workspaces",       enabled = true, speed = 4, bezier = "nova", style = "slidefade 8%" })
   hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 4, bezier = "nova", style = "slidefadevert 20%" })
 
   local level = current_level(look)

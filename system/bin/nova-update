@@ -3,15 +3,15 @@
 # Un instantané btrfs est pris automatiquement avant (snap-pac) : en cas de
 # problème, choisis « Instantanés Nova » dans le menu de démarrage.
 set -uo pipefail
-cyan=$'\e[38;2;0;240;255m'; magenta=$'\e[38;2;255;43;214m'; green=$'\e[38;2;61;255;168m'; dim=$'\e[2m'; reset=$'\e[0m'
-step() { printf '\n%s▶ %s%s\n' "$cyan" "$1" "$reset"; }
+accent=$'\e[38;2;138;180;255m'; lavender=$'\e[38;2;185;173;255m'; green=$'\e[38;2;126;226;184m'; dim=$'\e[2m'; reset=$'\e[0m'
+step() { printf '\n%s▶ %s%s\n' "$accent" "$1" "$reset"; }
 
-printf '%s\n  ✦  Mise à jour de Nova OS%s\n' "$magenta" "$reset"
+printf '%s\n  ✦  Mise à jour de Nova OS%s\n' "$lavender" "$reset"
 printf '%s  Un instantané du système est créé avant les changements.%s\n' "$dim" "$reset"
 
 step "Paquets officiels et CachyOS (pacman)"
 if ! sudo pacman -Syu; then
-  printf '\n%sLa mise à jour a échoué : le système est intact, réessaie plus tard.%s\n' "$magenta" "$reset"
+  printf '\n%sLa mise à jour a échoué : le système est intact, réessaie plus tard.%s\n' "$lavender" "$reset"
   read -rp "Entrée pour fermer…" _
   exit 1
 fi

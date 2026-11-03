@@ -1,7 +1,7 @@
 # Nova OS — notes pour Claude Code
 
 Distribution personnelle basée sur Arch Linux (optimisée façon CachyOS), bureau Hyprland
-néon, assistant IA hybride « Nova » (Ollama en local + Claude). Tout est en français
+« verre minimaliste » (palette : branding/palette.json), assistant IA hybride « Nova » (Ollama en local + Claude). Tout est en français
 (code commenté, interface, docs) et l'utilisateur est tutoyé.
 
 ## Machine cible
