@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# nova-terminal [--title TITRE] [-e COMMANDE ARGUMENTS...]
+#
+# Terminal de Nova : Ghostty (rapide, dessiné par la carte graphique). S'il ne peut
+# pas démarrer (machine virtuelle, pilote graphique trop ancien : Ghostty a besoin
+# d'OpenGL 4.3), foot prend le relais : il n'a pas besoin de la carte graphique.
+# Ghostty échoue en silence (code 0, aucune fenêtre) : on lit ses messages d'erreur,
+# et on retient le repli pour toute la session.
+set -uo pipefail
+
+runtime=${XDG_RUNTIME_DIR:-/tmp}
+repli="$runtime/nova-terminal-foot"
+title=""
+cmd=()
+while (($#)); do
+  case $1 in
+    --title) title=${2:-}; shift 2 ;;
+    --title=*) title=${1#--title=}; shift ;;
+    -e) shift; cmd=("$@"); break ;;
+    *) shift ;;
+  esac
+done
+
+lancer_foot() {
+  local args=()
+  [[ -n "$title" ]] && args+=("--title=$title")
+  exec foot "${args[@]}" "${cmd[@]}"
+}
+
+if ! command -v ghostty > /dev/null || [[ -e "$repli" ]]; then
+  command -v foot > /dev/null && lancer_foot
+fi
+
+args=()
+[[ -n "$title" ]] && args+=("--title=$title")
+((${#cmd[@]})) && args+=(-e "${cmd[@]}")
+log=$(mktemp "$runtime/nova-terminal.XXXXXX")
+debut=$SECONDS
+ghostty "${args[@]}" 2> "$log"
+code=$?
+if (( SECONDS - debut < 10 )) && command -v foot > /dev/null &&
+  grep -qE 'surface failed to initialize|failed to initialize surface|no EGL driver|OpenGL version' "$log"; then
+  echo "Ghostty ne peut pas utiliser la carte graphique : foot prend le relais" | systemd-cat -t nova-terminal 2> /dev/null
+  : > "$repli"
+  rm -f "$log"
+  lancer_foot
+fi
+rm -f "$log"
+exit "$code"

@@ -30,6 +30,7 @@ sddm
 # Écran de connexion : le greeter SDDM tourne sous X11
 xorg-server
 ghostty
+foot
 nautilus
 gvfs
 gvfs-mtp

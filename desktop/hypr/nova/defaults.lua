@@ -5,7 +5,7 @@ return {
   mod = "SUPER",
 
   apps = {
-    terminal  = "ghostty",
+    terminal  = "nova-terminal", -- Ghostty, ou foot sans carte graphique 3D
     browser   = "firefox",
     files     = "nautilus --new-window",
     launcher  = "nova-launcher",

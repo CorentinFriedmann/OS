@@ -47,7 +47,7 @@
     "exec": "test -d /run/archiso && echo live",
     "interval": "once",
     "format": "󰇚  Installer Nova OS",
-    "on-click": "ghostty '--title=Installation de Nova OS' -e sudo nova-install",
+    "on-click": "nova-terminal '--title=Installation de Nova OS' -e sudo nova-install",
     "tooltip": false
   },
 
@@ -121,7 +121,7 @@
     "drawer": { "transition-duration": 300, "children-class": "hw-child", "transition-left-to-right": false },
     "modules": ["cpu", "memory", "temperature"]
   },
-  "cpu": { "format": "  {usage}%", "interval": 3, "on-click": "ghostty -e btop" },
+  "cpu": { "format": "  {usage}%", "interval": 3, "on-click": "nova-terminal -e btop" },
   "memory": { "format": "󰍛  {percentage}%", "interval": 5, "tooltip-format": "{used:0.1f} / {total:0.1f} Go utilisés" },
   "temperature": {
     "format": "󰔏  {temperatureC}°C",

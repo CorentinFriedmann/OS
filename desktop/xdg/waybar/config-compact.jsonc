@@ -25,7 +25,7 @@
     "exec": "test -d /run/archiso && echo live",
     "interval": "once",
     "format": "󰇚  Installer",
-    "on-click": "ghostty '--title=Installation de Nova OS' -e sudo nova-install",
+    "on-click": "nova-terminal '--title=Installation de Nova OS' -e sudo nova-install",
     "tooltip": false
   },
 

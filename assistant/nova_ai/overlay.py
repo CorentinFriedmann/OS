@@ -577,7 +577,7 @@ class NovaApp(Gtk.Application):
         args = command_line.get_arguments()[1:]
         action = args[0] if args else "toggle"
         if action == "setup":
-            subprocess.Popen(["ghostty", "-e", "nova", "setup"], start_new_session=True)
+            subprocess.Popen(["nova-terminal", "-e", "nova", "setup"], start_new_session=True)
             return 0
         if self.window is None:
             self.window = AssistantWindow(self)

@@ -37,7 +37,7 @@ package() {
 Type=Application
 Name=Installer Nova OS
 Comment=Installer Nova OS à côté de Windows ou sur tout le disque
-Exec=ghostty "--title=Installation de Nova OS" -e sudo nova-install
+Exec=nova-terminal "--title=Installation de Nova OS" -e sudo nova-install
 Icon=nova
 Terminal=false
 Categories=System;

@@ -42,8 +42,7 @@ def install_packages(args: dict, ctx: ToolContext) -> ToolResult:
 
 
 def update_system(args: dict, ctx: ToolContext) -> ToolResult:
-    terminal = "ghostty" if ctx.runner.which("ghostty") else "kitty"
-    if ctx.runner.spawn([terminal, "--title=Mise à jour de Nova OS", "-e", "nova-update"]):
+    if ctx.runner.spawn(["nova-terminal", "--title=Mise à jour de Nova OS", "-e", "nova-update"]):
         return ToolResult(True, "La mise à jour a démarré dans un terminal (un instantané est créé avant, "
                                 "pour pouvoir revenir en arrière depuis le menu de démarrage).")
     return ToolResult(False, "Impossible d'ouvrir le terminal de mise à jour.")
