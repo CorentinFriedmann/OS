@@ -2,7 +2,9 @@
 # Session live : crée l'utilisateur « nova » (sans mot de passe) et ajoute le
 # message d'accueil « Installer Nova OS » au démarrage du bureau.
 set -euo pipefail
-useradd -m -u 1000 -G wheel,video,input,audio -s /usr/bin/fish -c "Nova (session d'essai)" nova
+groups=wheel,video,input,audio
+getent group vboxsf >/dev/null && groups+=,vboxsf   # VirtualBox : dossiers partagés (/media/sf_*)
+useradd -m -u 1000 -G "$groups" -s /usr/bin/fish -c "Nova (session d'essai)" nova
 passwd -d nova >/dev/null
 config=/home/nova/.config/hypr/hyprland.lua
 if [[ -f "$config" ]]; then

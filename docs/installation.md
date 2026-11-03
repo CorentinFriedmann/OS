@@ -214,6 +214,13 @@ PC, mais rien n'est modifié sur ton disque.
    bleu **« Installer »** pour installer Nova dans la machine virtuelle. Pour que la touche
    Super (Windows) arrive à Nova, clique d'abord dans la fenêtre de la machine virtuelle.
 
+Les agents VirtualBox sont inclus, dans la session d'essai comme une fois Nova installé :
+l'écran de Nova suit la taille de la fenêtre, et les dossiers partagés apparaissent dans
+`/media/sf_<nom>`. Pour copier-coller entre Windows et Nova, choisis dans la fenêtre de la
+machine virtuelle **Périphériques → Presse-papier partagé → Bidirectionnel**. Le
+glisser-déposer de fichiers n'est pas disponible : VirtualBox ne le gère pas sous Wayland,
+l'affichage utilisé par Nova.
+
 Si le bureau ne s'affiche pas, la session d'essai le détecte et affiche un écran d'aide en
 mode texte. Il te propose aussi d'installer Nova en mode texte. Dans la machine virtuelle,
 choisis **« Effacer tout le disque »** : seul le disque **virtuel** est effacé.

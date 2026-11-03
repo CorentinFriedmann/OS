@@ -5,3 +5,5 @@ nova-session-env
 nova-notifications   # après l'environnement : swaync lit alors la configuration Nova
 systemctl --user start hyprpolkitagent.service 2>/dev/null || true
 systemctl --user start nova-daemon.service 2>/dev/null || true
+# VirtualBox : agents de la session (presse-papier partagé, écran qui suit la fenêtre)
+if [[ -c /dev/vboxguest ]] && command -v VBoxClient-all >/dev/null; then VBoxClient-all; fi

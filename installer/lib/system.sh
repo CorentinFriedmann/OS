@@ -38,6 +38,7 @@ package_lists() {
     intel) echo cpu-intel ;;
     amd) echo cpu-amd ;;
   esac
+  [[ "$(systemd-detect-virt 2>/dev/null)" == oracle ]] && echo vm-virtualbox
   for gpu in ${NOVA_GPUS:-$(gpu_vendors)}; do echo "gpu-$gpu"; done
 }
 
@@ -145,7 +146,7 @@ cat > /etc/hosts <<EOF
 127.0.1.1   $NOVA_HOSTNAME.localdomain $NOVA_HOSTNAME
 EOF
 groups=wheel,video,input,audio
-for g in gamemode docker; do getent group "$g" >/dev/null && groups+=",$g"; done
+for g in gamemode docker vboxsf; do getent group "$g" >/dev/null && groups+=",$g"; done  # vboxsf : dossiers partagés VirtualBox
 useradd -m -G "$groups" -s /usr/bin/fish -c "$NOVA_FULLNAME" "$NOVA_USER"
 printf '%s:%s\n' "$NOVA_USER" "$NOVA_PASSWORD" | chpasswd
 passwd -l root >/dev/null
@@ -205,7 +206,8 @@ grub-mkconfig -o /boot/grub/grub.cfg
 echo "→ Services"
 for unit in NetworkManager.service bluetooth.service sddm.service power-profiles-daemon.service \
             thermald.service fstrim.timer systemd-timesyncd.service snapper-cleanup.timer grub-btrfsd.service \
-            nova-mode.service nova-firstboot.service ananicy-cpp.service docker.socket ollama.service; do
+            nova-mode.service nova-firstboot.service ananicy-cpp.service docker.socket ollama.service \
+            vboxservice.service; do
   enable_unit "$unit"
 done
 mkdir -p /etc/nova
