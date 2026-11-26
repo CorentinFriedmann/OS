@@ -201,7 +201,7 @@ check "installation terminée sans erreur (${RESULT:-aucun résultat})" '[[ "$RE
 skipped=$(grep -h "Paquets ignorés" "$OUT/live/nova-install.log" 2>/dev/null | head -n1)
 [[ -n "$skipped" ]] && log "  ! $skipped"
 check "session d'essai : barre compacte sur l'écran de 1280 points" \
-  'grep -q "nova-bar.*Using configuration file .*config-compact.jsonc" "$OUT/live/journal-live.txt"'
+  'grep -qE "(nova-bar|waybar)\[[0-9]+\]: .*Using configuration file .*config-compact.jsonc" "$OUT/live/journal-live.txt"'
 check "session d'essai : bureau affiché (pas d'écran de secours)" \
   'grep -q "nova-live-session.*: bureau affiché" "$OUT/live/journal-live.txt" && ! grep -q "nova-live-session.*: bureau non affiché" "$OUT/live/journal-live.txt"'
 
@@ -363,7 +363,8 @@ if [[ "$RESULT" == INSTALL_OK ]]; then
   check "écran de connexion SDDM lancé" 'grep -q "Started.*Simple Desktop Display Manager" "$JOURNAL"'
   soft "connexion de « testeur » acceptée" 'grep -q "session opened for user testeur" "$JOURNAL"'
   soft "session Hyprland lancée" 'grep -q "Connected to a wayland compositor: Hyprland" "$JOURNAL"'
-  check "barre du haut (Waybar) affichée" 'grep -q "nova-bar.*Bar configured" "$JOURNAL"'
+  # Waybar ≥ 0.16 écrit lui-même dans le journal (« waybar[…] ») ; avant, par nova-bar
+  check "barre du haut (Waybar) affichée" 'grep -qE "(nova-bar|waybar)\[[0-9]+\]: .*Bar configured" "$JOURNAL"'
   check "le terminal s'ouvre" 'grep -q "nova-diagnostic.*terminal *: OK" "$JOURNAL"'
   check "Fichiers s'ouvre" 'grep -q "nova-diagnostic.*fichiers *: OK" "$JOURNAL"'
   check "la Calculatrice s'ouvre" 'grep -q "nova-diagnostic.*calculatrice *: OK" "$JOURNAL"'
@@ -379,8 +380,8 @@ if [[ "$RESULT" == INSTALL_OK ]]; then
     log "    $variant : $state"
   done
   grep -E "wb-[a-z0-9-]+\[" "$JOURNAL" 2>/dev/null | grep -iE "error|warn|exception" | grep -vE "RFKILL|temperature|backlight|batter|bluetooth" | head -n 15 | cut -c1-200 | sed 's/^/    /' | tee -a "$REPORT"
-  log "  · barre du haut (journal nova-bar) :"
-  grep -E "nova-bar\[" "$JOURNAL" 2>/dev/null | grep -vE "dbind|desktop appearance" | head -n 25 | cut -c1-220 | sed 's/^/    /' | tee -a "$REPORT"
+  log "  · barre du haut (journal nova-bar / waybar) :"
+  grep -E "(nova-bar|waybar)\[" "$JOURNAL" 2>/dev/null | grep -vE "dbind|desktop appearance" | head -n 25 | cut -c1-220 | sed 's/^/    /' | tee -a "$REPORT"
 fi
 
 log ""
