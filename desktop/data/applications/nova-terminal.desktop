@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal
+GenericName=Terminal
+Comment=Ligne de commande
+Exec=nova-terminal
+Icon=utilities-terminal
+Categories=System;TerminalEmulator;
+Keywords=terminal;console;shell;commande;ghostty;foot;
+StartupNotify=false

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# nova-run COMMANDE [ARGUMENTS...]
+#
+# Lance une application (raccourcis clavier, lanceur). Si elle n'est pas installée ou
+# s'arrête aussitôt sur une erreur, une notification le dit : plus de clic « dans le vide ».
+set -uo pipefail
+(($#)) || exit 2
+app=$(basename "$1")
+
+prevenir() {  # prevenir TITRE TEXTE
+  command -v notify-send > /dev/null || return 0
+  notify-send -a "Nova OS" -i dialog-warning -u normal "$1" "$2" 2> /dev/null || true
+}
+
+if ! command -v "$1" > /dev/null; then
+  if [[ -d /run/archiso ]]; then
+    prevenir "« $app » n'est pas sur la clé d'essai" "Cette application sera disponible une fois Nova OS installé."
+  else
+    prevenir "« $app » n'est pas installé" "Demande à Nova de l'installer (Super+Espace), ou : sudo pacman -S $app"
+  fi
+  exit 127
+fi
+
+echo "lancement : $*" | systemd-cat -t nova-run 2> /dev/null || true
+runtime=${XDG_RUNTIME_DIR:-/tmp}
+log=$(mktemp "$runtime/nova-run.XXXXXX")
+debut=$SECONDS
+# Seule la fin des messages d'erreur est gardée (une application bavarde ne remplit rien)
+"$@" 2> >(tail -c 2000 > "$log")
+code=$?
+wait 2> /dev/null
+# Arrêt demandé (fermeture, Ctrl+C, déconnexion) : rien à signaler
+case $code in 0 | 129 | 130 | 137 | 143) rm -f "$log"; exit "$code" ;; esac
+if (( SECONDS - debut < 8 )); then
+  detail=$(grep -v '^[[:space:]]*$' "$log" 2> /dev/null | tail -n 2 | cut -c1-160)
+  prevenir "« $app » n'a pas pu démarrer" "${detail:+$detail
+}Pour en savoir plus, lance : nova-diagnostic"
+  echo "$app arrêté aussitôt (code $code) : ${detail:-aucun message}" | systemd-cat -t nova-run 2> /dev/null || true
+fi
+rm -f "$log"
+exit "$code"

@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+"""État du bureau Nova, en clair : à lancer quand quelque chose ne marche pas.
+
+  nova-diagnostic            résumé : machine, carte graphique, session, erreurs récentes
+  nova-diagnostic --lancer   ouvre en plus le terminal, Fichiers et la Calculatrice,
+                             et dit pour chacun si une fenêtre est bien apparue
+
+Fonctionne depuis le bureau comme depuis une console texte (Ctrl+Alt+F2) : il
+retrouve tout seul la session graphique en cours. Le rapport complet est aussi
+enregistré dans ~/nova-diagnostic.txt. Options : --garder (laisse les fenêtres
+ouvertes), --journal (copie le résultat dans le journal système), --delai N.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+APPS = [  # (nom affiché, commande)
+    ("terminal", ["nova-terminal", "-e", "sleep", "45"]),
+    ("fichiers", ["nautilus", "--new-window"]),
+    ("calculatrice", ["gnome-calculator"]),
+]
+SESSION_VARS = ("WAYLAND_DISPLAY", "HYPRLAND_INSTANCE_SIGNATURE", "XDG_CONFIG_DIRS", "XDG_CURRENT_DESKTOP",
+                "GSK_RENDERER", "NOVA_VM", "XCURSOR_THEME", "XCURSOR_SIZE", "DBUS_SESSION_BUS_ADDRESS")
+
+
+def run(cmd: list[str], env: dict | None = None, timeout: float = 10) -> str:
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env).stdout.strip()
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+
+
+def session_env() -> dict:
+    """Environnement de la session graphique, même depuis une console texte."""
+    env = dict(os.environ)
+    runtime = Path(env.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}")
+    env["XDG_RUNTIME_DIR"] = str(runtime)
+    env.setdefault("DBUS_SESSION_BUS_ADDRESS", f"unix:path={runtime}/bus")
+    for line in run(["systemctl", "--user", "show-environment"], env=env).splitlines():
+        name, _, value = line.partition("=")
+        if name in SESSION_VARS and not env.get(name):
+            env[name] = value[2:-1] if value.startswith("$'") else value
+    if not env.get("WAYLAND_DISPLAY"):
+        sockets = sorted(p.name for p in runtime.glob("wayland-*") if p.is_socket())
+        if sockets:
+            env["WAYLAND_DISPLAY"] = sockets[0]
+    if not env.get("HYPRLAND_INSTANCE_SIGNATURE"):
+        try:
+            instances = sorted((p for p in (runtime / "hypr").iterdir() if p.is_dir()), key=lambda p: p.stat().st_mtime)
+        except OSError:
+            instances = []
+        if instances:
+            env["HYPRLAND_INSTANCE_SIGNATURE"] = instances[-1].name
+    return env
+
+
+def windows(env: dict) -> dict[str, str] | None:
+    """Fenêtres ouvertes : adresse → « classe ». None si Hyprland ne répond pas."""
+    out = run(["hyprctl", "-j", "clients"], env=env, timeout=5)
+    try:
+        return {w["address"]: w.get("class") or w.get("title") or "?" for w in json.loads(out)}
+    except (json.JSONDecodeError, TypeError, KeyError):
+        return None
+
+
+def running(name: str) -> bool:
+    return subprocess.run(["pgrep", "-x", name], capture_output=True).returncode == 0
+
+
+def graphics(env: dict) -> str:
+    if not shutil.which("eglinfo"):
+        return "inconnue (paquet mesa-utils absent)"
+    out = run(["eglinfo", "-B"], env=env, timeout=20)
+    renderer = re.search(r"^OpenGL core profile renderer: (.+)$", out, re.M) or re.search(r"^OpenGL \S* ?profile renderer: (.+)$", out, re.M)
+    version = re.search(r"^OpenGL core profile version: (\d+\.\d+)", out, re.M)
+    if not renderer:
+        return "aucun rendu OpenGL disponible"
+    name = renderer.group(1).split(";")[0].split("(")[0].strip()[:42]
+    kind = " (rendu logiciel)" if re.search(r"llvmpipe|softpipe", renderer.group(1)) else ""
+    return f"{name}{kind} · OpenGL {version.group(1) if version else '?'}"
+
+
+def launch(name: str, cmd: list[str], env: dict, delay: float, keep: bool) -> tuple[bool, str]:
+    """Lance une application et attend qu'une nouvelle fenêtre apparaisse."""
+    if not shutil.which(cmd[0]):
+        return False, "programme absent"
+    before = windows(env)
+    if before is None:
+        return False, "Hyprland ne répond pas"
+    with tempfile.TemporaryFile() as errors:
+        process = subprocess.Popen(cmd, env=env, stdout=subprocess.DEVNULL, stderr=errors, start_new_session=True)
+        deadline, opened = time.monotonic() + delay, ""
+        while time.monotonic() < deadline and not opened:
+            time.sleep(0.5)
+            new = [cls for address, cls in (windows(env) or {}).items() if address not in before]
+            opened = new[0] if new else ""
+            if not opened and process.poll() is not None and time.monotonic() + 3 < deadline:
+                deadline = time.monotonic() + 3   # déjà terminé : on ne patiente plus longtemps
+        code = process.poll()
+        if not (keep and opened):
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except OSError:
+                pass
+        if opened:
+            return True, f"fenêtre « {opened} »"
+        errors.seek(0)
+        lines = [line.strip() for line in errors.read().decode(errors="replace").splitlines() if line.strip()]
+        why = "arrêté aussitôt" + (f" (code {code})" if code else "") if code is not None else f"aucune fenêtre en {delay:.0f} s"
+        return False, why + (f" — {lines[-1][:90]}" if lines else "")
+
+
+def main(argv: list[str]) -> int:
+    do_launch, keep, to_journal = "--lancer" in argv, "--garder" in argv, "--journal" in argv
+    delay = float(argv[argv.index("--delai") + 1]) if "--delai" in argv else 25.0
+    if "-h" in argv or "--help" in argv:
+        print(__doc__)
+        return 0
+    env = session_env()
+    report: list[str] = []
+
+    def say(label: str, text: str) -> None:
+        report.append(f"  {label:<13}: {text}")
+        print(report[-1], flush=True)
+
+    release = dict(line.split("=", 1) for line in Path("/etc/os-release").read_text().splitlines() if "=" in line)
+    print("\n  Nova OS · diagnostic\n")
+    say("Système", f"{release.get('PRETTY_NAME', 'Nova OS').strip(chr(34))} · noyau {os.uname().release}")
+    virt = run(["systemd-detect-virt", "--vm"]) or "none"
+    say("Machine", "ordinateur réel" if virt == "none" else f"machine virtuelle ({virt})")
+    say("Carte 3D", graphics(env))
+    session = windows(env) is not None
+    parts = [("bureau Hyprland", session), ("barre", running("waybar")), ("notifications", running("swaync")),
+             ("assistant", run(["systemctl", "--user", "is-active", "nova-daemon"], env=env) == "active")]
+    say("Session", " · ".join(f"{name} {'✓' if ok else '✗'}" for name, ok in parts))
+    choice = Path(env["XDG_RUNTIME_DIR"], "nova-terminal-choix")
+    say("Terminal", choice.read_text().strip() if choice.exists() else "pas encore lancé dans cette session")
+    if env.get("GSK_RENDERER"):
+        say("Applications", f"fenêtres dessinées sans la carte 3D (GSK_RENDERER={env['GSK_RENDERER']})")
+
+    failures = 0
+    if do_launch:
+        if not session:
+            say("Lancement", "impossible : aucune session graphique Nova en cours")
+            failures = 1
+        for name, cmd in APPS if session else []:
+            if keep and cmd[0] == "nova-terminal":
+                cmd = cmd[:-1] + ["900"]
+            ok, detail = launch(name, cmd, env, delay, keep)
+            failures += not ok
+            say(f"→ {name}", f"{'OK' if ok else 'ÉCHEC'} · {detail}")
+
+    errors = run(["journalctl", "--user", "-b", "-p", "err", "-n", "40", "--no-pager", "-o", "cat"], env=env)
+    recent = list(dict.fromkeys(line.strip()[:100] for line in errors.splitlines() if line.strip()))[-5:]
+    if recent:
+        report.append("  Dernières erreurs de la session :")
+        report.extend(f"    {line}" for line in recent)
+        print("\n".join(report[-len(recent) - 1:]))
+    if not do_launch:
+        print("\n  Pour tester l'ouverture des applications : nova-diagnostic --lancer")
+
+    try:
+        Path.home().joinpath("nova-diagnostic.txt").write_text("\n".join(report) + "\n", encoding="utf-8")
+        print("\n  Rapport enregistré dans ~/nova-diagnostic.txt\n")
+    except OSError:
+        pass
+    if to_journal:
+        for line in report:
+            subprocess.run(["logger", "-t", "nova-diagnostic", line.strip()], check=False)
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

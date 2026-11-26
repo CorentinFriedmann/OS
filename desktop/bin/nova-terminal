@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # nova-terminal [--title TITRE] [-e COMMANDE ARGUMENTS...]
 #
-# Terminal de Nova : Ghostty (rapide, dessiné par la carte graphique). S'il ne peut
-# pas démarrer (machine virtuelle, pilote graphique trop ancien : Ghostty a besoin
-# d'OpenGL 4.3), foot prend le relais : il n'a pas besoin de la carte graphique.
-# Ghostty échoue en silence (code 0, aucune fenêtre) : on lit ses messages d'erreur,
-# et on retient le repli pour toute la session.
+# Terminal de Nova. Ghostty est dessiné par la carte graphique et exige OpenGL 4.3 :
+# dans une machine virtuelle ou avec un vieux pilote, il ne s'ouvre pas (et ne dit
+# rien). On choisit donc AVANT de lancer :
+#   - machine virtuelle, ou OpenGL < 4.3  → foot (n'a pas besoin de la carte graphique)
+#   - sinon                               → Ghostty, avec foot en secours s'il échoue
+# Le choix est retenu pour la session. Pour l'imposer : NOVA_TERMINAL=ghostty|foot
 set -uo pipefail
 
 runtime=${XDG_RUNTIME_DIR:-/tmp}
-repli="$runtime/nova-terminal-foot"
+memo="$runtime/nova-terminal-choix"
 title=""
 cmd=()
 while (($#)); do
@@ -21,15 +22,45 @@ while (($#)); do
   esac
 done
 
+note() { echo "$*" | systemd-cat -t nova-terminal 2> /dev/null || true; }
+
 lancer_foot() {
   local args=()
   [[ -n "$title" ]] && args+=("--title=$title")
   exec foot "${args[@]}" "${cmd[@]}"
 }
 
-if ! command -v ghostty > /dev/null || [[ -e "$repli" ]]; then
-  command -v foot > /dev/null && lancer_foot
-fi
+# Version d'OpenGL offerte par la carte graphique (« 4 6 »), vide si inconnue
+version_opengl() {
+  command -v eglinfo > /dev/null || return 0
+  timeout 10 eglinfo -B 2> /dev/null |
+    sed -n 's/^OpenGL core profile version: \([0-9]\+\)\.\([0-9]\+\).*/\1 \2/p' | head -n 1
+}
+
+choisir() {
+  local gl majeur mineur
+  case ${NOVA_TERMINAL:-} in ghostty | foot) echo "$NOVA_TERMINAL"; return ;; esac
+  if ! command -v foot > /dev/null; then echo ghostty; return; fi
+  if ! command -v ghostty > /dev/null; then echo foot; return; fi
+  if [[ -s "$memo" ]]; then cat "$memo"; return; fi
+  if systemd-detect-virt --quiet --vm 2> /dev/null; then
+    note "machine virtuelle : terminal foot"
+    echo foot | tee "$memo"
+    return
+  fi
+  gl=$(version_opengl)
+  if [[ -n "$gl" ]]; then
+    read -r majeur mineur <<< "$gl"
+    if (( majeur < 4 || (majeur == 4 && mineur < 3) )); then
+      note "OpenGL $majeur.$mineur (< 4.3) : terminal foot"
+      echo foot | tee "$memo"
+      return
+    fi
+  fi
+  echo ghostty | tee "$memo"
+}
+
+[[ $(choisir) == foot ]] && lancer_foot
 
 args=()
 [[ -n "$title" ]] && args+=("--title=$title")
@@ -38,10 +69,12 @@ log=$(mktemp "$runtime/nova-terminal.XXXXXX")
 debut=$SECONDS
 ghostty "${args[@]}" 2> "$log"
 code=$?
+# Secours : Ghostty s'est arrêté tout de suite sur une erreur d'affichage (la commande
+# demandée n'a donc pas tourné) → on la relance dans foot, pour le reste de la session.
 if (( SECONDS - debut < 10 )) && command -v foot > /dev/null &&
-  grep -qE 'surface failed to initialize|failed to initialize surface|no EGL driver|OpenGL version' "$log"; then
-  echo "Ghostty ne peut pas utiliser la carte graphique : foot prend le relais" | systemd-cat -t nova-terminal 2> /dev/null
-  : > "$repli"
+  grep -qiE 'surface failed to (initialize|realize)|failed to initialize surface|no EGL driver|OpenGL (version|context)|error\(opengl\)|Protocol error' "$log"; then
+  note "Ghostty ne peut pas utiliser la carte graphique : foot prend le relais"
+  echo foot > "$memo"
   rm -f "$log"
   lancer_foot
 fi

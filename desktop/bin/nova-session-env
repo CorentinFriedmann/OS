@@ -4,5 +4,8 @@
 vars=(WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP
       HYPRLAND_INSTANCE_SIGNATURE XDG_CONFIG_DIRS NOVA_SESSION XCURSOR_THEME XCURSOR_SIZE
       QT_QPA_PLATFORM QT_QPA_PLATFORMTHEME)
+# Réglages posés seulement dans une machine virtuelle (nova/env.lua)
+[[ -n "${GSK_RENDERER:-}" ]] && vars+=(GSK_RENDERER)
+[[ -n "${NOVA_VM:-}" ]] && vars+=(NOVA_VM)
 dbus-update-activation-environment --systemd "${vars[@]}" 2>/dev/null || true
 systemctl --user import-environment "${vars[@]}" 2>/dev/null || true

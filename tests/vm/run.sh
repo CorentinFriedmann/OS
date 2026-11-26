@@ -279,10 +279,38 @@ PY
   detach
 }
 
+# Test de lancement (test uniquement) : 100 s après l'ouverture de session, « nova-diagnostic »
+# ouvre le terminal, Fichiers et la Calculatrice, et note dans le journal si leurs fenêtres
+# apparaissent. Garde-fou contre le bureau où « rien ne se lance ».
+prepare_launch_test() {
+  local home_mnt="$WORK/home" lua
+  attach
+  NOVA=$(part "$LOOP" 5)
+  mkdir -p "$home_mnt"
+  if mount -o subvol=@home "$NOVA" "$home_mnt" 2>/dev/null; then
+    lua="$home_mnt/testeur/.config/hypr/hyprland.lua"
+    if [[ -f "$lua" ]] && ! grep -q "autostart_extra" "$lua"; then
+      python3 - "$lua" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path, encoding="utf-8").read()
+test = "sh -c 'sleep 100; nova-diagnostic --lancer --garder --journal --delai 40'"
+extra = '  autostart_extra = { "nm-applet --indicator", "blueman-applet", "%s" }, -- test en VM\n' % test
+marker = 'require("nova").setup({\n'
+assert marker in text, "appel setup introuvable"
+open(path, "w", encoding="utf-8").write(text.replace(marker, marker + extra, 1))
+PY
+    fi
+    umount "$home_mnt" 2>/dev/null
+  fi
+  detach
+}
+
 # --- 4. Premier démarrage ------------------------------------------------------------------------
 if [[ "$RESULT" == INSTALL_OK ]]; then
   # Diagnostic de la barre (variantes de Waybar), seulement sur demande : NOVA_VM_DIAG_BARRE=1
   [[ "${NOVA_VM_DIAG_BARRE:-}" == 1 ]] && prepare_bar_diagnostics
+  prepare_launch_test
   log ""
   log "4. Premier démarrage du système installé (captures d'écran)"
   if qemu_start premier-demarrage; then
@@ -302,6 +330,9 @@ if [[ "$RESULT" == INSTALL_OK ]]; then
     shot 13-bureau.png
     sleep 45
     shot 14-bureau-apres-90s.png
+    # Le test de lancement démarre 100 s après la connexion : on lui laisse le temps de finir
+    sleep 110
+    shot 15-applications.png
     # Écrit tout sur le disque (SysRq « sync », autorisé par défaut) avant d'arrêter la VM
     vm chord alt sysrq s
     sleep 8
@@ -333,6 +364,10 @@ if [[ "$RESULT" == INSTALL_OK ]]; then
   soft "connexion de « testeur » acceptée" 'grep -q "session opened for user testeur" "$JOURNAL"'
   soft "session Hyprland lancée" 'grep -q "Connected to a wayland compositor: Hyprland" "$JOURNAL"'
   check "barre du haut (Waybar) affichée" 'grep -q "nova-bar.*Bar configured" "$JOURNAL"'
+  check "le terminal s'ouvre" 'grep -q "nova-diagnostic.*terminal *: OK" "$JOURNAL"'
+  check "Fichiers s'ouvre" 'grep -q "nova-diagnostic.*fichiers *: OK" "$JOURNAL"'
+  check "la Calculatrice s'ouvre" 'grep -q "nova-diagnostic.*calculatrice *: OK" "$JOURNAL"'
+  grep -F "nova-diagnostic[" "$JOURNAL" 2>/dev/null | sed 's/.*nova-diagnostic\[[0-9]*\]: /    /' | cut -c1-160 | tee -a "$REPORT"
   soft "centre de notifications lancé une seule fois" '! grep -q "already running" "$JOURNAL"'
   soft "aucun plantage (core dump)" '! grep -q "dumped core" "$JOURNAL"'
   soft "aucun service en échec" '! grep -qE "Failed to start|Failed with result" "$JOURNAL"'

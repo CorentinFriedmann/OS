@@ -3,6 +3,10 @@
 # « battery » : seulement si l'ordinateur est sur batterie.
 set -euo pipefail
 mode="${1:-always}"
+# Machine virtuelle : pas de mise en veille automatique (la fenêtre semblerait figée)
+if systemd-detect-virt --quiet --vm 2>/dev/null; then
+  exit 0
+fi
 on_ac() {
   local supply
   for supply in /sys/class/power_supply/*; do

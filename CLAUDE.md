@@ -12,6 +12,7 @@ partition Windows.
 ## Organisation
 - `branding/` : logo, fonds d'écran (générés par `branding/tools/`), thèmes GRUB/Plymouth/SDDM
 - `desktop/` : config Hyprland **en Lua** (`hypr/nova/*.lua`, API `hl.*`, Hyprland ≥ 0.57), Waybar, scripts `nova-*`
+  (lancement des applis : `nova-run`, `nova-terminal` → foot en VM ou si OpenGL < 4.3 ; `nova-diagnostic --lancer` le vérifie, aussi en CI)
 - `assistant/` : Nova IA (Python, `nova_ai/`), tests pytest dans `assistant/tests`
 - `system/` : sysctl, udev, modes de performance (`nova-mode`), dépôts CachyOS
 - `installer/` : `nova-install` (bash + gum), tests sur périphériques loop

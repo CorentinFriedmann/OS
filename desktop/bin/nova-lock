@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 # Verrouille la session avec l'écran de verrouillage de Nova (une seule instance).
+# Session d'essai : le compte n'a pas de mot de passe, on ne pourrait plus déverrouiller.
+[[ -d /run/archiso ]] && exit 0
 pidof hyprlock >/dev/null 2>&1 && exit 0
 exec hyprlock --config "$(nova-config hypr/hyprlock.conf)" "$@"

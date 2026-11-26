@@ -1,0 +1,27 @@
+# Entrées masquées dans le lanceur de Nova (une par ligne : identifiant du fichier .desktop).
+# Ce sont des entrées techniques qui n'ouvrent rien d'utile, ou des doublons du
+# « Terminal » de Nova (qui choisit lui-même Ghostty ou foot selon la carte graphique).
+com.mitchellh.ghostty
+foot
+footclient
+foot-server
+org.freedesktop.Xwayland
+org.gnupg.pinentry-qt
+org.gnupg.pinentry-qt5
+xdg-desktop-portal-gtk
+xgps
+xgpsspeed
+qv4l2
+qvidcap
+stoken-gui
+stoken-gui-small
+lftp
+io.elementary.granite-7.demo
+avahi-discover
+bssh
+bvnc
+lstopo
+cmake-gui
+electron
+uxterm
+xterm

@@ -214,11 +214,23 @@ PC, mais rien n'est modifié sur ton disque.
    bleu **« Installer »** pour installer Nova dans la machine virtuelle. Pour que la touche
    Super (Windows) arrive à Nova, clique d'abord dans la fenêtre de la machine virtuelle.
 
+Dans une machine virtuelle, Nova s'adapte tout seul : la carte 3D virtuelle étant
+incomplète, le terminal est **foot** (au lieu de Ghostty, qui exige OpenGL 4.3) et les
+applications dessinent leurs fenêtres sans elle. C'est un peu moins fluide que sur un vrai PC.
+
 Si le bureau ne s'affiche pas, la session d'essai le détecte et affiche un écran d'aide en
 mode texte. Il te propose aussi d'installer Nova en mode texte. Dans la machine virtuelle,
 choisis **« Effacer tout le disque »** : seul le disque **virtuel** est effacé.
 
 ## Dépannage
+
+**Une application ne s'ouvre pas, ou « rien ne se lance ».**
+Ouvre un terminal (Super+Entrée) et lance `nova-diagnostic --lancer` : il ouvre le terminal,
+Fichiers et la Calculatrice, et indique pour chacun si la fenêtre apparaît, avec la carte
+graphique détectée et les dernières erreurs. Si même le terminal ne s'ouvre pas, passe par
+une console texte : **Ctrl+Alt+F2** (dans VirtualBox : **Ctrl droit+F2**), connecte-toi,
+lance la même commande, puis reviens au bureau avec **Ctrl+Alt+F1**. Quand une application
+ne peut pas démarrer, Nova l'indique aussi par une notification.
 
 **Écran noir dans VirtualBox.**
 Éteins la machine virtuelle et active l'accélération 3D (voir

@@ -31,6 +31,7 @@ sddm
 xorg-server
 ghostty
 foot
+mesa-utils
 nautilus
 gvfs
 gvfs-mtp

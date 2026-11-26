@@ -40,6 +40,13 @@ package() {
   _put 644 "$src/fish/nova.fish" "$pkgdir/etc/fish/conf.d/nova.fish"
   _put 644 "$src/glib/90_nova.gschema.override" "$pkgdir/usr/share/glib-2.0/schemas/90_nova.gschema.override"
   _put_into 755 "$pkgdir/usr/bin" "$src"/bin/*
+  # Lanceur : entrées de Nova, et entrées techniques masquées (liste hidden-apps.txt)
+  local apps="$pkgdir/usr/share/nova/data/applications" id
+  _put_into 644 "$apps" "$src"/data/applications/*.desktop
+  while read -r id; do
+    [[ -z "$id" || "$id" == \#* ]] && continue
+    printf '[Desktop Entry]\nType=Application\nName=%s\nHidden=true\n' "$id" > "$apps/$id.desktop"
+  done < "$src/data/hidden-apps.txt"
   # Fichiers copiés dans le dossier personnel des nouveaux utilisateurs
   mkdir -p "$pkgdir/etc/skel"
   cp -r "$src/skel/.config" "$pkgdir/etc/skel/"
