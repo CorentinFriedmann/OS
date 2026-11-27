@@ -76,6 +76,21 @@ def running(name: str) -> bool:
     return subprocess.run(["pgrep", "-x", name], capture_output=True).returncode == 0
 
 
+def resources() -> str:
+    """Processeurs, mémoire et charge : de quoi comprendre une lenteur."""
+    memory = dict(line.split(":", 1) for line in Path("/proc/meminfo").read_text().splitlines() if ":" in line)
+    total, free = (int(memory.get(key, "0 kB").split()[0]) / 1048576 for key in ("MemTotal", "MemAvailable"))
+    load = os.getloadavg()[0]
+    cores = os.cpu_count() or 1
+    text = f"{cores} processeur{'s' if cores > 1 else ''} · {total:.1f} Go de mémoire ({free:.1f} libres) · charge {load:.1f}"
+    hints = []
+    if cores < 4:
+        hints.append("4 processeurs conseillés")
+    if total < 3.5:
+        hints.append("4 Go conseillés")
+    return text + (f" — {', '.join(hints)}" if hints else "")
+
+
 def graphics(env: dict) -> str:
     if not shutil.which("eglinfo"):
         return "inconnue (paquet mesa-utils absent)"
@@ -137,6 +152,7 @@ def main(argv: list[str]) -> int:
     say("Système", f"{release.get('PRETTY_NAME', 'Nova OS').strip(chr(34))} · noyau {os.uname().release}")
     virt = run(["systemd-detect-virt", "--vm"]) or "none"
     say("Machine", "ordinateur réel" if virt == "none" else f"machine virtuelle ({virt})")
+    say("Ressources", resources())
     say("Carte 3D", graphics(env))
     session = windows(env) is not None
     parts = [("bureau Hyprland", session), ("barre", running("waybar")), ("notifications", running("swaync")),

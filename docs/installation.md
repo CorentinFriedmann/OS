@@ -218,6 +218,23 @@ Dans une machine virtuelle, Nova s'adapte tout seul : la carte 3D virtuelle éta
 incomplète, le terminal est **foot** (au lieu de Ghostty, qui exige OpenGL 4.3) et les
 applications dessinent leurs fenêtres sans elle. C'est un peu moins fluide que sur un vrai PC.
 
+**Si c'est très lent dans VirtualBox**, vérifie dans cet ordre :
+
+1. **L'icône en bas à droite de la fenêtre de la machine virtuelle.** Une **tortue verte**
+   signifie que Windows garde la main sur la virtualisation (Hyper-V) et que VirtualBox
+   tourne au ralenti : c'est la cause la plus fréquente sous Windows 11. Pour l'enlever, il
+   faut désactiver Hyper-V côté Windows (*Activer ou désactiver des fonctionnalités Windows* :
+   Hyper-V, Plateforme de machine virtuelle, Plateforme de l'hyperviseur Windows ; et
+   *Sécurité Windows → Isolation du noyau → Intégrité de la mémoire*). Attention : WSL 2 et
+   Docker Desktop en ont besoin.
+2. **Les ressources de la machine virtuelle** : 4 processeurs, 4 Go de mémoire au moins
+   (sans dépasser la moitié de celle du PC), 128 Mo de mémoire vidéo.
+3. **Le secteur** : sur batterie, Windows bride le processeur.
+
+Nova coupe de lui-même le flou, les ombres et les animations dans une machine virtuelle.
+Malgré tout, VirtualBox ne reflète pas la vitesse réelle : pour la juger, démarre le PC sur
+la clé USB (session d'essai), qui utilise la vraie carte graphique sans rien installer.
+
 Si le bureau ne s'affiche pas, la session d'essai le détecte et affiche un écran d'aide en
 mode texte. Il te propose aussi d'installer Nova en mode texte. Dans la machine virtuelle,
 choisis **« Effacer tout le disque »** : seul le disque **virtuel** est effacé.

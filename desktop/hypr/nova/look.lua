@@ -19,11 +19,14 @@ local function visual_mode_file()
   return runtime .. "/nova/visual-mode"
 end
 
--- Détermine le niveau d'effets à appliquer : "full", "eco" ou "game".
+-- Détermine le niveau d'effets à appliquer : "full", "eco", "game" ou "light".
+-- "light" (machines virtuelles) : la carte 3D virtuelle est lente, chaque image coûte
+-- cher ; on coupe le flou, les ombres et les animations pour garder un bureau réactif.
 local function current_level(look)
   local forced = util.read_file(visual_mode_file())
   forced = forced and forced:gsub("%s+", "") or "auto"
   if forced == "full" or forced == "eco" or forced == "game" then return forced end
+  if util.virtual_machine() then return "light" end
   if look.power_aware and not util.on_ac_power() then return "eco" end
   return "full"
 end
@@ -31,6 +34,7 @@ end
 local function apply_level(look, level)
   local fancy = level == "full"
   local playing = level == "game"
+  local light = level == "light"
   hl.config({
     general = {
       allow_tearing = playing,
@@ -46,14 +50,14 @@ local function apply_level(look, level)
         color_inactive = "rgba(00000047)",
       },
       glow = {
-        enabled = look.glow and not playing,
+        enabled = look.glow and not playing and not light,
         range = fancy and 12 or 6,
         render_power = 3,
         color = STYLE.glow,
         color_inactive = "rgba(00000000)",
       },
       blur = {
-        enabled = look.blur and not playing,
+        enabled = look.blur and not playing and not light,
         size = fancy and 10 or 5,
         passes = fancy and 3 or 1,
         noise = 0.02,
@@ -65,7 +69,7 @@ local function apply_level(look, level)
         special = fancy,
       },
     },
-    animations = { enabled = look.animations and not playing },
+    animations = { enabled = look.animations and not playing and not light },
   })
   hl.animation({
     leaf = "borderangle",
@@ -155,7 +159,7 @@ function M.apply(cfg)
   -- déclenche aussi « config.reloaded » mais n'a pas de boucle d'événements
   -- (et n'a pas de HYPRLAND_INSTANCE_SIGNATURE).
   local function start_power_watch()
-    if _G.nova_power_timer then return end
+    if _G.nova_power_timer or util.virtual_machine() then return end
     _G.nova_power_timer = hl.timer(function() _G.nova_refresh() end, { timeout = 10000, type = "repeat" })
   end
   hl.on("hyprland.start", function()

@@ -95,7 +95,8 @@
   "custom/nova-ai": {
     "exec": "nova status --waybar",
     "return-type": "json",
-    "interval": 5,
+    // Le démon prévient la barre à chaque changement (signal 8) : ce délai n'est qu'un filet
+    "interval": 30,
     "signal": 8,
     "format": "{}",
     "on-click": "nova-assistant toggle",
@@ -107,7 +108,7 @@
   "custom/nova-mode": {
     "exec": "nova-mode status --waybar",
     "return-type": "json",
-    "interval": 15,
+    "interval": 60,
     "signal": 9,
     "format": "{}",
     "on-click": "nova-mode menu",
